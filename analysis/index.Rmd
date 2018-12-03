@@ -6,4 +6,6 @@ output:
     toc: false
 ---
 
-Welcome to my research website.
+This site aims to explore modifying SuSiE using a logistic GLM step in the SER rather than a linear regression step. Note that this approach has not been mathematically justified, and simply plugs in the logistic analogs into the SuSiE machinery.
+
+Click [here](susie_logistic_demonstration.html) for an explanation of the logistic GLM version of SuSiE, and a simple demonstration.
