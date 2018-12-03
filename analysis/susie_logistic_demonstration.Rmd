@@ -123,7 +123,7 @@ The code below is a simplistic implementation of the above ideas.
 ### If this idea is worth pursuing further, then this code can be improved
 
 
-susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3) {
+susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3, maxit = 1000) {
   
   p = ncol(X)
   n = nrow(X)
@@ -137,6 +137,7 @@ susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3)
   beta_post_init = matrix(Inf, nrow = p, ncol = L) # initialize
   beta_post = matrix(0, nrow = p, ncol = L)
   
+  iter = 0
   while(norm(beta_post - beta_post_init, "1") > tol) { # repeat until posterior means converge (ELBO not calculated here, so use this convergence criterion instead)
     beta_post_init = beta_post
     
@@ -151,6 +152,11 @@ susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3)
       
       # update beta_post
       beta_post[, l] = SER_logistric_l$alpha * SER_logistric_l$mu
+      
+      iter = iter + 1
+      if (iter > maxit) {
+        stop("Maximum number of iterations reached")
+      }
       
     }
     
@@ -222,6 +228,8 @@ single_effect_regression_logistic = function(Y, X, V, prior_weights = NULL, opti
 
 
 # Demonstration
+
+## Easy Demonstration
 As a simple demonstration, let $n = 100, p = 10, L = 3, \sigma_0^2 = 5$.
 
 We create the data $\mathbf{X}$ where all entries are iid standard normal. I then set the 2nd column to be identical to the 3rd, and the 7th column identical to the 6th (when running this simulation, $b_3$ and $b_6$ were generated to be non-zero, and $b_2$ and $b_7$ were generated to be 0, so this was done in the spirit of the toy example from the paper).
@@ -286,3 +294,77 @@ plot(susie.logistic.fit$post_alpha[, 3], ylab = "Posterior Inclusion Probability
 ```
 These groups of correlated predictors are shows from the PIPs.
 
+
+## Hard Demonstration
+As a hard demonstration, let $n = 1,000, p = 100, L = 10, \sigma_0^2 = 5$.
+
+We create the data $\mathbf{X}$ where all entries are iid standard normal. I then set the 2nd column to be identical to the 1st, the 88th column identical to the 87th, and the 89th column highly negatively correlated with the 87th (when running this simulation, $b_1$ and $b_87$ were generated to be non-zero, and $b_2$, $b_{88}$ and $b_{89}$ were generated to be 0, so this was done in the spirit of the toy example from the paper).
+
+We then simulated $\mathbf{y}$ from the specified bernoulli model,
+$$
+y_i \stackrel{\perp}{\sim} \text{Bern}\Bigg(\frac{e^{(\mathbf{Xb})_i}}{1 + e^{(\mathbf{Xb})_i}}\Bigg)
+$$
+
+```{r}
+set.seed(1138)
+
+n = 1000
+p = 100
+L = 10
+pi = rep(1 / p, p) # prior weights
+V = 5 # prior variance
+
+beta_true = rep(0, p)
+for (l in 1:L) {
+  b_l = rnorm(1, 0, sqrt(V))
+  gamma_l = rmultinom(1, 1, pi)
+  beta_l = b_l * gamma_l
+  beta_true = beta_true + beta_l
+}
+
+# simulate data, induce correlations
+X = matrix(rnorm(n*p, 0, 1), nrow = n, ncol = p)
+X[, 2] = X[, 1]
+X[, 88] = X[, 87]
+X[, 89] = runif(n, -1, -.7) * X[, 87]
+
+# make response
+Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+
+susie.logistic.fit = susie_logistic(Y, X, L, V)
+```
+
+Figure 4 below plots the true values for $\mathbf{b}$ (the numbers correspond to the points and indices of non-zero true effects).
+```{r}
+plot(beta_true[beta_true == 0] ~ which(beta_true == 0), xlim = c(0, 101), ylim = range(beta_true) + c(-.1, .1), xlab = "Index", ylab = "True Value", main = "Figure 4", pch = 19)
+text(which(beta_true != 0), beta_true[beta_true != 0], labels = which(beta_true != 0))
+```
+We can see that true effects 41 and 56 are very small, and 27, 60, and 87 are also small-ish.
+
+Figures 5(a-j) below plots the posterior means for the 10 vectors estimated from this procedure (calculated as $\mathbf{\bar{b}}_l := \alpha_l \circ \mu_{1l}$ using $\alpha_l, \mu_{1l}$ returned from the logistic-version of the IBFS algorithm):
+```{r, fig.height = 12}
+par(mfrow = c(5, 2))
+for (l in 1:L) {
+  b_l_post = susie.logistic.fit$post_mu[, l] * susie.logistic.fit$post_alpha[, l]
+  plot(b_l_post[abs(b_l_post) < .01] ~ which(abs(b_l_post) < .01), xlim = c(0, 101), ylim = range(b_l_post) + c(-.1, .1), xlab = "Index", ylab = "Posterior Mean Value", main = paste("Figure 5(", letters[l], ")", sep = ""), pch = 19)
+  text(which(abs(b_l_post) >= .01), b_l_post[abs(b_l_post) >= .01], labels = which(abs(b_l_post) >= .01))
+}
+par(mfrow = c(1, 1))
+```
+(NOTE: In figures 5(a) and 5(h), 1 and 2 are close together, so it looks like the number 12. But it is really just 1 and 2).
+
+We can see that the first estimated vector (5a) (and 8th, 5(h)) captures our constructed correlation between the 1st and 2nd columns, and 7th vector (5g) captures our constructed correlation between the 87th, 88th, and 89th columns (note the signs: 89 was constructed to be negatively correlated with the true effect column 87).
+
+We also see that the groups (1, 2) and (76) are each captured twice, lending to their large coefficients. As a result, we have not captured the true (small) effects from 41 and 56.
+
+Figures 6(a-j) below plots our estimated PIPs, $\alpha_1, \alpha_2, \alpha_3$:
+```{r}
+par(mfrow = c(5, 2))
+for (l in 1:L) {
+  alpha_l = susie.logistic.fit$post_alpha[, l]
+  plot(alpha_l[alpha_l < .01] ~ which(alpha_l < .01), xlim = c(0, 101), ylim = c(0, 1), xlab = "Index", ylab = "Posterior Inclusion Probability", main = paste("Figure 6(", letters[l], ")", sep = ""), pch = 19)
+  text(which(alpha_l >= .01), alpha_l[alpha_l >= .01], labels = which(alpha_l >= .01))
+}
+par(mfrow = c(1, 1))
+```
+These groups of correlated predictors are shows from the PIPs.
