@@ -1,0 +1,288 @@
+---
+title: "susieR Logistic Regression GLM"
+author: "Andrew Goldstein"
+date: "December 3, 2018"
+output:
+  workflowr::wflow_html:
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, error = T, warning = T, message = F, results = 'asis', fig.align = 'center')
+```
+
+# Introduction
+This page aims to explore an analog to SuSiE applied to 0/1 data using logistic regression. The basic idea is to replace the Single Effect Regression (SER) step in the Iterative Bayesian Forward Selection (IBFS) algorithm with an analogous logistic regression step.
+
+Our response is $\mathbf{y} \in \mathbb{R}^n$, and our covariates are $\mathbf{X} \in \mathbb{R}^{n \times p}$.
+
+## SER Model
+In the standard SuSiE model, the following SER regression model is used:
+$$
+\begin{aligned}
+\mathbf{y} = \mathbf{Xb} + \mathbf{e} \\
+\mathbf{e} \sim \mathcal{N}(0, \sigma^2 I_n) \\
+\mathbf{b} = \mathbf{\gamma}b \\
+\mathbf{\gamma} \sim \text{Mult}(1, \mathbf{\pi}) \\
+b \sim \mathcal{N}(0, \sigma_0^2)
+\end{aligned}
+$$
+
+From this model, the standard OLS estimates (also the MLE) for $b_j$ is found using $p$ independent simple linear regressions (fit without an intercept), $\hat{b_j}(\mathbf{y}, \mathbf{x_j}) = (\mathbf{x_j^Tx_j})^{-1}\mathbf{x_j^Ty}$, with variance $\sigma_{MLE_j}^2 = \sigma^2 (\mathbf{x_j^Tx_j})^{-1}$. The posterior distribution for $b_j$ given $\gamma_j = 1$ is then
+$$
+\begin{aligned}
+b|\gamma_j = 1, \mathbf{y}, \sigma^2, \sigma_0^2 \sim \mathcal{N}(\mu_1, \sigma_1^2) \\
+\sigma_{1j}^2 = \frac{1}{1 / \sigma_{MLE_j}^2 + 1 / \sigma_0^2} \\
+\mu_{1j} = \frac{1 / \sigma_{MLE_j}^2}{1 / \sigma_{MLE_j}^2 + 1 / \sigma_0^2} \hat{b_j}(\mathbf{y}, \mathbf{x_j}) + \frac{1 / \sigma_0^2}{1 / \sigma_{MLE_j}^2 + 1 / \sigma_0^2} 0 = \frac{\sigma_{1j}^2}{\sigma_{MLE_j}^2} \hat{b_j}(\mathbf{y}, \mathbf{x_j})
+\end{aligned}
+$$
+
+The Bayes Factor is then calculated as
+$$
+\frac{p(\hat{b_j}(\mathbf{y}, \mathbf{x_j}) | b_j \sim \mathcal{N}(0, \sigma_0^2))}{p(\hat{b_j}(\mathbf{y}, \mathbf{x_j}) | b_j = 0)}
+$$
+
+Since $\hat{b_j}(\mathbf{y}, \mathbf{x_j}) \sim \mathcal{N}(b_j, \sigma_{MLE_j}^2) = b_j + \mathcal{N}(0, \sigma_{MLE_j}^2)$, we have that
+$$
+\begin{aligned}
+\hat{b_j}(\mathbf{y}, \mathbf{x_j}) \sim_{M_{1j}} \mathcal{N}(0, \sigma_0^2 + \sigma_{MLE_j}^2) \\
+\hat{b_j}(\mathbf{y}, \mathbf{x_j}) \sim_{M_{0_j}} \mathcal{N}(0, \sigma_{MLE_j}^2) \\
+\end{aligned}
+$$
+where $M_{1j}$ is the specified model where $b_j$ is the non-zero element, and $M_{0j}$ is the null model (i.e. the model in which $b_j = 0$). From this, we see that the Bayes Factor is simply a ratio of normal densities.
+
+Then, we calculate the vector of PIPs $\alpha$ as:
+$$
+\alpha_j = \frac{\text{BF}(\mathbf{y}, \mathbf{x_j}; \sigma^2, \sigma_0^2) \pi_j}{\sum_{k = 1}^p \text{BF}(\mathbf{y}, \mathbf{x_k}; \sigma^2, \sigma_0^2) \pi_k}
+$$
+
+Here, the following adjusted model is considered:
+$$
+\begin{aligned}
+\mathbf{y} \sim \text{Bern}\Bigg(\frac{e^\mathbf{Xb}}{1 + e^{\mathbf{Xb}}}\Bigg) \quad \text{(element-wise)} \\
+\mathbf{b} = \gamma b \\
+\mathbf{\gamma} \sim \text{Mult}(1, \mathbf{\pi}) \\
+b \sim \mathcal{N}(0, \sigma_0^2)
+\end{aligned}
+$$
+
+From here, instead of computing the closed-form solution for $\hat{b_j}(\mathbf{y}, \mathbf{x_j})$, we perform a logistic regression with R's `glm` function in order to calculate $\hat{b_j}(\mathbf{y}, \mathbf{x_j})$ and $\sigma_{MLE_j}^2$ for each of the $p$ single-variable logistic regressions (fit without an intercept).
+
+The rest follows as outlined above for the regular SER model.
+
+
+## Full Model
+The full SuSiE model is as follows:
+$$
+\begin{aligned}
+\mathbf{y} = \mathbf{Xb} + \mathbf{e} \\
+\mathbf{e} \sim \mathcal{N}(0, \sigma^2 I_n) \\
+\mathbf{b} = \sum_{l = 1}^L \mathbf{b}_l \\
+\mathbf{b}_l = \gamma_l b_l \quad (\text{independently for } l = 1, \dots, L) \\
+\gamma_l \sim \text{Mult}(1, \mathbf{\pi}) \\
+b_l \sim \mathcal{N}(0, \sigma_{0l}^2)
+\end{aligned}
+$$
+
+The IBFS algorithm is then applied. In this algorithm, we iterate over $l \in \{1, \dots, L\}$ and perform our SER step on the residuals, $\mathbf{r_l} \equiv \mathbf{y} - \sum_{l' \ne l} \mathbf{X\bar{b}}_{l'}$, to get the vectors $\alpha_l, \mu_{1l}, \sigma_{1l}$. We then set $\mathbf{\bar{b}}_l := \alpha_l \circ \mu_{1l}$ (Schur product).
+
+
+Here, the following adjusted model is considered:
+$$
+\begin{aligned}
+\mathbf{y} \sim \text{Bern}\Bigg(\frac{e^\mathbf{Xb}}{1 + e^{\mathbf{Xb}}}\Bigg) \quad \text{(element-wise)} \\
+\mathbf{b} = \sum_{l = 1}^L \mathbf{b}_l \\
+\mathbf{b}_l = \gamma_l b_l \quad (\text{independently for } l = 1, \dots, L) \\
+\gamma_l \sim \text{Mult}(1, \mathbf{\pi}) \\
+b_l \sim \mathcal{N}(0, \sigma_{0l}^2)
+\end{aligned}
+$$
+
+We modify the IBFS algorithm to use the analogs from this model. The main difference is that we can no longer perform SER on the residuals, since the residuals don't really make sense in the logistic setting.
+
+However, noting that the following regressions are equivalent (where $\sim$ is interpreted as the regression formula, as in `lm` or `glm`), we have motivation for altering the IBFS algorithm:
+$$ 
+\mathbf{r}_l \sim \mathbf{Xb}_l  \iff \mathbf{y} - \sum_{l' \ne l} \mathbf{X\bar{b}}_{l'} \sim \mathbf{Xb}_l  \iff \mathbf{y} \sim \mathbf{Xb}_l + \text{offset}(\sum_{l' \ne l} \mathbf{X\bar{b}}_{l'})
+$$
+Here, `offset` is the function in R that forces the coefficient for the predictor to be 1.
+
+Thus, in our modified logistic version, when fitting the SER each iteration, we can simply fit:
+```
+glm(Y ~ X[, j] - 1 + offset(fixed), family = "binomial")
+```
+separately for each $j \in \{1, \dots, p\}$, where `fixed` is $\sum_{l' \ne l} \mathbf{X\bar{b}}_{l'}$.
+
+
+# Adjustments to SuSiE Code
+The code below is a simplistic implementation of the above ideas.
+
+(Note: Not all code is needed, some vestigial components from a copy-paste job from susieR)
+
+```{r}
+### NOTE: This is basic code, and I did not attempt to mirror the level of numerical sophistication in the susie functions
+### If this idea is worth pursuing further, then this code can be improved
+
+
+susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3) {
+  
+  p = ncol(X)
+  n = nrow(X)
+  
+  # place to store posterior info for each l = 1, ..., L
+  post_alpha = matrix(NA, nrow = p, ncol = L)
+  post_mu = matrix(NA, nrow = p, ncol = L)
+  post_sigma = matrix(NA, nrow = p, ncol = L)
+  post_info = list(post_alpha = post_alpha, post_mu = post_mu, post_sigma = post_sigma)
+
+  beta_post_init = matrix(Inf, nrow = p, ncol = L) # initialize
+  beta_post = matrix(0, nrow = p, ncol = L)
+  
+  while(norm(beta_post - beta_post_init, "1") > tol) { # repeat until posterior means converge (ELBO not calculated here, so use this convergence criterion instead)
+    beta_post_init = beta_post
+    
+    for (l in 1:L) {
+      
+      fixed = rowSums(X %*% beta_post[, -l]) # fixed portion from previous estimates
+      SER_logistric_l = single_effect_regression_logistic(Y, X, V, prior_weights, FALSE, fixed)
+      # store
+      post_info$post_alpha[, l] = SER_logistric_l$alpha
+      post_info$post_mu[, l] = SER_logistric_l$mu
+      post_info$post_sigma[, l] = SER_logistric_l$mu2 - SER_logistric_l$mu^2
+      
+      # update beta_post
+      beta_post[, l] = SER_logistric_l$alpha * SER_logistric_l$mu
+      
+    }
+    
+  }
+  
+  return(post_info)
+  
+}
+
+
+# SER_logistic function
+single_effect_regression_logistic = function(Y, X, V, prior_weights = NULL, optimize_V = FALSE, fixed = NULL) {
+  p = ncol(X)
+  
+  betahat = numeric(p)
+  shat2 = numeric(p)
+  
+  if (is.null(fixed)) { # fixed is components from previous SER fits
+    fixed = rep(0, length(Y))
+  }
+  
+  # NOTE: could parallelize loop below if desired
+  for (j in 1:p) { # logistic regression on each column of X separately
+    log.fit = glm(Y ~ X[, j] - 1 + offset(fixed), family = "binomial") # fit w/out intercept
+    log.fit.coef = summary(log.fit)$coefficients
+    betahat[j] = ifelse(is.na(log.fit.coef[1]), 0, log.fit.coef[1]) # beta-hat MLE (if na, just set to 0)
+    shat2[j] = ifelse(is.na(log.fit.coef[2]), Inf, log.fit.coef[2]^2) # (std errof beta-hat MLE)^2 (if na, just set to Inf)
+  }
+  
+  if (is.null(prior_weights)) {
+    prior_weights = rep(1 / p, p)
+  }
+  
+  if(optimize_V) {
+    stop("Optimizing for prior variance not yet implemented for logistic case")
+    #if(loglik.grad(0, betahat, shat2, prior_weights) < 0) {
+    #  V = 0
+    #} else {
+    ##V.o = optim(par=log(V),fn=negloglik.logscale,gr = negloglik.grad.logscale,betahat=betahat,shat2=shat2,prior_weights=prior_weights,method="BFGS")
+    ##if(V.o$convergence!=0){
+    ##  warning("optimization over prior variance failed to converge")
+    ##}
+    #  V.u = uniroot(negloglik.grad.logscale, c(-10, 10), extendInt = "upX", betahat = betahat, shat2 = shat2, prior_weights = prior_weights)
+    #  V = exp(V.u$root)
+    #}
+  }
+  
+  lbf = dnorm(betahat, 0, sqrt(V + shat2), log = TRUE) - dnorm(betahat, 0, sqrt(shat2), log = TRUE)
+  #log(bf) on each SNP
+  
+  lbf[is.infinite(shat2)] = 0 # deal with special case of infinite shat2 (eg happens if X does not vary)
+  
+  maxlbf = max(lbf)
+  w = exp(lbf - maxlbf) # w is proportional to BF, but subtract max for numerical stability
+  # posterior prob on each SNP
+  w_weighted = w * prior_weights
+  weighted_sum_w = sum(w_weighted)
+  alpha = w_weighted / weighted_sum_w
+  post_var = 1 / ((1 / shat2) + (1 / V)) # posterior variance
+  post_mean = (1 / shat2) * post_var * betahat # posterior mean
+  post_mean2 = post_var + post_mean^2 # posterior second moment
+  # BF for single effect model
+  lbf_model = maxlbf + log(weighted_sum_w)
+  # NOTE: Need to double check below
+  loglik = lbf_model + log(1/2)*length(Y) # loglik of 0/1 response Y under p = .5
+  return(list(alpha = alpha, mu = post_mean, mu2 = post_mean2, lbf = lbf, lbf_model = lbf_model, V = V, loglik = loglik))
+}
+```
+
+
+# Demonstration
+As a simple demonstration, let $n = 100, p = 10, L = 3, \sigma_0^2 = 5$.
+
+We create the data $\mathbf{X}$ where all entries are iid standard normal. I then set the 2nd column to be identical to the 3rd, and the 7th column identical to the 6th (when running this simulation, $b_3$ and $b_6$ were generated to be non-zero, and $b_2$ and $b_7$ were generated to be 0, so this was done in the spirit of the toy example from the paper).
+
+We then simulated $\mathbf{y}$ from the specified bernoulli model,
+$$
+y_i \stackrel{\perp}{\sim} \text{Bern}\Bigg(\frac{e^{(\mathbf{Xb})_i}}{1 + e^{(\mathbf{Xb})_i}}\Bigg)
+$$
+
+```{r}
+### TEST susie_logistic
+set.seed(1138)
+
+n = 100
+p = 10
+L = 3
+pi = rep(1 / p, p) # prior weights
+V = 5 # prior variance
+
+beta_true = rep(0, p)
+for (l in 1:L) {
+  b_l = rnorm(1, 0, sqrt(V))
+  gamma_l = rmultinom(1, 1, pi)
+  beta_l = b_l * gamma_l
+  beta_true = beta_true + beta_l
+}
+
+# simulate data, induce correlations
+X = matrix(rnorm(n*p, 0, 1), nrow = n, ncol = p)
+X[, 2] = X[, 3]
+X[, 7] = X[, 6]
+
+# make response
+Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+
+susie.logistic.fit = susie_logistic(Y, X, L, V)
+```
+
+Figure 1 below plots the true values for $\mathbf{b}$.
+```{r}
+plot(beta_true, ylab = "True Value", main = "Figure 1", pch = 19)
+```
+The 3rd and 6th are around -1.3, and the 5th is around 0.75.
+
+Figures 2(a-c) below plots the posterior means for the 3 vectors estimated from this procedure (calculated as $\mathbf{\bar{b}}_l := \alpha_l \circ \mu_{1l}$ using $\alpha_l, \mu_{1l}$ returned from the logistic-version of the IBFS algorithm):
+```{r}
+b_1_post = susie.logistic.fit$post_mu[, 1] * susie.logistic.fit$post_alpha[, 1]
+b_2_post = susie.logistic.fit$post_mu[, 2] * susie.logistic.fit$post_alpha[, 2]
+b_3_post = susie.logistic.fit$post_mu[, 3] * susie.logistic.fit$post_alpha[, 3]
+
+plot(b_1_post, ylab = "Posterior Mean Value", main = "Figure 2(a)", pch = 19)
+plot(b_2_post, ylab = "Posterior Mean Value", main = "Figure 2(b)", pch = 19)
+plot(b_3_post, ylab = "Posterior Mean Value", main = "Figure 2(c)", pch = 19)
+```
+We can see that the first estimated vector captures our constructed correlation between the 2nd and 3rd columns, the second estimated vector captures our constructed correlation between the 6th and 7th columns, and the third estimated vector captures the individual effect of the 5th column.
+
+Figures 3(a-c) below plots our estimated PIPs, $\alpha_1, \alpha_2, \alpha_3$:
+```{r}
+plot(susie.logistic.fit$post_alpha[, 1], ylab = "Posterior Inclusion Probability", main = "Figure 3(a)", pch = 19)
+plot(susie.logistic.fit$post_alpha[, 2], ylab = "Posterior Inclusion Probability", main = "Figure 3(b)", pch = 19)
+plot(susie.logistic.fit$post_alpha[, 3], ylab = "Posterior Inclusion Probability", main = "Figure 3(c)", pch = 19)
+```
+These groups of correlated predictors are shows from the PIPs.
+
