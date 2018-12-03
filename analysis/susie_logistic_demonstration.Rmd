@@ -305,7 +305,7 @@ $$
 y_i \stackrel{\perp}{\sim} \text{Bern}\Bigg(\frac{e^{(\mathbf{Xb})_i}}{1 + e^{(\mathbf{Xb})_i}}\Bigg)
 $$
 
-```{r}
+```{r, cache = T}
 set.seed(1138)
 
 n = 1000
@@ -358,7 +358,7 @@ We can see that the first estimated vector (5a) (and 8th, 5(h)) captures our con
 We also see that the groups (1, 2) and (76) are each captured twice, lending to their large coefficients. As a result, we have not captured the true (small) effects from 41 and 56.
 
 Figures 6(a-j) below plots our estimated PIPs, $\alpha_1, \alpha_2, \alpha_3$:
-```{r}
+```{r, fig.height = 12}
 par(mfrow = c(5, 2))
 for (l in 1:L) {
   alpha_l = susie.logistic.fit$post_alpha[, l]
