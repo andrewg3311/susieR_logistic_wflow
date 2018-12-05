@@ -113,6 +113,20 @@ glm(Y ~ X[, j] - 1 + offset(fixed), family = "binomial")
 separately for each $j \in \{1, \dots, p\}$, where `fixed` is $\sum_{l' \ne l} \mathbf{X\bar{b}}_{l'}$.
 
 
+### A Note on the Intercept
+In regular SuSiE, we can center our covariates and response to avoid fitting the intercept. Since our data is now 0/1, we can no longer center our response. Instead, we can fit an intercept in our IBFS.
+
+I have implemented two intercept-fitting procedures.
+
+1. (Default, `update_intercept = FALSE`) Before fitting anything else, I fit the null model:
+`glm(Y ~ 1, family = "binomial")`
+I then take this value for the intercept and keep it fixed for the rest of the fitting procedure (simply adding it to value that we "offset" in our g`glm` step)
+
+2. (`update_intercept = TRUE`) On each iteration of the outer-loop in the IBFS, I refit the intercept term, fixing the effects from all covariates, i.e.
+`glm(Y ~ 1 + offset(fixed), family = "binomial")
+where $\text{fixed} = \sum_{l = 1}^L \mathbf{X\bar{b}}_l$
+
+
 # Adjustments to SuSiE Code
 The code below is a simplistic implementation of the above ideas.
 
@@ -391,3 +405,77 @@ for (l in 1:L) {
 par(mfrow = c(1, 1))
 ```
 These groups of correlated predictors are shows from the PIPs.
+
+
+## Signal Level Testing
+In this section, I keep the same model matrix $X$, but center and scale the columns to have unit 2-norm. I then set a single non-zero effect with a range of signal levels ($\sigma_0^2$) to see at what levels the signal can be found. I also set another column of X to be highly positively correlated with the true effect column.
+
+Here, I always set the first element to be non-zero, and the 5th column to be correlated with the 1st.
+
+At each signal level $\sigma_0^2 \in \{1, 5, 10, 25, 50\}$, I replicate $B = 10$ times the following procedure:
+
+1. Draw $b_1 \sim \mathcal{N}(0, \sigma_0^2)$;
+
+2. Simulate $Y_i \sim \text{Bern}\Bigg(\frac{e^{x_i^T b}}{1 + e^{x_i^T b}}\Bigg)$;
+
+3. Run the logistic version of SuSiE with an intercept on the data with the noise level fixed and known.
+
+In the plots below, the first set of 5 show the posterior mean values, $\mu_{1} \circ \alpha$. For indices where the PIP, $\alpha_j$, was $\ge 0.05$, I show the point as its index number (ideally, we would only see 1 and 5). Otherwise, the point is a dot.
+
+The second set of 5 show the PIPs, again with a number if the PIP was $\ge 0.05$.
+
+```{r, fig.height = 12}
+set.seed(1138)
+B = 10 # times to repeat at each noise level
+
+n = 100
+p = 10
+L = 1
+
+X = matrix(rnorm(n*p, 0, 1), nrow = n, ncol = p)
+X[, 5] = runif(n, .7, 1) * X[, 1]
+
+X = apply(X, MARGIN = 2, function(x) x - mean(x))
+X = apply(X, MARGIN = 2, function(x) x / norm(x, "2"))
+
+beta_true = rep(0, p)
+
+Vs = c(1, 5, 10, 25, 50)
+beta_true_1 = matrix(nrow = length(Vs), ncol = B)
+susie.logistic.list = list()
+for (i in 1:length(Vs)) {
+  V = Vs[i]
+  susie.logistic.list[[i]] = list()
+  names(susie.logistic.list)[i] = paste("Vs_", V, sep = "")
+  for (j in 1:B) {
+    beta_true[1] = rnorm(1, 0, sqrt(V))
+    Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+    susie.logistic.list[[i]][[j]] = susie_logistic(Y, X, L, V)
+    beta_true_1[i, j] = beta_true[1]
+  }
+}
+
+par(mfrow = c(5, 2))
+for (i in 1:length(Vs)) {
+  V = Vs[i]
+  for (j in 1:B) {
+    a_l_post = susie.logistic.list[[i]][[j]]$post_alpha[, 1]
+    b_l_post = susie.logistic.list[[i]][[j]]$post_mu[, 1] * a_l_post
+    plot(b_l_post[abs(a_l_post) < .05] ~ which(abs(a_l_post) < .05), xlim = c(1, 10), ylim = range(b_l_post) + c(-.1, .1), xlab = "Index", ylab = "Posterior Mean Value", main = paste("True effect 1: ", round(beta_true_1[i, j], 2), " ::: Signal Level: ", round(V, 2), sep = ""), pch = 19)
+    text(which(abs(a_l_post) >= .05), b_l_post[abs(a_l_post) >= .05], labels = which(abs(a_l_post) >= .05))
+  }
+}
+par(mfrow = c(1, 1))
+
+
+par(mfrow = c(5, 2))
+for (i in 1:length(Vs)) {
+  V = Vs[i]
+  for (j in 1:B) {
+    a_l_post = susie.logistic.list[[i]][[j]]$post_alpha[, 1]
+    plot(a_l_post[abs(a_l_post) < .05] ~ which(abs(a_l_post) < .05), xlim = c(1, 10), ylim = c(0, 1), xlab = "Index", ylab = "Posterior Inclusion Probability", main = paste("True effect 1: ", round(beta_true_1[i, j], 2), " ::: Signal Level: ", round(V, 2), sep = ""), pch = 19)
+    text(which(abs(a_l_post) >= .05), a_l_post[abs(a_l_post) >= .05], labels = which(abs(a_l_post) >= .05))
+  }
+}
+par(mfrow = c(1, 1))
+```
