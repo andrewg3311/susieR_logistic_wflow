@@ -410,7 +410,7 @@ These groups of correlated predictors are shows from the PIPs.
 ## Signal Level Testing
 In this section, I keep the same model matrix $X$, but center and scale the columns to have unit 2-norm. I then set a single non-zero effect with a range of signal levels ($\sigma_0^2$) to see at what levels the signal can be found. I also set another column of X to be highly positively correlated with the true effect column.
 
-I have set $n = 100, p = 10, L = 1$.
+I have set $n = 1000, p = 10, L = 1$.
 
 Here, I always set the first element to be non-zero, and the 5th column to be correlated with the 1st.
 
@@ -430,7 +430,7 @@ The second set of 5 show the PIPs, again with a number if the PIP was $\ge 0.05$
 set.seed(1138)
 B = 10 # times to repeat at each noise level
 
-n = 100
+n = 1000
 p = 10
 L = 1
 
