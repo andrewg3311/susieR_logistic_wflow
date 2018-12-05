@@ -482,6 +482,8 @@ for (i in 1:length(Vs)) {
 par(mfrow = c(1, 1))
 ```
 
+As we can see, we require relatively large effects in order to determine that 1 and/or 5 is contributing to the response. However, a regular logistic regression on the columns of X (removing the 5th column) in these settings also have a difficult time determing that the 1 is the effect variable.
+
 
 ## Signal Testing with Genotype Matrix
 Here, I perform a similar test as above, except the design matrix has columns whose entries are $X_{ij} \in \{0, 1, 2\}$. I do not center or scale these variables. As before, the 1st effect is always the only non-null effect. And the 5th column is highly positively correlated with the 1st (w.p. 0.9, it copies column 1, otherwise it is random).
@@ -541,3 +543,5 @@ for (i in 1:length(Vs)) {
 }
 par(mfrow = c(1, 1))
 ```
+
+We can see that much smaller effects are detectable in this setting than above, with an arbitrary center and scaled design matrix $X$.
