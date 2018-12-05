@@ -363,7 +363,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/2364416ad92e50a701d02e68b889e12c819120b8" target="_blank">2364416</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/88a7560a22c33b562f6a82fe74191796ee9ae07f" target="_blank">88a7560</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -396,6 +396,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/88a7560a22c33b562f6a82fe74191796ee9ae07f/analysis/susie_logistic_demonstration.Rmd" target="_blank">88a7560</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-04
+</td>
+<td style="text-align:left;">
+Updated to add a test at different noise levels, and add a blurb about fitting the intercept
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/andrewg3311/susieR_logistic_wflow/5ae2c6c9f4add64e3c1239f488e73a5f5ebc227f/docs/susie_logistic_demonstration.html" target="_blank">5ae2c6c</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-04
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -628,6 +662,15 @@ b_l \sim \mathcal{N}(0, \sigma_{0l}^2)
 <p>Thus, in our modified logistic version, when fitting the SER each iteration, we can simply fit:</p>
 <pre><code>glm(Y ~ X[, j] - 1 + offset(fixed), family = &quot;binomial&quot;)</code></pre>
 <p>separately for each <span class="math inline">\(j \in \{1, \dots, p\}\)</span>, where <code>fixed</code> is <span class="math inline">\(\sum_{l&#39; \ne l} \mathbf{X\bar{b}}_{l&#39;}\)</span>.</p>
+<div id="a-note-on-the-intercept" class="section level3">
+<h3>A Note on the Intercept</h3>
+<p>In regular SuSiE, we can center our covariates and response to avoid fitting the intercept. Since our data is now 0/1, we can no longer center our response. Instead, we can fit an intercept in our IBFS.</p>
+<p>I have implemented two intercept-fitting procedures.</p>
+<ol style="list-style-type: decimal">
+<li><p>(Default, <code>update_intercept = FALSE</code>) Before fitting anything else, I fit the null model: <code>glm(Y ~ 1, family = &quot;binomial&quot;)</code> I then take this value for the intercept and keep it fixed for the rest of the fitting procedure (simply adding it to value that we “offset” in our g<code>glm</code> step)</p></li>
+<li><p>(<code>update_intercept = TRUE</code>) On each iteration of the outer-loop in the IBFS, I refit the intercept term, fixing the effects from all covariates, i.e. `glm(Y ~ 1 + offset(fixed), family = “binomial”) where <span class="math inline">\(\text{fixed} = \sum_{l = 1}^L \mathbf{X\bar{b}}_l\)</span></p></li>
+</ol>
+</div>
 </div>
 </div>
 <div id="adjustments-to-susie-code" class="section level1">
@@ -857,6 +900,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/5ae2c6c9f4add64e3c1239f488e73a5f5ebc227f/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-4-1.png" target="_blank">5ae2c6c</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-04
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/ba6830a1532b3933377dce255bba0699c61b63a3/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-4-1.png" target="_blank">ba6830a</a>
 </td>
 <td style="text-align:left;">
@@ -889,6 +943,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/5ae2c6c9f4add64e3c1239f488e73a5f5ebc227f/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-4-2.png" target="_blank">5ae2c6c</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-04
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/ba6830a1532b3933377dce255bba0699c61b63a3/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-4-2.png" target="_blank">ba6830a</a>
 </td>
 <td style="text-align:left;">
@@ -919,6 +984,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/5ae2c6c9f4add64e3c1239f488e73a5f5ebc227f/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-4-3.png" target="_blank">5ae2c6c</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-04
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/ba6830a1532b3933377dce255bba0699c61b63a3/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-4-3.png" target="_blank">ba6830a</a>
@@ -955,6 +1031,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/5ae2c6c9f4add64e3c1239f488e73a5f5ebc227f/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-5-1.png" target="_blank">5ae2c6c</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-04
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/ba6830a1532b3933377dce255bba0699c61b63a3/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-5-1.png" target="_blank">ba6830a</a>
 </td>
 <td style="text-align:left;">
@@ -987,6 +1074,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/5ae2c6c9f4add64e3c1239f488e73a5f5ebc227f/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-5-2.png" target="_blank">5ae2c6c</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-04
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/ba6830a1532b3933377dce255bba0699c61b63a3/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-5-2.png" target="_blank">ba6830a</a>
 </td>
 <td style="text-align:left;">
@@ -1017,6 +1115,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/5ae2c6c9f4add64e3c1239f488e73a5f5ebc227f/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-5-3.png" target="_blank">5ae2c6c</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-04
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/ba6830a1532b3933377dce255bba0699c61b63a3/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-5-3.png" target="_blank">ba6830a</a>
@@ -1127,6 +1236,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/5ae2c6c9f4add64e3c1239f488e73a5f5ebc227f/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-8-1.png" target="_blank">5ae2c6c</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-04
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/b5ab5f4b0a163af70efa5292e554926b538a1f8f/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-8-1.png" target="_blank">b5ab5f4</a>
 </td>
 <td style="text-align:left;">
@@ -1169,6 +1289,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/5ae2c6c9f4add64e3c1239f488e73a5f5ebc227f/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-9-1.png" target="_blank">5ae2c6c</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-04
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/41527d2d87e41628876751f25975fbc8d4752b83/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-9-1.png" target="_blank">41527d2</a>
 </td>
 <td style="text-align:left;">
@@ -1183,6 +1314,74 @@ Andrew Goldstein
 <p></details></p>
 <pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
 <p>These groups of correlated predictors are shows from the PIPs.</p>
+</div>
+<div id="signal-level-testing" class="section level2">
+<h2>Signal Level Testing</h2>
+<p>In this section, I keep the same model matrix <span class="math inline">\(X\)</span>, but center and scale the columns to have unit 2-norm. I then set a single non-zero effect with a range of signal levels (<span class="math inline">\(\sigma_0^2\)</span>) to see at what levels the signal can be found. I also set another column of X to be highly positively correlated with the true effect column.</p>
+<p>Here, I always set the first element to be non-zero, and the 5th column to be correlated with the 1st.</p>
+<p>At each signal level <span class="math inline">\(\sigma_0^2 \in \{1, 5, 10, 25, 50\}\)</span>, I replicate <span class="math inline">\(B = 10\)</span> times the following procedure:</p>
+<ol style="list-style-type: decimal">
+<li><p>Draw <span class="math inline">\(b_1 \sim \mathcal{N}(0, \sigma_0^2)\)</span>;</p></li>
+<li><p>Simulate <span class="math inline">\(Y_i \sim \text{Bern}\Bigg(\frac{e^{x_i^T b}}{1 + e^{x_i^T b}}\Bigg)\)</span>;</p></li>
+<li><p>Run the logistic version of SuSiE with an intercept on the data with the noise level fixed and known.</p></li>
+</ol>
+<p>In the plots below, the first set of 5 show the posterior mean values, <span class="math inline">\(\mu_{1} \circ \alpha\)</span>. For indices where the PIP, <span class="math inline">\(\alpha_j\)</span>, was <span class="math inline">\(\ge 0.05\)</span>, I show the point as its index number (ideally, we would only see 1 and 5). Otherwise, the point is a dot.</p>
+<p>The second set of 5 show the PIPs, again with a number if the PIP was <span class="math inline">\(\ge 0.05\)</span>.</p>
+<pre class="r"><code>set.seed(1138)
+B = 10 # times to repeat at each noise level
+
+n = 100
+p = 10
+L = 1
+
+X = matrix(rnorm(n*p, 0, 1), nrow = n, ncol = p)
+X[, 5] = runif(n, .7, 1) * X[, 1]
+
+X = apply(X, MARGIN = 2, function(x) x - mean(x))
+X = apply(X, MARGIN = 2, function(x) x / norm(x, &quot;2&quot;))
+
+beta_true = rep(0, p)
+
+Vs = c(1, 5, 10, 25, 50)
+beta_true_1 = matrix(nrow = length(Vs), ncol = B)
+susie.logistic.list = list()
+for (i in 1:length(Vs)) {
+  V = Vs[i]
+  susie.logistic.list[[i]] = list()
+  names(susie.logistic.list)[i] = paste(&quot;Vs_&quot;, V, sep = &quot;&quot;)
+  for (j in 1:B) {
+    beta_true[1] = rnorm(1, 0, sqrt(V))
+    Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+    susie.logistic.list[[i]][[j]] = susie_logistic(Y, X, L, V)
+    beta_true_1[i, j] = beta_true[1]
+  }
+}
+
+par(mfrow = c(5, 2))
+for (i in 1:length(Vs)) {
+  V = Vs[i]
+  for (j in 1:B) {
+    a_l_post = susie.logistic.list[[i]][[j]]$post_alpha[, 1]
+    b_l_post = susie.logistic.list[[i]][[j]]$post_mu[, 1] * a_l_post
+    plot(b_l_post[abs(a_l_post) &lt; .05] ~ which(abs(a_l_post) &lt; .05), xlim = c(1, 10), ylim = range(b_l_post) + c(-.1, .1), xlab = &quot;Index&quot;, ylab = &quot;Posterior Mean Value&quot;, main = paste(&quot;True effect 1: &quot;, round(beta_true_1[i, j], 2), &quot; ::: Signal Level: &quot;, round(V, 2), sep = &quot;&quot;), pch = 19)
+    text(which(abs(a_l_post) &gt;= .05), b_l_post[abs(a_l_post) &gt;= .05], labels = which(abs(a_l_post) &gt;= .05))
+  }
+}</code></pre>
+<p><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-3.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-4.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>par(mfrow = c(1, 1))
+
+
+par(mfrow = c(5, 2))
+for (i in 1:length(Vs)) {
+  V = Vs[i]
+  for (j in 1:B) {
+    a_l_post = susie.logistic.list[[i]][[j]]$post_alpha[, 1]
+    plot(a_l_post[abs(a_l_post) &lt; .05] ~ which(abs(a_l_post) &lt; .05), xlim = c(1, 10), ylim = c(0, 1), xlab = &quot;Index&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = paste(&quot;True effect 1: &quot;, round(beta_true_1[i, j], 2), &quot; ::: Signal Level: &quot;, round(V, 2), sep = &quot;&quot;), pch = 19)
+    text(which(abs(a_l_post) &gt;= .05), a_l_post[abs(a_l_post) &gt;= .05], labels = which(abs(a_l_post) &gt;= .05))
+  }
+}</code></pre>
+<p><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-6.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-7.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-8.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-9.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-10.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
 </div>
 <div id="session-information" class="section level2">
 <h2>Session information</h2>
@@ -1204,13 +1403,13 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 loaded via a namespace (and not attached):
- [1] workflowr_1.1.1   Rcpp_1.0.0        codetools_0.2-15 
- [4] digest_0.6.18     rprojroot_1.3-2   R.methodsS3_1.7.1
- [7] backports_1.1.2   git2r_0.23.0      magrittr_1.5     
-[10] evaluate_0.11     stringi_1.2.4     whisker_0.3-2    
-[13] R.oo_1.22.0       R.utils_2.7.0     rmarkdown_1.10   
-[16] tools_3.5.1       stringr_1.3.1     yaml_2.2.0       
-[19] compiler_3.5.1    htmltools_0.3.6   knitr_1.20       </code></pre>
+ [1] workflowr_1.1.1   Rcpp_1.0.0        digest_0.6.18    
+ [4] rprojroot_1.3-2   R.methodsS3_1.7.1 backports_1.1.2  
+ [7] git2r_0.23.0      magrittr_1.5      evaluate_0.11    
+[10] stringi_1.2.4     whisker_0.3-2     R.oo_1.22.0      
+[13] R.utils_2.7.0     rmarkdown_1.10    tools_3.5.1      
+[16] stringr_1.3.1     yaml_2.2.0        compiler_3.5.1   
+[19] htmltools_0.3.6   knitr_1.20       </code></pre>
 </div>
 </div>
 
