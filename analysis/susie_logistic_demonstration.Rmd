@@ -488,7 +488,7 @@ Here, I perform a similar test as above, except the design matrix has columns wh
 
 Here, we test $\sigma_0^2 \in \{1, 2, 3, 4, 5\}$
 
-```{r}
+```{r, fig.height = 12}
 set.seed(1138)
 B = 10 # times to repeat at each noise level
 
