@@ -31,7 +31,7 @@ $$
 From this model, the standard OLS estimates (also the MLE) for $b_j$ is found using $p$ independent simple linear regressions (fit without an intercept), $\hat{b_j}(\mathbf{y}, \mathbf{x_j}) = (\mathbf{x_j^Tx_j})^{-1}\mathbf{x_j^Ty}$, with variance $\sigma_{MLE_j}^2 = \sigma^2 (\mathbf{x_j^Tx_j})^{-1}$. The posterior distribution for $b_j$ given $\gamma_j = 1$ is then
 $$
 \begin{aligned}
-b|\gamma_j = 1, \mathbf{y}, \sigma^2, \sigma_0^2 \sim \mathcal{N}(\mu_1, \sigma_1^2) \\
+b|\gamma_j = 1, \mathbf{y}, \sigma^2, \sigma_0^2 \sim \mathcal{N}(\mu_{1j}, \sigma_{1j}^2) \\
 \sigma_{1j}^2 = \frac{1}{1 / \sigma_{MLE_j}^2 + 1 / \sigma_0^2} \\
 \mu_{1j} = \frac{1 / \sigma_{MLE_j}^2}{1 / \sigma_{MLE_j}^2 + 1 / \sigma_0^2} \hat{b_j}(\mathbf{y}, \mathbf{x_j}) + \frac{1 / \sigma_0^2}{1 / \sigma_{MLE_j}^2 + 1 / \sigma_0^2} 0 = \frac{\sigma_{1j}^2}{\sigma_{MLE_j}^2} \hat{b_j}(\mathbf{y}, \mathbf{x_j})
 \end{aligned}
@@ -122,8 +122,11 @@ The code below is a simplistic implementation of the above ideas.
 ### NOTE: This is basic code, and I did not attempt to mirror the level of numerical sophistication in the susie functions
 ### If this idea is worth pursuing further, then this code can be improved
 
+# Note: the intercept term is fitted once and then fixed, rather than iteratively updated along with the rest
+# However, if we set update_intercept = TRUE, then the intercept WILL be iteratively updated
+# Although I'm not 100% sure this is a good idea.... (which is why the default is currently FALSE)
 
-susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3, maxit = 1000) {
+susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3, maxit = 1000, intercept = TRUE, update_intercept = FALSE) {
   
   p = ncol(X)
   n = nrow(X)
@@ -137,13 +140,31 @@ susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3,
   beta_post_init = matrix(Inf, nrow = p, ncol = L) # initialize
   beta_post = matrix(0, nrow = p, ncol = L)
   
+  fixed = rep(0, n) # fixed portion, estimated from l' != l other SER models
+  
   iter = 0
   while(norm(beta_post - beta_post_init, "1") > tol) { # repeat until posterior means converge (ELBO not calculated here, so use this convergence criterion instead)
     beta_post_init = beta_post
     
+    if ((iter == 0)  && intercept) { # first iteration, fit intercept with nothing fixed
+      # slow way below
+      #int.log.fit = glm(Y ~ 1, family = "binomial")
+      #int.coef = int.log.fit$coefficients[1]
+      int.coef = log(mean(Y) / (1 - mean(Y))) # fast calculation of intercept w/out fixed component
+      fixed = fixed + int.coef # add effect from intercept to fixed portion
+    } else if (intercept & update_intercept) { # if we are iteratively updating the intercept
+      fixed = fixed - int.coef # remove effect from previous estimate of intercept
+      int.log.fit = glm(Y ~ 1 + offset(fixed), family = "binomial")
+      int.coef = int.log.fit$coefficients[1]
+      fixed = fixed + int.coef # add back effect from intercept to fixed portion
+    }
+      
     for (l in 1:L) {
       
-      fixed = rowSums(X %*% beta_post[, -l]) # fixed portion from previous estimates
+      # below is old (inefficient) calculation of the fixed portion
+      #fixed = rowSums(X %*% beta_post[, -l]) + int.coef # fixed portion from previous estimates (add intercept portion as well)
+      fixed = fixed - (X %*% beta_post[, l]) # remove effect from previous iteration
+      
       SER_logistric_l = single_effect_regression_logistic(Y, X, V, prior_weights, FALSE, fixed)
       # store
       post_info$post_alpha[, l] = SER_logistric_l$alpha
@@ -152,6 +173,8 @@ susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3,
       
       # update beta_post
       beta_post[, l] = SER_logistric_l$alpha * SER_logistric_l$mu
+      
+      fixed = fixed + (X %*% beta_post[, l]) # add back new fixed portion
       
       iter = iter + 1
       if (iter > maxit) {
@@ -263,7 +286,7 @@ X[, 2] = X[, 3]
 X[, 7] = X[, 6]
 
 # make response
-Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+Y = rbinom(n, 1, exp(X %*% beta_true + 2) / (1 + exp(X %*% beta_true + 2)))
 
 susie.logistic.fit = susie_logistic(Y, X, L, V)
 ```
@@ -329,7 +352,7 @@ X[, 88] = X[, 87]
 X[, 89] = runif(n, -1, -.7) * X[, 87]
 
 # make response
-Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+Y = rbinom(n, 1, exp(X %*% beta_true + 2) / (1 + exp(X %*% beta_true + 2)))
 
 susie.logistic.fit = susie_logistic(Y, X, L, V)
 ```
