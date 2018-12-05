@@ -339,7 +339,7 @@ div.section {
 </div>
 
 
-<p><strong>Last updated:</strong> 2018-12-03</p>
+<p><strong>Last updated:</strong> 2018-12-04</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
@@ -363,10 +363,12 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/d42fc1c69297b86564123833324be60ed014c8c3" target="_blank">d42fc1c</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/2364416ad92e50a701d02e68b889e12c819120b8" target="_blank">2364416</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
-working directory clean
+Ignored files:
+    Ignored:    analysis/susie_logistic_demonstration_cache/
+
 </code></pre>
 Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes. </details>
 </li>
@@ -394,6 +396,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/2364416ad92e50a701d02e68b889e12c819120b8/analysis/susie_logistic_demonstration.Rmd" target="_blank">2364416</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-04
+</td>
+<td style="text-align:left;">
+Updating to add intercept estimation, and more efficiently calculate the fixed portion for each SER
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/andrewg3311/susieR_logistic_wflow/41527d2d87e41628876751f25975fbc8d4752b83/docs/susie_logistic_demonstration.html" target="_blank">41527d2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-03
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -535,7 +571,7 @@ b \sim \mathcal{N}(0, \sigma_0^2)
 \]</span></p>
 <p>From this model, the standard OLS estimates (also the MLE) for <span class="math inline">\(b_j\)</span> is found using <span class="math inline">\(p\)</span> independent simple linear regressions (fit without an intercept), <span class="math inline">\(\hat{b_j}(\mathbf{y}, \mathbf{x_j}) = (\mathbf{x_j^Tx_j})^{-1}\mathbf{x_j^Ty}\)</span>, with variance <span class="math inline">\(\sigma_{MLE_j}^2 = \sigma^2 (\mathbf{x_j^Tx_j})^{-1}\)</span>. The posterior distribution for <span class="math inline">\(b_j\)</span> given <span class="math inline">\(\gamma_j = 1\)</span> is then <span class="math display">\[
 \begin{aligned}
-b|\gamma_j = 1, \mathbf{y}, \sigma^2, \sigma_0^2 \sim \mathcal{N}(\mu_1, \sigma_1^2) \\
+b|\gamma_j = 1, \mathbf{y}, \sigma^2, \sigma_0^2 \sim \mathcal{N}(\mu_{1j}, \sigma_{1j}^2) \\
 \sigma_{1j}^2 = \frac{1}{1 / \sigma_{MLE_j}^2 + 1 / \sigma_0^2} \\
 \mu_{1j} = \frac{1 / \sigma_{MLE_j}^2}{1 / \sigma_{MLE_j}^2 + 1 / \sigma_0^2} \hat{b_j}(\mathbf{y}, \mathbf{x_j}) + \frac{1 / \sigma_0^2}{1 / \sigma_{MLE_j}^2 + 1 / \sigma_0^2} 0 = \frac{\sigma_{1j}^2}{\sigma_{MLE_j}^2} \hat{b_j}(\mathbf{y}, \mathbf{x_j})
 \end{aligned}
@@ -601,8 +637,11 @@ b_l \sim \mathcal{N}(0, \sigma_{0l}^2)
 <pre class="r"><code>### NOTE: This is basic code, and I did not attempt to mirror the level of numerical sophistication in the susie functions
 ### If this idea is worth pursuing further, then this code can be improved
 
+# Note: the intercept term is fitted once and then fixed, rather than iteratively updated along with the rest
+# However, if we set update_intercept = TRUE, then the intercept WILL be iteratively updated
+# Although I&#39;m not 100% sure this is a good idea.... (which is why the default is currently FALSE)
 
-susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3, maxit = 1000) {
+susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3, maxit = 1000, intercept = TRUE, update_intercept = FALSE) {
   
   p = ncol(X)
   n = nrow(X)
@@ -616,13 +655,31 @@ susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3,
   beta_post_init = matrix(Inf, nrow = p, ncol = L) # initialize
   beta_post = matrix(0, nrow = p, ncol = L)
   
+  fixed = rep(0, n) # fixed portion, estimated from l&#39; != l other SER models
+  
   iter = 0
   while(norm(beta_post - beta_post_init, &quot;1&quot;) &gt; tol) { # repeat until posterior means converge (ELBO not calculated here, so use this convergence criterion instead)
     beta_post_init = beta_post
     
+    if ((iter == 0)  &amp;&amp; intercept) { # first iteration, fit intercept with nothing fixed
+      # slow way below
+      #int.log.fit = glm(Y ~ 1, family = &quot;binomial&quot;)
+      #int.coef = int.log.fit$coefficients[1]
+      int.coef = log(mean(Y) / (1 - mean(Y))) # fast calculation of intercept w/out fixed component
+      fixed = fixed + int.coef # add effect from intercept to fixed portion
+    } else if (intercept &amp; update_intercept) { # if we are iteratively updating the intercept
+      fixed = fixed - int.coef # remove effect from previous estimate of intercept
+      int.log.fit = glm(Y ~ 1 + offset(fixed), family = &quot;binomial&quot;)
+      int.coef = int.log.fit$coefficients[1]
+      fixed = fixed + int.coef # add back effect from intercept to fixed portion
+    }
+      
     for (l in 1:L) {
       
-      fixed = rowSums(X %*% beta_post[, -l]) # fixed portion from previous estimates
+      # below is old (inefficient) calculation of the fixed portion
+      #fixed = rowSums(X %*% beta_post[, -l]) + int.coef # fixed portion from previous estimates (add intercept portion as well)
+      fixed = fixed - (X %*% beta_post[, l]) # remove effect from previous iteration
+      
       SER_logistric_l = single_effect_regression_logistic(Y, X, V, prior_weights, FALSE, fixed)
       # store
       post_info$post_alpha[, l] = SER_logistric_l$alpha
@@ -631,6 +688,8 @@ susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3,
       
       # update beta_post
       beta_post[, l] = SER_logistric_l$alpha * SER_logistric_l$mu
+      
+      fixed = fixed + (X %*% beta_post[, l]) # add back new fixed portion
       
       iter = iter + 1
       if (iter &gt; maxit) {
@@ -736,7 +795,7 @@ X[, 2] = X[, 3]
 X[, 7] = X[, 6]
 
 # make response
-Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+Y = rbinom(n, 1, exp(X %*% beta_true + 2) / (1 + exp(X %*% beta_true + 2)))
 
 susie.logistic.fit = susie_logistic(Y, X, L, V)</code></pre>
 <p>Figure 1 below plots the true values for <span class="math inline">\(\mathbf{b}\)</span>.</p>
@@ -1004,7 +1063,7 @@ X[, 88] = X[, 87]
 X[, 89] = runif(n, -1, -.7) * X[, 87]
 
 # make response
-Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+Y = rbinom(n, 1, exp(X %*% beta_true + 2) / (1 + exp(X %*% beta_true + 2)))
 
 susie.logistic.fit = susie_logistic(Y, X, L, V)</code></pre>
 <p>Figure 4 below plots the true values for <span class="math inline">\(\mathbf{b}\)</span> (the numbers correspond to the points and indices of non-zero true effects).</p>
@@ -1092,6 +1151,36 @@ for (l in 1:L) {
   text(which(alpha_l &gt;= .01), alpha_l[alpha_l &gt;= .01], labels = which(alpha_l &gt;= .01))
 }</code></pre>
 <p><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-9-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/41527d2d87e41628876751f25975fbc8d4752b83/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-9-1.png" target="_blank">41527d2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-03
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
 <p>These groups of correlated predictors are shows from the PIPs.</p>
 </div>
