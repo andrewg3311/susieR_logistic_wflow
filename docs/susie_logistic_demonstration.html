@@ -363,7 +363,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/7e724ccabfaf00fdedbb724d5b2b6eb0a468ecd4" target="_blank">7e724cc</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/e5e14dafd5c5052261ace803f814974ad556867a" target="_blank">e5e14da</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -396,6 +396,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/e5e14dafd5c5052261ace803f814974ad556867a/analysis/susie_logistic_demonstration.Rmd" target="_blank">e5e14da</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-04
+</td>
+<td style="text-align:left;">
+Increase sample size n := 1000 for signal level tests
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/andrewg3311/susieR_logistic_wflow/ea80ce25c0fa7ae0cffdaad323cfb043c61ab3b1/docs/susie_logistic_demonstration.html" target="_blank">ea80ce2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-04
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -1352,7 +1386,7 @@ Andrew Goldstein
 <div id="signal-level-testing" class="section level2">
 <h2>Signal Level Testing</h2>
 <p>In this section, I keep the same model matrix <span class="math inline">\(X\)</span>, but center and scale the columns to have unit 2-norm. I then set a single non-zero effect with a range of signal levels (<span class="math inline">\(\sigma_0^2\)</span>) to see at what levels the signal can be found. I also set another column of X to be highly positively correlated with the true effect column.</p>
-<p>I have set <span class="math inline">\(n = 100, p = 10, L = 1\)</span>.</p>
+<p>I have set <span class="math inline">\(n = 1000, p = 10, L = 1\)</span>.</p>
 <p>Here, I always set the first element to be non-zero, and the 5th column to be correlated with the 1st.</p>
 <p>At each signal level <span class="math inline">\(\sigma_0^2 \in \{1, 5, 10, 25, 50\}\)</span>, I replicate <span class="math inline">\(B = 10\)</span> times the following procedure:</p>
 <ol style="list-style-type: decimal">
@@ -1365,7 +1399,7 @@ Andrew Goldstein
 <pre class="r"><code>set.seed(1138)
 B = 10 # times to repeat at each noise level
 
-n = 100
+n = 1000
 p = 10
 L = 1
 
