@@ -481,3 +481,63 @@ for (i in 1:length(Vs)) {
 }
 par(mfrow = c(1, 1))
 ```
+
+
+## Signal Testing with Genotype Matrix
+Here, I perform a similar test as above, except the design matrix has columns whose entries are $X_{ij} \in \{0, 1, 2\}$. I do not center or scale these variables. As before, the 1st effect is always the only non-null effect. And the 5th column is highly positively correlated with the 1st (w.p. 0.9, it copies column 1, otherwise it is random).
+
+Here, we test $\sigma_0^2 \in \{1, 2, 3, 4, 5\}$
+
+```{r}
+set.seed(1138)
+B = 10 # times to repeat at each noise level
+
+n = 1000
+p = 10
+L = 1
+
+X = matrix(rbinom(n * p, 2, runif(n * p)), nrow = n, ncol = p)
+copy_ind = runif(n, 0, 1) <= 0.9
+X[copy_ind, 5] = X[copy_ind, 1]
+
+beta_true = rep(0, p)
+
+Vs = 1:5
+beta_true_1 = matrix(nrow = length(Vs), ncol = B)
+susie.logistic.list = list()
+for (i in 1:length(Vs)) {
+  V = Vs[i]
+  susie.logistic.list[[i]] = list()
+  names(susie.logistic.list)[i] = paste("Vs_", V, sep = "")
+  for (j in 1:B) {
+    beta_true[1] = rnorm(1, 0, sqrt(V))
+    Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+    susie.logistic.list[[i]][[j]] = susie_logistic(Y, X, L, V)
+    beta_true_1[i, j] = beta_true[1]
+  }
+}
+
+par(mfrow = c(5, 2))
+for (i in 1:length(Vs)) {
+  V = Vs[i]
+  for (j in 1:B) {
+    a_l_post = susie.logistic.list[[i]][[j]]$post_alpha[, 1]
+    b_l_post = susie.logistic.list[[i]][[j]]$post_mu[, 1] * a_l_post
+    plot(b_l_post[abs(a_l_post) < .05] ~ which(abs(a_l_post) < .05), xlim = c(1, 10), ylim = range(b_l_post) + c(-.1, .1), xlab = "Index", ylab = "Posterior Mean Value", main = paste("True effect 1: ", round(beta_true_1[i, j], 2), " ::: Signal Level: ", round(V, 2), sep = ""), pch = 19)
+    text(which(abs(a_l_post) >= .05), b_l_post[abs(a_l_post) >= .05], labels = which(abs(a_l_post) >= .05))
+  }
+}
+par(mfrow = c(1, 1))
+
+
+par(mfrow = c(5, 2))
+for (i in 1:length(Vs)) {
+  V = Vs[i]
+  for (j in 1:B) {
+    a_l_post = susie.logistic.list[[i]][[j]]$post_alpha[, 1]
+    plot(a_l_post[abs(a_l_post) < .05] ~ which(abs(a_l_post) < .05), xlim = c(1, 10), ylim = c(0, 1), xlab = "Index", ylab = "Posterior Inclusion Probability", main = paste("True effect 1: ", round(beta_true_1[i, j], 2), " ::: Signal Level: ", round(V, 2), sep = ""), pch = 19)
+    text(which(abs(a_l_post) >= .05), a_l_post[abs(a_l_post) >= .05], labels = which(abs(a_l_post) >= .05))
+  }
+}
+par(mfrow = c(1, 1))
+```
