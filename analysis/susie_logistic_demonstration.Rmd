@@ -246,6 +246,7 @@ single_effect_regression_logistic = function(Y, X, V, prior_weights = NULL, opti
 # Demonstration
 
 ## Easy Demonstration
+### L = 1
 As a very easy demonstration, let $n = 1000, p = 10, L = 1$, and let all columns of $X$ be orthonormal (obtained from the SVD of a random matrix). WLOG, we let the first element of $\mathbf{b}$ be the only non-zero element. We set $\sigma_0^2 = 25$.
 
 We then simulated $\mathbf{y}$ from the specified bernoulli model,
@@ -277,7 +278,7 @@ b_1s = numeric(B)
 susie.fits.easy = list() # logistic SuSiE fits
 logistic.fits.easy = list() # logistic regression fits
 for (i in 1:B) {
-  beta_true[1] = rnorm(1, 0, 5)
+  beta_true[1] = rnorm(1, 0, sqrt(V))
   b_1s[i] = beta_true[1]
   Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
   susie.fits.easy[[i]] = susie_logistic(Y, X, L, V)
@@ -285,7 +286,7 @@ for (i in 1:B) {
 }
 ```
 
-Figure 1 below plots the estimated value for $\hat{b}_1 := \mu_1 \cdot \alpha_1$ against the true value, where $\mu_1$ is the estimated posterior mean, and $\alpha_1$ is the estimated posterior inclusion probability. Figure 2 below plots the PIIP, $\alpha_i$, against the true value of $b_1$.
+Figure 1 below plots the estimated value for $\hat{b}_1 := \mu_1 \cdot \alpha_1$ against the true value, where $\mu_1$ is the estimated posterior mean, and $\alpha_1$ is the estimated posterior inclusion probability. Figure 2 below plots the PIP, $\alpha_i$, against the true value of $b_1$.
 ```{r}
 plot(sapply(susie.fits.easy, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 1", pch = 19)
 abline(0, 1)
@@ -302,6 +303,80 @@ plot(sapply(logistic.fits.easy, function(x) summary(x)$coefficients[2, 4]) ~ b_1
 abline(v = c(-5, 5))
 ```
 We see a similar phase transition around the same values of the true effect size, $|b_1| \le 5$.
+
+### L = 2
+We not repeat the same as above, except with $L = 2$, and the second element $b_2$ also a non-zero.
+
+```{r}
+set.seed(1138)
+
+n = 1000
+p = 10
+L = 2
+V = 25
+beta_true = rep(0, p)
+
+# make orthonormal covariates
+rand_mat = matrix(rnorm(n * p), nrow = n)
+svd_rand_mav = svd(rand_mat)
+X = svd_rand_mav$u
+# make response
+# make response
+
+B = 100
+b_1s = numeric(B)
+b_2s = numeric(B)
+susie.fits.easy2 = list() # logistic SuSiE fits
+logistic.fits.easy2 = list() # logistic regression fits
+for (i in 1:B) {
+  beta_true[1] = rnorm(1, 0, sqrt(V))
+  beta_true[2] = rnorm(1, 0, sqrt(V))
+  b_1s[i] = beta_true[1]
+  b_2s[i] = beta_true[2]
+  Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+  susie.fits.easy2[[i]] = susie_logistic(Y, X, L, V)
+  logistic.fits.easy2[[i]] = glm(Y ~ X, family = "binomial")
+}
+```
+
+
+Figures 4(a-b) below plot the estimated value for $\hat{b}_1 := \mu_1 \cdot \alpha_1$ and $\hat{b}_2 := \mu_2 \cdot \alpha_2$ against the true value, where $\mu_i$ is the estimated posterior mean, and $\alpha_i$ is the estimated posterior inclusion probability. Figures 5(a-b) below plot the PIP, $\alpha_i$, against the true value of $b_i$.
+
+(Note: In order to determine which estimated effect vector corresponds to true effect 1 and true effect 2, I have chosen the estimated effect vector that maximizes the PIP for true effect 1/2. This is not perfect, but is an easy way to divide up the 100 replications)
+```{r}
+est_b1_max = sapply(susie.fits.easy2, function(x) x$post_alpha[1, which.max(x$post_alpha[1, ]) ]* x$post_mu[1, which.max(x$post_alpha[1, ])])
+
+est_b2_max = sapply(susie.fits.easy2, function(x) x$post_alpha[2, which.max(x$post_alpha[2, ]) ]* x$post_mu[2, which.max(x$post_alpha[2, ])])
+
+est_alpha1_max = sapply(susie.fits.easy2, function(x) max(x$post_alpha[1, ]))
+
+est_alpha2_max = sapply(susie.fits.easy2, function(x) max(x$post_alpha[2, ]))
+
+plot(est_b1_max ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 4(a) - Entry 1", pch = 19)
+abline(0, 1)
+abline(v = c(-5, 5))
+
+plot(est_b2_max ~ b_2s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 4(b) - Entry 2", pch = 19)
+abline(0, 1)
+abline(v = c(-5, 5))
+
+plot(est_alpha1_max ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "Figure 5(a) - Entry 1", pch = 19)
+abline(v = c(-5, 5))
+
+plot(est_alpha2_max ~ b_2s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "Figure 5(b) - Entry 2", pch = 19)
+abline(v = c(-5, 5))
+```
+We see a similar pattern as above, in the case $L = 1$. The method is also able to detect both effects (when strong enough).
+
+We can compare figures 5(a-b) with the p-values obtained from the normal logistic regressions on the same simulated data, shown in figures 6(a-b) below.
+```{r}
+plot(sapply(logistic.fits.easy2, function(x) summary(x)$coefficients[2, 4]) ~ b_1s, xlab = "True Effect Value", ylab = "Logistic p-value", main = "Figure 6(a) - Entry 1", pch = 19)
+abline(v = c(-5, 5))
+
+plot(sapply(logistic.fits.easy2, function(x) summary(x)$coefficients[3, 4]) ~ b_2s, xlab = "True Effect Value", ylab = "Logistic p-value", main = "Figure 6(b) - Entry 2", pch = 19)
+abline(v = c(-5, 5))
+```
+We see a similar phase transition around the same values of the true effect size, $|b_i| \le 5$.
 
 ## Medium Demonstration
 As a medium difficulty demonstration, let $n = 100, p = 10, L = 3, \sigma_0^2 = 5$.
