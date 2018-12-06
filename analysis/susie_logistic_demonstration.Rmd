@@ -294,7 +294,7 @@ abline(v = c(-5, 5))
 plot(sapply(susie.fits.easy, function(x) x$post_alpha[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "Figure 2", pch = 19)
 abline(v = c(-5, 5))
 ```
-Figure 1 shows that, in this simulation, we observe a shrinkage behavior similar to hard-thresholding. Figure 2 shows a sharp transition between a very low PIP and a PIP near 1.
+Figure 1 shows that, in this simulation, we observe a shrinkage behavior similar to hard-thresholding. Figure 2 shows a sharp transition between a very low PIP and a PIP near 1. This sharp transition is what causes the hard-thresholding-like shrinkage we obsersve: the posterior mean values $\mu_1$ closely match the true values for $b_1$, but are effectively shrunk to 0 in this region by the PIP $\alpha_i$, and are effectively untouched outside this region.
 
 We can compare figure 2 with the p-values obtained from the normal logistic regressions on the same simulated data, shown in figure 3 below.
 ```{r}
