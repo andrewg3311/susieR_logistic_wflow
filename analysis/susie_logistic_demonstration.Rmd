@@ -270,8 +270,6 @@ beta_true = rep(0, p)
 rand_mat = matrix(rnorm(n * p), nrow = n)
 svd_rand_mav = svd(rand_mat)
 X = svd_rand_mav$u
-# make response
-# make response
 
 B = 100
 b_1s = numeric(B)
@@ -304,6 +302,8 @@ abline(v = c(-5, 5))
 ```
 We see a similar phase transition around the same values of the true effect size, $|b_1| \le 5$.
 
+*Note: When performing this demonstration where the response is normally distributed with mean $Xb$ (i.e. the regular SuSiE regime), we observe a similar phenomenon, just to a slightly lesser extent*
+
 ### L = 2
 We not repeat the same as above, except with $L = 2$, and the second element $b_2$ also a non-zero.
 
@@ -320,8 +320,6 @@ beta_true = rep(0, p)
 rand_mat = matrix(rnorm(n * p), nrow = n)
 svd_rand_mav = svd(rand_mat)
 X = svd_rand_mav$u
-# make response
-# make response
 
 B = 100
 b_1s = numeric(B)
