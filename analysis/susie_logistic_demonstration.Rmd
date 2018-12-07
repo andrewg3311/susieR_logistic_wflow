@@ -302,7 +302,7 @@ abline(v = c(-5, 5))
 ```
 We see a similar phase transition around the same values of the true effect size, $|b_1| \le 5$.
 
-*Note: When performing this demonstration where the response is normally distributed with mean $Xb$ (i.e. the regular SuSiE regime), we observe a similar phenomenon, just to a slightly lesser extent*
+**Note: When performing this demonstration where the response is normally distributed with mean $Xb$ (i.e. the regular SuSiE regime), we observe a similar phenomenon, just to a slightly lesser extent**
 
 ### L = 2
 We not repeat the same as above, except with $L = 2$, and the second element $b_2$ also a non-zero.
@@ -340,7 +340,7 @@ for (i in 1:B) {
 
 Figures 4(a-b) below plot the estimated value for $\hat{b}_1 := \mu_1 \cdot \alpha_1$ and $\hat{b}_2 := \mu_2 \cdot \alpha_2$ against the true value, where $\mu_i$ is the estimated posterior mean, and $\alpha_i$ is the estimated posterior inclusion probability. Figures 5(a-b) below plot the PIP, $\alpha_i$, against the true value of $b_i$.
 
-(Note: In order to determine which estimated effect vector corresponds to true effect 1 and true effect 2, I have chosen the estimated effect vector that maximizes the PIP for true effect 1/2. This is not perfect, but is an easy way to divide up the 100 replications)
+**Note: In order to determine which estimated effect vector corresponds to true effect 1 and true effect 2, I have chosen the estimated effect vector that maximizes the PIP for true effect 1/2. This is not perfect, but is an easy way to divide up the 100 replications**
 ```{r}
 est_b1_max = sapply(susie.fits.easy2, function(x) x$post_alpha[1, which.max(x$post_alpha[1, ]) ]* x$post_mu[1, which.max(x$post_alpha[1, ])])
 
