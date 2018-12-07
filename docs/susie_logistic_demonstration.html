@@ -339,7 +339,7 @@ div.section {
 </div>
 
 
-<p><strong>Last updated:</strong> 2018-12-06</p>
+<p><strong>Last updated:</strong> 2018-12-07</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
@@ -363,7 +363,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/11b93732af6e3eaca54b359bf209a9239c5ef2c3" target="_blank">11b9373</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/3f0a7c11eebe5a3de1ad8f4ec04992eae53bf520" target="_blank">3f0a7c1</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -397,6 +397,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/3f0a7c11eebe5a3de1ad8f4ec04992eae53bf520/analysis/susie_logistic_demonstration.Rmd" target="_blank">3f0a7c1</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-07
+</td>
+<td style="text-align:left;">
+Adding note that same phase change happens w/ regular SuSiE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/andrewg3311/susieR_logistic_wflow/c4bcd3a53e858a5bc4df18124c3d242cff1b0bad/docs/susie_logistic_demonstration.html" target="_blank">c4bcd3a</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-06
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -1171,8 +1205,6 @@ beta_true = rep(0, p)
 rand_mat = matrix(rnorm(n * p), nrow = n)
 svd_rand_mav = svd(rand_mat)
 X = svd_rand_mav$u
-# make response
-# make response
 
 B = 100
 b_1s = numeric(B)
@@ -1322,6 +1354,7 @@ Andrew Goldstein
 </table>
 <p></details></p>
 <p>We see a similar phase transition around the same values of the true effect size, <span class="math inline">\(|b_1| \le 5\)</span>.</p>
+<p><em>Note: When performing this demonstration where the response is normally distributed with mean <span class="math inline">\(Xb\)</span> (i.e. the regular SuSiE regime), we observe a similar phenomenon, just to a slightly lesser extent</em></p>
 </div>
 <div id="l-2" class="section level3">
 <h3>L = 2</h3>
@@ -1338,8 +1371,6 @@ beta_true = rep(0, p)
 rand_mat = matrix(rnorm(n * p), nrow = n)
 svd_rand_mav = svd(rand_mat)
 X = svd_rand_mav$u
-# make response
-# make response
 
 B = 100
 b_1s = numeric(B)
@@ -1668,6 +1699,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c4bcd3a53e858a5bc4df18124c3d242cff1b0bad/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-9-1.png" target="_blank">c4bcd3a</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-06
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/23eac4fe33dc8feacf7b074a8c6492003d934bf4/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-9-1.png" target="_blank">23eac4f</a>
 </td>
 <td style="text-align:left;">
@@ -1726,6 +1768,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c4bcd3a53e858a5bc4df18124c3d242cff1b0bad/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-1.png" target="_blank">c4bcd3a</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-06
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/23eac4fe33dc8feacf7b074a8c6492003d934bf4/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-1.png" target="_blank">23eac4f</a>
@@ -1793,6 +1846,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c4bcd3a53e858a5bc4df18124c3d242cff1b0bad/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-2.png" target="_blank">c4bcd3a</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-06
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/23eac4fe33dc8feacf7b074a8c6492003d934bf4/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-2.png" target="_blank">23eac4f</a>
 </td>
 <td style="text-align:left;">
@@ -1845,6 +1909,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c4bcd3a53e858a5bc4df18124c3d242cff1b0bad/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-3.png" target="_blank">c4bcd3a</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-06
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/23eac4fe33dc8feacf7b074a8c6492003d934bf4/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-10-3.png" target="_blank">23eac4f</a>
@@ -1903,6 +1978,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c4bcd3a53e858a5bc4df18124c3d242cff1b0bad/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-11-1.png" target="_blank">c4bcd3a</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-06
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/23eac4fe33dc8feacf7b074a8c6492003d934bf4/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-11-1.png" target="_blank">23eac4f</a>
 </td>
 <td style="text-align:left;">
@@ -1957,6 +2043,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c4bcd3a53e858a5bc4df18124c3d242cff1b0bad/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-11-2.png" target="_blank">c4bcd3a</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-06
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/23eac4fe33dc8feacf7b074a8c6492003d934bf4/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-11-2.png" target="_blank">23eac4f</a>
 </td>
 <td style="text-align:left;">
@@ -1998,6 +2095,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c4bcd3a53e858a5bc4df18124c3d242cff1b0bad/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-11-3.png" target="_blank">c4bcd3a</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-06
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/23eac4fe33dc8feacf7b074a8c6492003d934bf4/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-11-3.png" target="_blank">23eac4f</a>
@@ -2080,6 +2188,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c4bcd3a53e858a5bc4df18124c3d242cff1b0bad/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-13-1.png" target="_blank">c4bcd3a</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-06
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/23eac4fe33dc8feacf7b074a8c6492003d934bf4/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-13-1.png" target="_blank">23eac4f</a>
 </td>
 <td style="text-align:left;">
@@ -2128,6 +2247,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c4bcd3a53e858a5bc4df18124c3d242cff1b0bad/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-14-1.png" target="_blank">c4bcd3a</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-06
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/23eac4fe33dc8feacf7b074a8c6492003d934bf4/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-14-1.png" target="_blank">23eac4f</a>
@@ -2181,6 +2311,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c4bcd3a53e858a5bc4df18124c3d242cff1b0bad/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-15-1.png" target="_blank">c4bcd3a</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2018-12-06
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/23eac4fe33dc8feacf7b074a8c6492003d934bf4/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-15-1.png" target="_blank">23eac4f</a>
