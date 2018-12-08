@@ -139,12 +139,14 @@ susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3,
   post_info = list(post_alpha = post_alpha, post_mu = post_mu, post_sigma = post_sigma)
 
   beta_post_init = matrix(Inf, nrow = p, ncol = L) # initialize
+  beta_post_init2 = beta_post_init
   beta_post = matrix(0, nrow = p, ncol = L)
   
   fixed = rep(0, n) # fixed portion, estimated from l' != l other SER models
   
   iter = 0
-  while(norm(beta_post - beta_post_init, "1") > tol) { # repeat until posterior means converge (ELBO not calculated here, so use this convergence criterion instead)
+  while((norm(beta_post - beta_post_init, "1") > tol) & (norm(beta_post - beta_post_init2, "1") > tol)) { # repeat until posterior means converge (ELBO not calculated here, so use this convergence criterion instead)
+    beta_post_init2 = beta_post_init # store from 2 iterations ago
     beta_post_init = beta_post
       
     for (l in 1:L) {
@@ -164,11 +166,11 @@ susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3,
       
       fixed = fixed + (X %*% beta_post[, l]) # add back new fixed portion
       
-      iter = iter + 1
-      if (iter > maxit) {
+    }
+    
+    iter = iter + 1
+    if (iter > maxit) {
         stop("Maximum number of iterations reached")
-      }
-      
     }
     
   }
@@ -247,7 +249,7 @@ single_effect_regression_logistic = function(Y, X, V, prior_weights = NULL, opti
 
 ## Easy Demonstration
 ### L = 1
-As a very easy demonstration, let $n = 1000, p = 10, L = 1$, and let all columns of $X$ be orthonormal (obtained from the SVD of a random matrix). WLOG, we let the first element of $\mathbf{b}$ be the only non-zero element. We set $\sigma_0^2 = 25$.
+As a very easy demonstration, let $n = 100, p = 10, L = 1$, and let all columns of $X$ be distributed $\mathcal{N}(0, 1)$. WLOG, we let the first element of $\mathbf{b}$ be the only non-zero element. We set $\sigma_0^2 = 1$.
 
 We then simulated $\mathbf{y}$ from the specified bernoulli model,
 $$
@@ -260,16 +262,11 @@ We repeat this procedure 100 times.
 ```{r}
 set.seed(1138)
 
-n = 1000
+n = 100
 p = 10
 L = 1
-V = 25
+V = 1
 beta_true = rep(0, p)
-
-# make orthonormal covariates
-rand_mat = matrix(rnorm(n * p), nrow = n)
-svd_rand_mav = svd(rand_mat)
-X = svd_rand_mav$u
 
 B = 100
 b_1s = numeric(B)
@@ -278,6 +275,9 @@ logistic.fits.easy = list() # logistic regression fits
 for (i in 1:B) {
   beta_true[1] = rnorm(1, 0, sqrt(V))
   b_1s[i] = beta_true[1]
+  # make independent N(0, 1) covariates
+  X = matrix(rnorm(n * p), nrow = n)
+  # make response
   Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
   susie.fits.easy[[i]] = susie_logistic(Y, X, L, V)
   logistic.fits.easy[[i]] = glm(Y ~ X, family = "binomial")
@@ -288,38 +288,83 @@ Figure 1 below plots the estimated value for $\hat{b}_1 := \mu_1 \cdot \alpha_1$
 ```{r}
 plot(sapply(susie.fits.easy, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 1", pch = 19)
 abline(0, 1)
-abline(v = c(-5, 5))
 
 plot(sapply(susie.fits.easy, function(x) x$post_alpha[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "Figure 2", pch = 19)
-abline(v = c(-5, 5))
 ```
-Figure 1 shows that, in this simulation, we observe a shrinkage behavior similar to hard-thresholding. Figure 2 shows a sharp transition between a very low PIP and a PIP near 1. This sharp transition is what causes the hard-thresholding-like shrinkage we obsersve: the posterior mean values $\mu_1$ closely match the true values for $b_1$, but are effectively shrunk to 0 in this region by the PIP $\alpha_i$, and are effectively untouched outside this region.
+Figure 1 shows that, in this simulation, we observe a shrinkage behavior similar to hard-thresholding (with a small thresholding value). We also see that our estimated lie pretty close to the truth. Figure 2 shows a sharp transition between a very low PIP and a PIP near 1. This sharp transition is what causes the hard-thresholding-like shrinkage we obsersve in figure 1: the posterior mean values $\mu_1$ closely match the true values for $b_1$, but are effectively shrunk to 0 in this region by the PIP $\alpha_i$, and are effectively untouched outside this region.
 
 We can compare figure 2 with the p-values obtained from the normal logistic regressions on the same simulated data, shown in figure 3 below.
 ```{r}
 plot(sapply(logistic.fits.easy, function(x) summary(x)$coefficients[2, 4]) ~ b_1s, xlab = "True Effect Value", ylab = "Logistic p-value", main = "Figure 3", pch = 19)
-abline(v = c(-5, 5))
 ```
-We see a similar phase transition around the same values of the true effect size, $|b_1| \le 5$.
+We see a similar phase transition around the same values of the true effect size, $|b_1| \le 0.5$.
 
-**Note: When performing this demonstration where the response is normally distributed with mean $Xb$ (i.e. the regular SuSiE regime), we observe a similar phenomenon, just to a slightly lesser extent**
+
+#### CAUTION: Cycling Behavior
+I have come across a situation in which the iterative algorithm gets caught in a loop, where it cycles between 2 estimates for the coefficients.
+```{r, eval = FALSE}
+set.seed(1138)
+
+n = 100
+p = 10
+L = 2
+V = 9
+beta_true = rep(0, p)
+
+# make independent N(0, 1) covariates
+X = matrix(rnorm(n * p), nrow = n)
+
+beta_true[1] = rnorm(1, 0, sqrt(V))
+beta_true[2] = rnorm(1, 0, sqrt(V))
+Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+susie.cycle = susie_logistic(Y, X, L, V)
+```
+I have gotten around this with a more sophisticated convergence criterion (e.g. also store and compare with the estimate 2 iterations ago). However, this situation may be a cause for concern.
+
+
+#### CAUTION: More than cycling behavior
+I have also come across a situation with erratic behavior. The 7th iteration leads to crazy behavior that doesn't converge.
+```{r, eval = FALSE}
+set.seed(1138)
+
+n = 100
+p = 10
+L = 2
+V = 9
+beta_true = rep(0, p)
+
+# make independent N(0, 1) covariates
+X = matrix(rnorm(n * p), nrow = n)
+
+B = 7
+b_1s = numeric(B)
+b_2s = numeric(B)
+#susie.fits.easy2 = list() # logistic SuSiE fits
+#logistic.fits.easy2 = list() # logistic regression fits
+for (i in 1:B) {
+  beta_true[1] = rnorm(1, 0, sqrt(V))
+  beta_true[2] = rnorm(1, 0, sqrt(V))
+  b_1s[i] = beta_true[1]
+  b_2s[i] = beta_true[2]
+  Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+  #susie.fits.easy2[[i]] = susie_logistic(Y, X, L, V)
+  #logistic.fits.easy2[[i]] = glm(Y ~ X, family = "binomial")
+}
+```
+Increasing the maximum number of iterations sometimes solves the issue, so perhaps it's just that convergence is slow.
+
+**Another fix is setting $\sigma_0^2$ to be smaller. There appears to be an issue when the effect size is too large (caused by separability in the data, so our SEs are huge for our estimates**
 
 ### L = 2
-We not repeat the same as above, except with $L = 2$, and the second element $b_2$ also a non-zero.
-
+We not repeat the same as above, except with $L = 2, \sigma_0^2 = 1$, and the second element $b_2$ also a non-zero.
 ```{r, cache = T}
 set.seed(1138)
 
-n = 1000
+n = 100
 p = 10
 L = 2
-V = 25
+V = 1
 beta_true = rep(0, p)
-
-# make orthonormal covariates
-rand_mat = matrix(rnorm(n * p), nrow = n)
-svd_rand_mav = svd(rand_mat)
-X = svd_rand_mav$u
 
 B = 100
 b_1s = numeric(B)
@@ -331,50 +376,49 @@ for (i in 1:B) {
   beta_true[2] = rnorm(1, 0, sqrt(V))
   b_1s[i] = beta_true[1]
   b_2s[i] = beta_true[2]
+  # make independent N(0, 1) covariates
+  X = matrix(rnorm(n * p), nrow = n)
+  # make response
   Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
-  susie.fits.easy2[[i]] = susie_logistic(Y, X, L, V)
+  susie.fits.easy2[[i]] = susie_logistic(Y, X, L, V, maxit = 1000)
   logistic.fits.easy2[[i]] = glm(Y ~ X, family = "binomial")
 }
 ```
 
 
-Figures 4(a-b) below plot the estimated value for $\hat{b}_1 := \mu_1 \cdot \alpha_1$ and $\hat{b}_2 := \mu_2 \cdot \alpha_2$ against the true value, where $\mu_i$ is the estimated posterior mean, and $\alpha_i$ is the estimated posterior inclusion probability. Figures 5(a-b) below plot the PIP, $\alpha_i$, against the true value of $b_i$.
+Figures 4(a-b) below plot the estimated value for $\hat{b}_1 := \sum_{l = 1}^2 \mu_{l,1} \cdot \alpha_{l,1}$ and $\hat{b}_2 := \sum_{l = 1}^2 \mu_{l,2} \cdot \alpha_{l,2}$ against the true value, where $\mu_{l,i}$ is the estimated posterior mean, and $\alpha_{l,i}$ is the estimated posterior inclusion probability, for entry $i$ in estimated vector $l$. Figures 5(a-b) below plot the maximum PIP, $\max_{l \in \{1, 2\}}\alpha_{l,i}$, against the true value of $b_i$.
 
-**Note: In order to determine which estimated effect vector corresponds to true effect 1 and true effect 2, I have chosen the estimated effect vector that maximizes the PIP for true effect 1/2. This is not perfect, but is an easy way to divide up the 100 replications**
 ```{r}
-est_b1_max = sapply(susie.fits.easy2, function(x) x$post_alpha[1, which.max(x$post_alpha[1, ]) ]* x$post_mu[1, which.max(x$post_alpha[1, ])])
+#est_b1_max = sapply(susie.fits.easy2, function(x) x$post_alpha[1, which.max(x$post_alpha[1, ]) ]* x$post_mu[1, which.max(x$post_alpha[1, ])])
 
-est_b2_max = sapply(susie.fits.easy2, function(x) x$post_alpha[2, which.max(x$post_alpha[2, ]) ]* x$post_mu[2, which.max(x$post_alpha[2, ])])
+#est_b2_max = sapply(susie.fits.easy2, function(x) x$post_alpha[2, which.max(x$post_alpha[2, ]) ]* x$post_mu[2, which.max(x$post_alpha[2, ])])
 
 est_alpha1_max = sapply(susie.fits.easy2, function(x) max(x$post_alpha[1, ]))
 
 est_alpha2_max = sapply(susie.fits.easy2, function(x) max(x$post_alpha[2, ]))
 
-plot(est_b1_max ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 4(a) - Entry 1", pch = 19)
-abline(0, 1)
-abline(v = c(-5, 5))
+est_b = sapply(susie.fits.easy2, function(x) rowSums(x$post_alpha * x$post_mu))
 
-plot(est_b2_max ~ b_2s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 4(b) - Entry 2", pch = 19)
+plot(est_b[1, ] ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 4(a) - Entry 1", pch = 19)
 abline(0, 1)
-abline(v = c(-5, 5))
+
+plot(est_b[2, ] ~ b_2s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 4(b) - Entry 2", pch = 19)
+abline(0, 1)
 
 plot(est_alpha1_max ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "Figure 5(a) - Entry 1", pch = 19)
-abline(v = c(-5, 5))
 
 plot(est_alpha2_max ~ b_2s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "Figure 5(b) - Entry 2", pch = 19)
-abline(v = c(-5, 5))
 ```
 We see a similar pattern as above, in the case $L = 1$. The method is also able to detect both effects (when strong enough).
 
 We can compare figures 5(a-b) with the p-values obtained from the normal logistic regressions on the same simulated data, shown in figures 6(a-b) below.
 ```{r}
 plot(sapply(logistic.fits.easy2, function(x) summary(x)$coefficients[2, 4]) ~ b_1s, xlab = "True Effect Value", ylab = "Logistic p-value", main = "Figure 6(a) - Entry 1", pch = 19)
-abline(v = c(-5, 5))
 
 plot(sapply(logistic.fits.easy2, function(x) summary(x)$coefficients[3, 4]) ~ b_2s, xlab = "True Effect Value", ylab = "Logistic p-value", main = "Figure 6(b) - Entry 2", pch = 19)
-abline(v = c(-5, 5))
 ```
-We see a similar phase transition around the same values of the true effect size, $|b_i| \le 5$.
+We see a similar phase transition around the same values of the true effect size, $|b_i| \le 0.5$.
+
 
 ## Medium Demonstration
 As a medium difficulty demonstration, let $n = 100, p = 10, L = 3, \sigma_0^2 = 5$.
