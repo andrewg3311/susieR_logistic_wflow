@@ -357,7 +357,7 @@ Increasing the maximum number of iterations sometimes solves the issue, so perha
 
 ### L = 2
 We not repeat the same as above, except with $L = 2, \sigma_0^2 = 1$, and the second element $b_2$ also a non-zero.
-```{r, cache = T}
+```{r}
 set.seed(1138)
 
 n = 100
@@ -418,6 +418,90 @@ plot(sapply(logistic.fits.easy2, function(x) summary(x)$coefficients[2, 4]) ~ b_
 plot(sapply(logistic.fits.easy2, function(x) summary(x)$coefficients[3, 4]) ~ b_2s, xlab = "True Effect Value", ylab = "Logistic p-value", main = "Figure 6(b) - Entry 2", pch = 19)
 ```
 We see a similar phase transition around the same values of the true effect size, $|b_i| \le 0.5$.
+
+
+## Comparison with regular SuSiE
+Since the logistic curve is fairly linear in the middle, results from logistic regression and linear regression are often fairly similar for moderate probability values. We can use this fact to compare this implementation of logistic SuSiE against the original SuSiE.
+
+We will start from the above situation where $n = 100, p = 10, L = 2, \sigma_0^2 = 0.5$, and the entries of X are $X_{ij} \stackrel{iid}{\sim} \mathcal{N}(0, 1)$.
+
+```{r}
+set.seed(1138)
+
+n = 100
+p = 10
+L = 2
+V = 0.5
+beta_true = rep(0, p)
+
+B = 100
+b_1s = numeric(B)
+b_2s = numeric(B)
+susie.fits.easy3 = list() # logistic SuSiE fits
+regular.susie.fits.easy3 = list() # regular SuSiE fits
+for (i in 1:B) {
+  beta_true[1] = rnorm(1, 0, sqrt(V))
+  beta_true[2] = rnorm(1, 0, sqrt(V))
+  b_1s[i] = beta_true[1]
+  b_2s[i] = beta_true[2]
+  # make independent N(0, 1) covariates
+  X = matrix(rnorm(n * p), nrow = n)
+  # make response
+  Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+  susie.fits.easy3[[i]] = susie_logistic(Y, X, L, V, maxit = 1000)
+  regular.susie.fits.easy3[[i]] = susie(X, Y, L = 2, scaled_prior_variance = V)
+}
+```
+
+Figures 7(a-b) below plot the estimated logistic SuSiE value for $\hat{b}_1 := \sum_{l = 1}^2 \mu_{l,1} \cdot \alpha_{l,1}$ and $\hat{b}_2 := \sum_{l = 1}^2 \mu_{l,2} \cdot \alpha_{l,2}$ against the true value, where $\mu_{l,i}$ is the estimated posterior mean, and $\alpha_{l,i}$ is the estimated posterior inclusion probability, for entry $i$ in estimated vector $l$.
+
+Figures 8(a-b) below plot the same, but for regular SuSiE.
+```{r, fig.height = 12}
+par(mfrow = c(2, 2))
+# logistic SuSiE
+est_b_log = sapply(susie.fits.easy3, function(x) rowSums(x$post_alpha * x$post_mu))
+
+plot(est_b_log[1, ] ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 7(a) - Logistic Entry 1", pch = 19)
+abline(0, 1)
+
+plot(est_b_log[2, ] ~ b_2s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 7(b) - Logistic Entry 2", pch = 19)
+abline(0, 1)
+
+# regular SuSiE
+est_b_reg = sapply(regular.susie.fits.easy3, function(x) colSums(x$alpha * x$mu))
+
+plot(est_b_reg[1, ] ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 8(a) - Regular Entry 1", pch = 19)
+abline(0, 1)
+
+plot(est_b_reg[2, ] ~ b_2s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 8(b) - Regular Entry 2", pch = 19)
+abline(0, 1)
+par(mfrow = c(1, 1))
+```
+We can see that, for the estimates, regular SuSiE over-shrinks the values heavily.
+
+We can also compare the PIPs estimated. Figures 9(a-b) below plot the maximum PIP from logistic SuSiE, $\max_{l \in \{1, 2\}}\alpha_{l,i}$, against the true value of $b_i$. Figures 10(a-b) below plot the same, for regular SuSiE.
+```{r, fig.height = 12}
+par(mfrow = c(2, 2))
+# logistic SuSiE
+est_alpha1_max_log = sapply(susie.fits.easy3, function(x) max(x$post_alpha[1, ]))
+
+est_alpha2_max_log = sapply(susie.fits.easy3, function(x) max(x$post_alpha[2, ]))
+
+plot(est_alpha1_max_log ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "Figure 9(a) - Logistic Entry 1", pch = 19)
+
+plot(est_alpha2_max_log ~ b_2s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "Figure 9(b) - Logistic Entry 2", pch = 19)
+
+# regular SuSiE
+est_alpha1_max_reg = sapply(regular.susie.fits.easy3, function(x) max(x$alpha[, 1]))
+
+est_alpha2_max_reg = sapply(regular.susie.fits.easy3, function(x) max(x$alpha[, 2]))
+
+plot(est_alpha1_max_reg ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "Figure 10(a) - Regular Entry 1", pch = 19)
+
+plot(est_alpha2_max_reg ~ b_2s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "Figure 10(b) - Regular Entry 2", pch = 19)
+par(mfrow = c(1, 1))
+```
+We see that the PIPs are virtually identical between the logistic case and the regular case.
 
 
 ## Medium Demonstration
