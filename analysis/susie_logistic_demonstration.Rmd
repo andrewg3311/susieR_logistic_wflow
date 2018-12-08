@@ -449,7 +449,7 @@ for (i in 1:B) {
   # make response
   Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
   susie.fits.easy3[[i]] = susie_logistic(Y, X, L, V, maxit = 1000)
-  regular.susie.fits.easy3[[i]] = susie(X, Y, L = 2, scaled_prior_variance = V)
+  regular.susie.fits.easy3[[i]] = susieR::susie(X, Y, L = 2, scaled_prior_variance = V)
 }
 ```
 
