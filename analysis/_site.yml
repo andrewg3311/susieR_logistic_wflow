@@ -5,6 +5,8 @@ navbar:
   left:
     - text: "Home"
       href: index.html
+    - text: "Logistic SuSiE"
+      href: susie_logistic_demonstration.html
     - text: "About"
       href: about.html
     - text: "License"
