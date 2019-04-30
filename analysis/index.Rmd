@@ -9,5 +9,3 @@ output:
 This site aims to explore modifying SuSiE using a logistic GLM step in the SER rather than a linear regression step. Note that this approach has not been mathematically justified, and simply plugs in the logistic analogs into the SuSiE machinery.
 
 Click [here](susie_logistic_demonstration.html) for an explanation of the logistic GLM version of SuSiE, and a simple demonstration.
-
-Click [here](compare_logistic_linear_susie.html) to see a comparison between the logistic and linear versions o f SuSiE.
