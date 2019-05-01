@@ -367,7 +367,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/d1098191c70ee06b622664ff3b194234d5b2a24f" target="_blank">d109819</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/a37052ff4eabfe30e8f2c7c8f73cb4b2c312b030" target="_blank">a37052f</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -402,6 +402,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/a37052ff4eabfe30e8f2c7c8f73cb4b2c312b030/analysis/susie_logistic_demonstration.Rmd" target="_blank">a37052f</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-01
+</td>
+<td style="text-align:left;">
+Adding intercept estimation description
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/andrewg3311/susieR_logistic_wflow/18f106df96932f3e4f1e1643ee212c1dd41dad49/docs/susie_logistic_demonstration.html" target="_blank">18f106d</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-01
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -1334,7 +1368,8 @@ b_l \sim \mathcal{N}(0, \sigma_{0l}^2)
 <div id="a-note-on-the-intercept" class="section level3">
 <h3>A Note on the Intercept</h3>
 <p>In regular SuSiE, we can center our covariates and response to avoid fitting the intercept. Since our data is now 0/1, we can no longer center our response. Instead, we can fit an intercept in our IBFS.</p>
-<p>However, we note that centering X and Y at the start of the procedure and not fitting an intercept in each SER is equivalent to not centering X and Y and fitting an intercept in each SER step. As a result, in the logistic case, we do fit an intercept in each logistic SER.</p>
+<p>However, we note that centering X and Y at the start of the procedure and not fitting an intercept in each SER is equivalent to not centering X and Y and fitting an intercept in each SER step. As a result, in the logistic case, we do fit an intercept in each logistic SER. In order to obtain a final intercept value (e.g. for predictive purposes), we take our final estimate for <span class="math inline">\(\hat{b_j} = \sum_{l=1}^L \hat{\mu_{lj}} \alpha_{lj}\)</span> (call is <code>b_hat</code>), and fit one more logistic regression:</p>
+<pre><code>glm(Y ~ 1 + offset(X %*% b_hat), family = &quot;binomial&quot;)</code></pre>
 </div>
 </div>
 </div>
@@ -2341,6 +2376,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/18f106df96932f3e4f1e1643ee212c1dd41dad49/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-13-1.png" target="_blank">18f106d</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-13-1.png" target="_blank">c00c0b2</a>
 </td>
 <td style="text-align:left;">
@@ -2448,6 +2494,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/18f106df96932f3e4f1e1643ee212c1dd41dad49/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-14-1.png" target="_blank">18f106d</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-01
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-14-1.png" target="_blank">c00c0b2</a>
