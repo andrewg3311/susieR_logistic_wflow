@@ -175,6 +175,11 @@ susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3,
     
   }
   
+  # now, get intercept w/ MLE, holding our final estimate of beta to be fixed
+  beta = rowSums(post_info$post_alpha * post_info$post_mu)
+  int = coef(glm(Y ~ 1 + offset(X %*% beta), family = "binomial"))
+  post_info$intercept = int
+  
   return(post_info)
   
 }
@@ -356,7 +361,7 @@ Increasing the maximum number of iterations sometimes solves the issue, so perha
 **Another fix is setting $\sigma_0^2$ to be smaller. There appears to be an issue when the effect size is too large (caused by separability in the data, so our SEs are huge for our estimates**
 
 ### L = 2
-We not repeat the same as above, except with $L = 2, \sigma_0^2 = 1$, and the second element $b_2$ also a non-zero.
+We now repeat the same as above, except with $L = 2, \sigma_0^2 = 1$, and the second element $b_2$ also a non-zero.
 ```{r}
 set.seed(1138)
 
@@ -529,7 +534,7 @@ for (i in 1:3) {
   fit.log = glm(Y ~ X, family = "binomial")
   fit.lin = lm(Y ~ X)
   
-  pred.susie.log = faraway::ilogit(X %*% rowSums(fit.susie.log$post_alpha * fit.susie.log$post_mu))
+  pred.susie.log = faraway::ilogit(fit.susie.log$intercept + (X %*% rowSums(fit.susie.log$post_alpha * fit.susie.log$post_mu)))
   pred.susie.lin = fit.susie.lin$fitted
   pred.log = predict(fit.log, type = "response")
   pred.lin = predict(fit.lin)
@@ -568,7 +573,7 @@ for (i in 1:3) {
   fit.log = glm(Y ~ X, family = "binomial")
   fit.lin = lm(Y ~ X)
   
-  pred.susie.log = faraway::ilogit(X %*% rowSums(fit.susie.log$post_alpha * fit.susie.log$post_mu))
+  pred.susie.log = faraway::ilogit(fit.susie.log$intercept + (X %*% rowSums(fit.susie.log$post_alpha * fit.susie.log$post_mu)))
   pred.susie.lin = fit.susie.lin$fitted
   pred.log = predict(fit.log, type = "response")
   pred.lin = predict(fit.lin)
