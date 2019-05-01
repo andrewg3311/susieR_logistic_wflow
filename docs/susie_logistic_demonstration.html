@@ -343,7 +343,7 @@ div.section {
 </div>
 
 
-<p><strong>Last updated:</strong> 2019-04-30</p>
+<p><strong>Last updated:</strong> 2019-05-01</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
@@ -367,11 +367,12 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/b42e5ac42ce6981596be3b07412c0892029e6ae6" target="_blank">b42e5ac</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/d1098191c70ee06b622664ff3b194234d5b2a24f" target="_blank">d109819</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
     Ignored:    .Rhistory
+    Ignored:    analysis/.Rhistory
     Ignored:    analysis/susie_logistic_demonstration_cache/
 
 </code></pre>
@@ -401,6 +402,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/d1098191c70ee06b622664ff3b194234d5b2a24f/analysis/susie_logistic_demonstration.Rmd" target="_blank">d109819</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-01
+</td>
+<td style="text-align:left;">
+Adding intercept estimation to logistic SuSiE, have to think if there’s a better way, though
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/andrewg3311/susieR_logistic_wflow/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/susie_logistic_demonstration.html" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -1358,6 +1393,11 @@ susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3,
     
   }
   
+  # now, get intercept w/ MLE, holding our final estimate of beta to be fixed
+  beta = rowSums(post_info$post_alpha * post_info$post_mu)
+  int = coef(glm(Y ~ 1 + offset(X %*% beta), family = &quot;binomial&quot;))
+  post_info$intercept = int
+  
   return(post_info)
   
 }
@@ -1680,7 +1720,7 @@ for (i in 1:B) {
 </div>
 <div id="l-2" class="section level3">
 <h3>L = 2</h3>
-<p>We not repeat the same as above, except with <span class="math inline">\(L = 2, \sigma_0^2 = 1\)</span>, and the second element <span class="math inline">\(b_2\)</span> also a non-zero.</p>
+<p>We now repeat the same as above, except with <span class="math inline">\(L = 2, \sigma_0^2 = 1\)</span>, and the second element <span class="math inline">\(b_2\)</span> also a non-zero.</p>
 <pre class="r"><code>set.seed(1138)
 
 n = 100
@@ -2083,6 +2123,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-11-1.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/3cc40b73f312cea9112d63985103b68d841a5490/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-11-1.png" target="_blank">3cc40b7</a>
 </td>
 <td style="text-align:left;">
@@ -2190,6 +2241,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-12-1.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/3cc40b73f312cea9112d63985103b68d841a5490/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-12-1.png" target="_blank">3cc40b7</a>
 </td>
 <td style="text-align:left;">
@@ -2249,7 +2311,7 @@ for (i in 1:3) {
   fit.log = glm(Y ~ X, family = &quot;binomial&quot;)
   fit.lin = lm(Y ~ X)
   
-  pred.susie.log = faraway::ilogit(X %*% rowSums(fit.susie.log$post_alpha * fit.susie.log$post_mu))
+  pred.susie.log = faraway::ilogit(fit.susie.log$intercept + (X %*% rowSums(fit.susie.log$post_alpha * fit.susie.log$post_mu)))
   pred.susie.lin = fit.susie.lin$fitted
   pred.log = predict(fit.log, type = &quot;response&quot;)
   pred.lin = predict(fit.lin)
@@ -2277,6 +2339,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-13-1.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/11114f57beb0cfea2663f8b70b2178dce5df11d5/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-13-1.png" target="_blank">11114f5</a>
@@ -2347,7 +2420,7 @@ for (i in 1:3) {
   fit.log = glm(Y ~ X, family = &quot;binomial&quot;)
   fit.lin = lm(Y ~ X)
   
-  pred.susie.log = faraway::ilogit(X %*% rowSums(fit.susie.log$post_alpha * fit.susie.log$post_mu))
+  pred.susie.log = faraway::ilogit(fit.susie.log$intercept + (X %*% rowSums(fit.susie.log$post_alpha * fit.susie.log$post_mu)))
   pred.susie.lin = fit.susie.lin$fitted
   pred.log = predict(fit.log, type = &quot;response&quot;)
   pred.lin = predict(fit.lin)
@@ -2375,6 +2448,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-14-1.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/1bd49c2baf2bf5aad928355d0634a82dc9a43d12/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-14-1.png" target="_blank">1bd49c2</a>
@@ -2490,6 +2574,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-16-1.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/1bd49c2baf2bf5aad928355d0634a82dc9a43d12/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-16-1.png" target="_blank">1bd49c2</a>
 </td>
 <td style="text-align:left;">
@@ -2561,6 +2656,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-17-1.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/11114f57beb0cfea2663f8b70b2178dce5df11d5/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-17-1.png" target="_blank">11114f5</a>
 </td>
 <td style="text-align:left;">
@@ -2604,6 +2710,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-17-2.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/23eac4fe33dc8feacf7b074a8c6492003d934bf4/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-17-2.png" target="_blank">23eac4f</a>
 </td>
 <td style="text-align:left;">
@@ -2634,6 +2751,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-17-3.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/23eac4fe33dc8feacf7b074a8c6492003d934bf4/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-17-3.png" target="_blank">23eac4f</a>
@@ -2668,6 +2796,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-18-1.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/1bd49c2baf2bf5aad928355d0634a82dc9a43d12/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-18-1.png" target="_blank">1bd49c2</a>
@@ -2724,6 +2863,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-18-2.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/11114f57beb0cfea2663f8b70b2178dce5df11d5/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-18-2.png" target="_blank">11114f5</a>
 </td>
 <td style="text-align:left;">
@@ -2754,6 +2904,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-18-3.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/11114f57beb0cfea2663f8b70b2178dce5df11d5/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-18-3.png" target="_blank">11114f5</a>
@@ -2825,6 +2986,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-20-1.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/1bd49c2baf2bf5aad928355d0634a82dc9a43d12/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-20-1.png" target="_blank">1bd49c2</a>
 </td>
 <td style="text-align:left;">
@@ -2875,6 +3047,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-21-1.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/455f96165283421e90a50a95575e07347bee9e1d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-21-1.png" target="_blank">455f961</a>
 </td>
 <td style="text-align:left;">
@@ -2915,6 +3098,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-22-1.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/455f96165283421e90a50a95575e07347bee9e1d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-22-1.png" target="_blank">455f961</a>
@@ -2985,7 +3179,157 @@ for (i in 1:length(Vs)) {
     text(which(abs(a_l_post) &gt;= .05), b_l_post[abs(a_l_post) &gt;= .05], labels = which(abs(a_l_post) &gt;= .05))
   }
 }</code></pre>
-<p><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-3.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-4.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-5.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-23-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-1.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-2.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-23-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-2.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-3.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-23-3.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-3.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-4.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-23-4.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-4.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-5.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-23-5.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-5.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>par(mfrow = c(1, 1))
 
 
@@ -2998,7 +3342,157 @@ for (i in 1:length(Vs)) {
     text(which(abs(a_l_post) &gt;= .05), a_l_post[abs(a_l_post) &gt;= .05], labels = which(abs(a_l_post) &gt;= .05))
   }
 }</code></pre>
-<p><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-6.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-7.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-8.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-9.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-10.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-6.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-23-6.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-6.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-7.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-23-7.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-7.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-8.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-23-8.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-8.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-9.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-23-9.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-9.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-10.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-23-10.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-23-10.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
 <p>As we can see, we require relatively large effects in order to determine that 1 and/or 5 is contributing to the response. However, a regular logistic regression on the columns of X (removing the 5th column) in these settings also have a difficult time determing that the 1 is the effect variable.</p>
 </div>
@@ -3044,7 +3538,157 @@ for (i in 1:length(Vs)) {
     text(which(abs(a_l_post) &gt;= .05), b_l_post[abs(a_l_post) &gt;= .05], labels = which(abs(a_l_post) &gt;= .05))
   }
 }</code></pre>
-<p><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-3.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-4.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-5.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-24-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-1.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-2.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-24-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-2.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-3.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-24-3.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-3.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-4.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-24-4.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-4.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-5.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-24-5.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-5.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>par(mfrow = c(1, 1))
 
 
@@ -3057,7 +3701,157 @@ for (i in 1:length(Vs)) {
     text(which(abs(a_l_post) &gt;= .05), a_l_post[abs(a_l_post) &gt;= .05], labels = which(abs(a_l_post) &gt;= .05))
   }
 }</code></pre>
-<p><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-6.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-7.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-8.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-9.png" width="672" style="display: block; margin: auto;" /><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-10.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-6.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-24-6.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-6.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-7.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-24-7.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-7.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-8.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-24-8.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-8.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-9.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-24-9.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-9.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-10.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-24-10.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c00c0b25ef6e87fcbe55001a528419b5b1c2615d/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-24-10.png" target="_blank">c00c0b2</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-04-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
 <p>We can see that much smaller effects are detectable in this setting than above, with an arbitrary center and scaled design matrix <span class="math inline">\(X\)</span>.</p>
 </div>
@@ -3089,10 +3883,9 @@ loaded via a namespace (and not attached):
 [16] faraway_1.0.7      git2r_0.23.0       htmltools_0.3.6   
 [19] matrixStats_0.54.0 yaml_2.2.0         lme4_1.1-18-1     
 [22] rprojroot_1.3-2    digest_0.6.18      Matrix_1.2-14     
-[25] nloptr_1.2.0       codetools_0.2-15   R.utils_2.7.0     
-[28] evaluate_0.11      rmarkdown_1.10     stringi_1.2.4     
-[31] compiler_3.5.1     backports_1.1.2    R.methodsS3_1.7.1 
-[34] expm_0.999-3      </code></pre>
+[25] nloptr_1.2.0       R.utils_2.7.0      evaluate_0.11     
+[28] rmarkdown_1.10     stringi_1.2.4      compiler_3.5.1    
+[31] backports_1.1.2    R.methodsS3_1.7.1  expm_0.999-3      </code></pre>
 </div>
 </div>
 
