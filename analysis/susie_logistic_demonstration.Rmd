@@ -116,7 +116,10 @@ separately for each $j \in \{1, \dots, p\}$, where `fixed` is $\sum_{l' \ne l} \
 ### A Note on the Intercept
 In regular SuSiE, we can center our covariates and response to avoid fitting the intercept. Since our data is now 0/1, we can no longer center our response. Instead, we can fit an intercept in our IBFS.
 
-However, we note that centering X and Y at the start of the procedure and not fitting an intercept in each SER is equivalent to not centering X and Y and fitting an intercept in each SER step. As a result, in the logistic case, we do fit an intercept in each logistic SER.
+However, we note that centering X and Y at the start of the procedure and not fitting an intercept in each SER is equivalent to not centering X and Y and fitting an intercept in each SER step. As a result, in the logistic case, we do fit an intercept in each logistic SER. In order to obtain a final intercept value (e.g. for predictive purposes), we take our final estimate for $\hat{b_j} = \sum_{l=1}^L \hat{\mu_{lj}} \alpha_{lj}$ (call is `b_hat`), and fit one more logistic regression:
+```
+glm(Y ~ 1 + offset(X %*% b_hat), family = "binomial")
+```
 
 # Adjustments to SuSiE Code
 The code below is a simplistic implementation of the above ideas.
