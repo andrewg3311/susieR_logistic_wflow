@@ -11,7 +11,6 @@
 
 <meta name="author" content="Andrew Goldstein" />
 
-<meta name="date" content="2019-04-30" />
 
 <title>susieR Logistic Regression GLM</title>
 
@@ -338,12 +337,12 @@ div.section {
 
 <h1 class="title toc-ignore">susieR Logistic Regression GLM</h1>
 <h4 class="author"><em>Andrew Goldstein</em></h4>
-<h4 class="date"><em>April 30, 2019</em></h4>
+<h4 class="date"><em>May 3, 2019</em></h4>
 
 </div>
 
 
-<p><strong>Last updated:</strong> 2019-05-02</p>
+<p><strong>Last updated:</strong> 2019-05-03</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
@@ -367,7 +366,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/a7b906770e907602fa94c2fd196108062142418b" target="_blank">a7b9067</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/c66144460f0c18fcb3603a2c1ac1c2cfc814fba4" target="_blank">c661444</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -402,6 +401,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c66144460f0c18fcb3603a2c1ac1c2cfc814fba4/analysis/susie_logistic_demonstration.Rmd" target="_blank">c661444</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-03
+</td>
+<td style="text-align:left;">
+Slightly modifying incorrect L plots
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/andrewg3311/susieR_logistic_wflow/768cdd02d92741e688ec741e164bc90477545721/docs/susie_logistic_demonstration.html" target="_blank">768cdd0</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-02
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -3983,14 +4016,15 @@ Andrew Goldstein
 <div id="misspecified-l" class="section level2">
 <h2>Misspecified <span class="math inline">\(L\)</span></h2>
 <p>In regular SuSiE, the algorithm is robust to misspecifying the value for <span class="math inline">\(L\)</span>. For instance, say there are 3 true groups of correlated predictors. Then even we specify, say, <span class="math inline">\(L = 5\)</span>, the algorithm will give us 3 meaningful credible sets and 7 impure ones (see sections 3.4.2 and 3.5 of the SuSiE paper). In this section, I show via example that this appears to hold true in the logistic version as well.</p>
-<p>For example, consider the easy case where <span class="math inline">\(n = 1000\)</span>, <span class="math inline">\(p = 10\)</span>, each entry <span class="math inline">\(X_{ij} \stackrel{iid}{\sim} \mathcal{N}(0, 1)\)</span>, and the first three effects are iid <span class="math inline">\(\mathcal{N}(0, 1)\)</span>. I test when I set <span class="math inline">\(L = 3\)</span> (the optimal value), <span class="math inline">\(L = 5\)</span>, and <span class="math inline">\(L = 10\)</span>.</p>
+<p>For example, consider the easy case where <span class="math inline">\(n = 1000\)</span>, <span class="math inline">\(p = 10\)</span>, each entry <span class="math inline">\(X_{ij} \stackrel{iid}{\sim} \mathcal{N}(0, 1)\)</span>, and the first three effects are <span class="math inline">\(b_1 = 1, b_2 = -0.75, b_3 = 0.5\)</span>. I test when I set <span class="math inline">\(L = 3\)</span> (the optimal value), <span class="math inline">\(L = 5\)</span>, and <span class="math inline">\(L = 10\)</span>.</p>
 <pre class="r"><code>set.seed(1138)
 
 n = 1000
 p = 10
 L = 1
 beta_true = rep(0, p)
-beta_true[1:3] = rnorm(3)
+beta_true[1:3] = c(1, -.75, .5)
+V = 1
 
 X = matrix(rnorm(n * p), nrow = n)
 # make response
@@ -4009,8 +4043,38 @@ plot(rowSums(fit.susie.log3$post_alpha * fit.susie.log3$post_mu), xlab = &quot;I
 plot(rowSums(fit.susie.log5$post_alpha * fit.susie.log5$post_mu), xlab = &quot;Index&quot;, ylab = &quot;Posterior Mean&quot;, main = &quot;L = 5&quot;, pch = 19)
 plot(rowSums(fit.susie.log10$post_alpha * fit.susie.log10$post_mu), xlab = &quot;Index&quot;, ylab = &quot;Posterior Mean&quot;, main = &quot;L = 10&quot;, pch = 19)</code></pre>
 <p><img src="figure/susie_logistic_demonstration.Rmd/unnamed-chunk-25-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-25-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/768cdd02d92741e688ec741e164bc90477545721/docs/figure/susie_logistic_demonstration.Rmd/unnamed-chunk-25-1.png" target="_blank">768cdd0</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-02
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>par(mfcol = c(1, 1))</code></pre>
-<p>We can see that having a value of <span class="math inline">\(L\)</span> too large adds groups with a lot of impurity in the PIPs (these groups being roughly identical). Unsurprisingly, since our PIPs are forced to sum to 1, adding more groups will always add to the posterior means of each coefficient (assuming effects from different groups don’t cancel out due to having opposite signs). We can see this on the right side of the plots above (for <span class="math inline">\(L = 3\)</span>, coefficients 4-10 are close to 0, but for <span class="math inline">\(L = 5\)</span> and <span class="math inline">\(L = 10\)</span>, these effects start to deviate from 0).</p>
+<p>We can see that having a value of <span class="math inline">\(L\)</span> too large adds groups with a lot of impurity in the PIPs (these groups being roughly identical, which is peculiar to me). Unsurprisingly, since our PIPs are forced to sum to 1, adding more groups will always add to the posterior means of each coefficient (assuming effects from different groups don’t cancel out due to having opposite signs). We can see this on the right side of the plots above (for <span class="math inline">\(L = 3\)</span>, coefficients 4-10 are close to 0, but for <span class="math inline">\(L = 5\)</span> and <span class="math inline">\(L = 10\)</span>, these effects start to deviate from 0).</p>
 </div>
 <div id="session-information" class="section level2">
 <h2>Session information</h2>
