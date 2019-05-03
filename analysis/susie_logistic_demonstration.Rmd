@@ -1,7 +1,7 @@
 ---
 title: "susieR Logistic Regression GLM"
 author: "Andrew Goldstein"
-date: "April 30, 2019"
+date: "May 3, 2019"
 output:
   workflowr::wflow_html:
     code_folding: show
@@ -877,7 +877,7 @@ We can see that much smaller effects are detectable in this setting than above, 
 ## Misspecified $L$
 In regular SuSiE, the algorithm is robust to misspecifying the value for $L$. For instance, say there are 3 true groups of correlated predictors. Then even we specify, say, $L = 5$, the algorithm will give us 3 meaningful credible sets and 7 impure ones (see sections 3.4.2 and 3.5 of the SuSiE paper). In this section, I show via example that this appears to hold true in the logistic version as well.
 
-For example, consider the easy case where $n = 1000$, $p = 10$, each entry $X_{ij} \stackrel{iid}{\sim} \mathcal{N}(0, 1)$, and the first three effects are iid $\mathcal{N}(0, 1)$. I test when I set $L = 3$ (the optimal value), $L = 5$, and $L = 10$.
+For example, consider the easy case where $n = 1000$, $p = 10$, each entry $X_{ij} \stackrel{iid}{\sim} \mathcal{N}(0, 1)$, and the first three effects are $b_1 = 1, b_2 = -0.75, b_3 = 0.5$. I test when I set $L = 3$ (the optimal value), $L = 5$, and $L = 10$.
 
 ```{r, fig.height = 12}
 set.seed(1138)
@@ -886,7 +886,8 @@ n = 1000
 p = 10
 L = 1
 beta_true = rep(0, p)
-beta_true[1:3] = rnorm(3)
+beta_true[1:3] = c(1, -.75, .5)
+V = 1
 
 X = matrix(rnorm(n * p), nrow = n)
 # make response
@@ -907,4 +908,4 @@ plot(rowSums(fit.susie.log10$post_alpha * fit.susie.log10$post_mu), xlab = "Inde
 par(mfcol = c(1, 1))
 ```
 
-We can see that having a value of $L$ too large adds groups with a lot of impurity in the PIPs (these groups being roughly identical). Unsurprisingly, since our PIPs are forced to sum to 1, adding more groups will always add to the posterior means of each coefficient (assuming effects from different groups don't cancel out due to having opposite signs). We can see this on the right side of the plots above (for $L = 3$, coefficients 4-10 are close to 0, but for $L = 5$ and $L = 10$, these effects start to deviate from 0).
+We can see that having a value of $L$ too large adds groups with a lot of impurity in the PIPs (these groups being roughly identical, which is peculiar to me). Unsurprisingly, since our PIPs are forced to sum to 1, adding more groups will always add to the posterior means of each coefficient (assuming effects from different groups don't cancel out due to having opposite signs). We can see this on the right side of the plots above (for $L = 3$, coefficients 4-10 are close to 0, but for $L = 5$ and $L = 10$, these effects start to deviate from 0).
