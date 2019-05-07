@@ -258,7 +258,10 @@ susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3,
     }
   }
   
-  return(post_info)
+  # change output format to match the GLM version's output
+  res = list(post_alpha = post_info$Alpha, post_mu = post_info$Mu, post_sigma = post_info$Sigma, xi = post_info$xi)
+  
+  return(res)
   
 }
 ```
