@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = T, error = T, warning = T, message = F, fig.align =
 ```
 
 # Introduction
-This page aims to explore an analog to SuSiE applied to 0/1 data using logistic regression. In my first attempt, I tried to replace the Single Effect Regression (SER) step in the Iterative Bayesian Forward Selection (IBFS) algorithm with an analogous logistic regression step. See [here](susie_logistic_demonstration.html). Here, instead of relying on the linear SuSiE results and modifying the updates to what the analogous updates seem like they should be in the logistic case, I start from the ground up and derive the variational updates in this case directly.
+This page aims to explore an analog to SuSiE applied to 0/1 data using logistic regression. In my first attempt, I tried to replace the Single Effect Regression (SER) step in the Iterative Bayesian Forward Selection (IBFS) algorithm with an analogous logistic regression step. See [here](susie_logistic_VB_demonstration.html). Here, instead of relying on the linear SuSiE results and modifying the updates to what the analogous updates seem like they should be in the logistic case, I start from the ground up and derive the variational updates in this case directly.
 
 Our response is $\mathbf{y} \in \mathbb{R}^n$, and our covariates are $\mathbf{X} \in \mathbb{R}^{n \times p}$.
 
@@ -51,7 +51,7 @@ $$
 P(y_i|x_i, \beta) = g(X_y) \ge g(\xi) \exp\Big\{\frac{X_y - \xi}{2} + \lambda(\xi)(X_y^2 - \xi^2)\Big\}
 $$
 where $X_y = (2y_i - 1)x_i^T \beta$ and $\lambda(\xi) = \frac{1}{2\xi} (g(\xi) - \frac{1}{2})$.
-(The same bound is used in ["Sparse Bayesian Logistic Regression with Hierarchical Prior and Variational Inference" (Horii, 2017)](http://approximateinference.org/2017/accepted/Horri2017.pdf)).
+(The same bound is used in ["Sparse Bayesian Logistic Regression with Hierarchical Prior and Variational Inference" (Horii, 2017)](http://approximateinference.org/2017/accepted/Horri2017.pdf).
 
 Using this bound, we derive the VB updates as follows:
 $$
@@ -94,6 +94,7 @@ According to Wolfram Alpha, by taking the derivative of the objective w.r.t. $\x
 $$
 \frac{(-2e^{\xi_i} \xi_i + e^{2\xi_i} - 1) \cdot (\xi_i^2 - Q)} {4(e^{\xi_i} + 1)^2 \xi_i^2} := 0 \iff \xi_i^2 = \pm Q \Rightarrow \xi_i := +\sqrt{Q}
 $$
+As an interpretation, $\xi_i^2$ is the second moment of the linear predictor $x_i^T \mathbf{b}$ under the current estimates for $q_l$.
 
 With these updates derived, we can now implement the algorithm.
 
@@ -101,7 +102,7 @@ With these updates derived, we can now implement the algorithm.
 ### A Note on the Intercept
 In regular SuSiE, we can center our covariates and response to avoid fitting the intercept. Since our data is now 0/1, we can no longer center our response. Instead, we can fit an intercept in our IBFS.
 
-I have not given much thought yet as to how an intercept should be included.
+I have not given much thought yet as to how an intercept should be included. I suspect we can simply add it to the lower bound and optimize it like we did for the $\xi_i$ (this approach should allow us to add any number of other predictors that we want to include but not penalize with a prior, e.g. adding control covariates such as gender, top 10 PCs, etc).
 
 # Implementation
 The code below is a simplistic implementation of the above ideas.
@@ -222,7 +223,7 @@ init_all = function(n, p, L) {
 }
 
 
-susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3, maxit = 1000) {
+susie_logistic_VB = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3, maxit = 1000) {
   p = ncol(X)
   n = nrow(X)
   
@@ -239,13 +240,14 @@ susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3,
   post_info = list(Sigma2 = Sigma2, Mu = Mu, Alpha = Alpha, xi = xi)
   
   beta_post_init = matrix(Inf, nrow = p, ncol = L) # initialize
-  beta_post_init2 = beta_post_init
+  #beta_post_init2 = beta_post_init
   beta_post = post_info$Alpha * post_info$Mu
   
   
   iter = 0
-  while((norm(beta_post - beta_post_init, "1") > tol) & (norm(beta_post - beta_post_init2, "1") > tol)) { # repeat until posterior means
-    beta_post_init2 = beta_post_init # store from 2 iterations ago
+  #while((norm(beta_post - beta_post_init, "1") > tol) & (norm(beta_post - beta_post_init2, "1") > tol)) { # repeat until posterior means
+  while(norm(beta_post - beta_post_init, "1") > tol) { # repeat until posterior means
+    #beta_post_init2 = beta_post_init # store from 2 iterations ago
     beta_post_init = beta_post
     
     post_info = update_all(X, Y, post_info$xi, prior_weights, V, post_info$Sigma2, post_info$Mu, post_info$Alpha)
@@ -266,6 +268,131 @@ susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3,
 }
 ```
 
+I also include the code for the original iterative logistic SuSiE method below in order to compare the two methods.
+*(NOTE: I will clean this up later by adding the code to the "Code" folder in the workflowR folder)*
+```{r}
+susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3, maxit = 1000, intercept = TRUE) {
+  
+  p = ncol(X)
+  n = nrow(X)
+  
+  # place to store posterior info for each l = 1, ..., L
+  post_alpha = matrix(NA, nrow = p, ncol = L)
+  post_mu = matrix(NA, nrow = p, ncol = L)
+  post_sigma = matrix(NA, nrow = p, ncol = L)
+  post_info = list(post_alpha = post_alpha, post_mu = post_mu, post_sigma = post_sigma)
+
+  beta_post_init = matrix(Inf, nrow = p, ncol = L) # initialize
+  beta_post_init2 = beta_post_init
+  beta_post = matrix(0, nrow = p, ncol = L)
+  
+  fixed = rep(0, n) # fixed portion, estimated from l' != l other SER models
+  
+  iter = 0
+  while((norm(beta_post - beta_post_init, "1") > tol) & (norm(beta_post - beta_post_init2, "1") > tol)) { # repeat until posterior means converge (ELBO not calculated here, so use this convergence criterion instead)
+    beta_post_init2 = beta_post_init # store from 2 iterations ago
+    beta_post_init = beta_post
+      
+    for (l in 1:L) {
+      
+      # below is old (inefficient) calculation of the fixed portion
+      #fixed = rowSums(X %*% beta_post[, -l]) + int.coef # fixed portion from previous estimates (add intercept portion as well)
+      fixed = fixed - (X %*% beta_post[, l]) # remove effect from previous iteration
+      
+      SER_logistric_l = single_effect_regression_logistic(Y, X, V, prior_weights, FALSE, fixed, intercept)
+      # store
+      post_info$post_alpha[, l] = SER_logistric_l$alpha
+      post_info$post_mu[, l] = SER_logistric_l$mu
+      post_info$post_sigma[, l] = SER_logistric_l$mu2 - SER_logistric_l$mu^2
+      
+      # update beta_post
+      beta_post[, l] = SER_logistric_l$alpha * SER_logistric_l$mu
+      
+      fixed = fixed + (X %*% beta_post[, l]) # add back new fixed portion
+      
+    }
+    
+    iter = iter + 1
+    if (iter > maxit) {
+        stop("Maximum number of iterations reached")
+    }
+    
+  }
+  
+  # now, get intercept w/ MLE, holding our final estimate of beta to be fixed
+  beta = rowSums(post_info$post_alpha * post_info$post_mu)
+  int = coef(glm(Y ~ 1 + offset(X %*% beta), family = "binomial"))
+  post_info$intercept = int
+  
+  return(post_info)
+  
+}
+
+
+# SER_logistic function
+single_effect_regression_logistic = function(Y, X, V, prior_weights = NULL, optimize_V = FALSE, fixed = NULL, intercept = TRUE) {
+  p = ncol(X)
+  
+  betahat = numeric(p)
+  shat2 = numeric(p)
+  
+  if (is.null(fixed)) { # fixed is components from previous SER fits
+    fixed = rep(0, length(Y))
+  }
+  
+  # NOTE: could parallelize loop below if desired
+  for (j in 1:p) { # logistic regression on each column of X separately
+    if (intercept) {
+      log.fit = glm(Y ~ X[, j] + 1 + offset(fixed), family = "binomial") # fit w/ intercept
+    } else {
+      log.fit = glm(Y ~ X[, j] - 1 + offset(fixed), family = "binomial") # fit w/out intercept
+    }
+    log.fit.coef = summary(log.fit)$coefficients
+    # NOTE: coerces "intercept" to be 0 or 1 to grab relevant row of glm coefficient output
+    betahat[j] = ifelse(is.na(log.fit.coef[1 + intercept, 1]), 0, log.fit.coef[1 + intercept, 1]) # beta-hat MLE (if na, just set to 0)
+    shat2[j] = ifelse(is.na(log.fit.coef[1 + intercept, 2]), Inf, log.fit.coef[1 + intercept, 2]^2) # (std errof beta-hat MLE)^2 (if na, just set to Inf)
+  }
+  
+  if (is.null(prior_weights)) {
+    prior_weights = rep(1 / p, p)
+  }
+  
+  if(optimize_V) {
+    stop("Optimizing for prior variance not yet implemented for logistic case")
+    #if(loglik.grad(0, betahat, shat2, prior_weights) < 0) {
+    #  V = 0
+    #} else {
+    ##V.o = optim(par=log(V),fn=negloglik.logscale,gr = negloglik.grad.logscale,betahat=betahat,shat2=shat2,prior_weights=prior_weights,method="BFGS")
+    ##if(V.o$convergence!=0){
+    ##  warning("optimization over prior variance failed to converge")
+    ##}
+    #  V.u = uniroot(negloglik.grad.logscale, c(-10, 10), extendInt = "upX", betahat = betahat, shat2 = shat2, prior_weights = prior_weights)
+    #  V = exp(V.u$root)
+    #}
+  }
+  
+  lbf = dnorm(betahat, 0, sqrt(V + shat2), log = TRUE) - dnorm(betahat, 0, sqrt(shat2), log = TRUE)
+  #log(bf) on each SNP
+  
+  lbf[is.infinite(shat2)] = 0 # deal with special case of infinite shat2 (eg happens if X does not vary)
+  
+  maxlbf = max(lbf)
+  w = exp(lbf - maxlbf) # w is proportional to BF, but subtract max for numerical stability
+  # posterior prob on each SNP
+  w_weighted = w * prior_weights
+  weighted_sum_w = sum(w_weighted)
+  alpha = w_weighted / weighted_sum_w
+  post_var = 1 / ((1 / shat2) + (1 / V)) # posterior variance
+  post_mean = (1 / shat2) * post_var * betahat # posterior mean
+  post_mean2 = post_var + post_mean^2 # posterior second moment
+  # BF for single effect model
+  lbf_model = maxlbf + log(weighted_sum_w)
+  # NOTE: Need to double check below
+  loglik = lbf_model + log(1/2)*length(Y) # loglik of 0/1 response Y under p = .5
+  return(list(alpha = alpha, mu = post_mean, mu2 = post_mean2, lbf = lbf, lbf_model = lbf_model, V = V, loglik = loglik))
+}
+```
+
 
 # Demonstration
 
@@ -277,7 +404,7 @@ We then simulated $\mathbf{y}$ from the specified bernoulli model,
 $$
 y_i \stackrel{\perp}{\sim} \text{Bern}\Bigg(\frac{e^{(\mathbf{Xb})_i}}{1 + e^{(\mathbf{Xb})_i}}\Bigg)
 $$
-(We do not add an intercept term here, but still fit the model with an intercept).
+(We do not add an intercept term here, since intercepts are not currently implemented in the VB method).
 
 We repeat this procedure 100 times.
 
@@ -301,7 +428,7 @@ for (i in 1:B) {
   X = matrix(rnorm(n * p), nrow = n)
   # make response
   Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
-  susie.fits.easy[[i]] = susie_logistic(Y, X, L, V)
+  susie.fits.easy[[i]] = susie_logistic_VB(Y, X, L, V)
   logistic.fits.easy[[i]] = glm(Y ~ X, family = "binomial")
 }
 ```
@@ -321,61 +448,6 @@ plot(sapply(logistic.fits.easy, function(x) summary(x)$coefficients[2, 4]) ~ b_1
 ```
 We see a similar phase transition around the same values of the true effect size, $|b_1| \le 0.5$.
 
-
-#### CAUTION: Cycling Behavior
-I have come across a situation in which the iterative algorithm gets caught in a loop, where it cycles between 2 estimates for the coefficients.
-```{r, eval = FALSE}
-set.seed(1138)
-
-n = 100
-p = 10
-L = 2
-V = 9
-beta_true = rep(0, p)
-
-# make independent N(0, 1) covariates
-X = matrix(rnorm(n * p), nrow = n)
-
-beta_true[1] = rnorm(1, 0, sqrt(V))
-beta_true[2] = rnorm(1, 0, sqrt(V))
-Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
-susie.cycle = susie_logistic(Y, X, L, V)
-```
-I have gotten around this with a more sophisticated convergence criterion (e.g. also store and compare with the estimate 2 iterations ago). However, this situation may be a cause for concern.
-
-
-#### CAUTION: More than cycling behavior
-I have also come across a situation with erratic behavior. The 7th iteration leads to crazy behavior that doesn't converge.
-```{r, eval = FALSE}
-set.seed(1138)
-
-n = 100
-p = 10
-L = 2
-V = 9
-beta_true = rep(0, p)
-
-# make independent N(0, 1) covariates
-X = matrix(rnorm(n * p), nrow = n)
-
-B = 7
-b_1s = numeric(B)
-b_2s = numeric(B)
-#susie.fits.easy2 = list() # logistic SuSiE fits
-#logistic.fits.easy2 = list() # logistic regression fits
-for (i in 1:B) {
-  beta_true[1] = rnorm(1, 0, sqrt(V))
-  beta_true[2] = rnorm(1, 0, sqrt(V))
-  b_1s[i] = beta_true[1]
-  b_2s[i] = beta_true[2]
-  Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
-  #susie.fits.easy2[[i]] = susie_logistic(Y, X, L, V)
-  #logistic.fits.easy2[[i]] = glm(Y ~ X, family = "binomial")
-}
-```
-Increasing the maximum number of iterations sometimes solves the issue, so perhaps it's just that convergence is slow.
-
-**Another fix is setting $\sigma_0^2$ to be smaller. There appears to be an issue when the effect size is too large (caused by separability in the data, so our SEs are huge for our estimates**
 
 ### L = 2
 We now repeat the same as above, except with $L = 2, \sigma_0^2 = 1$, and the second element $b_2$ also a non-zero.
@@ -402,7 +474,7 @@ for (i in 1:B) {
   X = matrix(rnorm(n * p), nrow = n)
   # make response
   Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
-  susie.fits.easy2[[i]] = susie_logistic(Y, X, L, V, maxit = 1000)
+  susie.fits.easy2[[i]] = susie_logistic_VB(Y, X, L, V, maxit = 1000)
   logistic.fits.easy2[[i]] = glm(Y ~ X, family = "binomial")
 }
 ```
@@ -442,171 +514,6 @@ plot(sapply(logistic.fits.easy2, function(x) summary(x)$coefficients[3, 4]) ~ b_
 We see a similar phase transition around the same values of the true effect size, $|b_i| \le 0.5$.
 
 
-## Comparison with regular SuSiE
-Since the logistic curve is fairly linear in the middle, results from logistic regression and linear regression are often fairly similar for moderate probability values. We can use this fact to compare this implementation of logistic SuSiE against the original SuSiE.
-
-We will start from the above situation where $n = 100, p = 10, L = 2, \sigma_0^2 = 0.5$, and the entries of X are $X_{ij} \stackrel{iid}{\sim} \mathcal{N}(0, 1)$.
-
-```{r}
-set.seed(1138)
-
-n = 100
-p = 10
-L = 2
-V = 0.5
-beta_true = rep(0, p)
-
-B = 100
-b_1s = numeric(B)
-b_2s = numeric(B)
-susie.fits.easy3 = list() # logistic SuSiE fits
-regular.susie.fits.easy3 = list() # regular SuSiE fits
-for (i in 1:B) {
-  beta_true[1] = rnorm(1, 0, sqrt(V))
-  beta_true[2] = rnorm(1, 0, sqrt(V))
-  b_1s[i] = beta_true[1]
-  b_2s[i] = beta_true[2]
-  # make independent N(0, 1) covariates
-  X = matrix(rnorm(n * p), nrow = n)
-  # make response
-  Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
-  susie.fits.easy3[[i]] = susie_logistic(Y, X, L, V, maxit = 1000)
-  regular.susie.fits.easy3[[i]] = susieR::susie(X, Y, L = 2)
-}
-```
-
-Figures 7(a-b) below plot the estimated logistic SuSiE value for $\hat{b}_1 := \sum_{l = 1}^2 \mu_{l,1} \cdot \alpha_{l,1}$ and $\hat{b}_2 := \sum_{l = 1}^2 \mu_{l,2} \cdot \alpha_{l,2}$ against the true value, where $\mu_{l,i}$ is the estimated posterior mean, and $\alpha_{l,i}$ is the estimated posterior inclusion probability, for entry $i$ in estimated vector $l$.
-
-Figures 8(a-b) below plot the same, but for regular SuSiE.
-```{r, fig.height = 12}
-par(mfrow = c(2, 2))
-# logistic SuSiE
-est_b_log = sapply(susie.fits.easy3, function(x) rowSums(x$post_alpha * x$post_mu))
-
-plot(est_b_log[1, ] ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 7(a) - Logistic Entry 1", pch = 19)
-abline(0, 1)
-
-plot(est_b_log[2, ] ~ b_2s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 7(b) - Logistic Entry 2", pch = 19)
-abline(0, 1)
-
-# regular SuSiE
-est_b_reg = sapply(regular.susie.fits.easy3, function(x) colSums(x$alpha * x$mu))
-
-plot(est_b_reg[1, ] ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 8(a) - Regular Entry 1", pch = 19)
-abline(0, 1)
-
-plot(est_b_reg[2, ] ~ b_2s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "Figure 8(b) - Regular Entry 2", pch = 19)
-abline(0, 1)
-par(mfrow = c(1, 1))
-```
-We can see that, for the estimates, regular SuSiE over-shrinks the values heavily.
-
-We can also compare the PIPs estimated. Figures 9(a-b) below plot the maximum PIP from logistic SuSiE, $\max_{l \in \{1, 2\}}\alpha_{l,i}$, against the true value of $b_i$. Figures 10(a-b) below plot the same, for regular SuSiE.
-```{r, fig.height = 12}
-par(mfrow = c(2, 2))
-# logistic SuSiE
-est_alpha1_max_log = sapply(susie.fits.easy3, function(x) max(x$post_alpha[1, ]))
-
-est_alpha2_max_log = sapply(susie.fits.easy3, function(x) max(x$post_alpha[2, ]))
-
-plot(est_alpha1_max_log ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "Figure 9(a) - Logistic Entry 1", pch = 19)
-
-plot(est_alpha2_max_log ~ b_2s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "Figure 9(b) - Logistic Entry 2", pch = 19)
-
-# regular SuSiE
-est_alpha1_max_reg = sapply(regular.susie.fits.easy3, function(x) max(x$alpha[, 1]))
-
-est_alpha2_max_reg = sapply(regular.susie.fits.easy3, function(x) max(x$alpha[, 2]))
-
-plot(est_alpha1_max_reg ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "Figure 10(a) - Regular Entry 1", pch = 19)
-
-plot(est_alpha2_max_reg ~ b_2s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "Figure 10(b) - Regular Entry 2", pch = 19)
-par(mfrow = c(1, 1))
-```
-We see that the PIPs are virtually identical between the logistic case and the regular case.
-
-Lastly, we can compare the fitted values between the two methods. Since the logistic curve is roughly linear around the middle (when the linear predictor is close to 0, i.e. the fitted probability is close to 0.5), we expect the predicted values to be similar in this range. We can compare how similar they are with how similar plain vanilla linear and logistic regressions are on the same data.
-
-The figures below show 3 instances of running our methods, the left column comparing the SuSiE fitted values and the right column comparing the plain vanilla fitted values. Here, we set all but the first true coefficients to 0, and use a prior variance equal to the true $b_1^2$ value.
-
-```{r, fig.height = 12}
-set.seed(1138)
-
-n = 100
-p = 10
-L = 1
-beta_true = rep(0, p)
-
-par(mfrow = c(3, 2))
-for (i in 1:3) {
-  V = i^2 # prior variance
-  beta_true[1] = i
-
-  # make independent N(0, 1) covariates
-  X = matrix(rnorm(n * p), nrow = n)
-  # make response
-  Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
-  fit.susie.log = susie_logistic(Y, X, L, V, maxit = 1000)
-  fit.susie.lin = susieR::susie(X, Y, L = 1)
-  fit.log = glm(Y ~ X, family = "binomial")
-  fit.lin = lm(Y ~ X)
-  
-  pred.susie.log = faraway::ilogit(fit.susie.log$intercept + (X %*% rowSums(fit.susie.log$post_alpha * fit.susie.log$post_mu)))
-  pred.susie.lin = fit.susie.lin$fitted
-  pred.log = predict(fit.log, type = "response")
-  pred.lin = predict(fit.lin)
-  
-  plot(pred.susie.lin ~ pred.susie.log, xlab = "SuSiE Logistic Fitted", ylab = "SuSiE Linear Fitted", main = paste("b_1 = ", i, sep = ""), pch = 19)
-  abline(a = 0, b = 1)
-  
-    plot(pred.lin ~ pred.log, xlab = "Regular Logistic Fitted", ylab = "Regular Linear Fitted", main = paste("b_1 = ", i, sep = ""), pch = 19)
-  abline(a = 0, b = 1)
-}
-par(mfrow = c(1, 1))
-```
-
-As we can see, just like in the regular linear/logistic regression case (right column), the SuSiE comparison (left column) shows that the predicted values are close in the middle (near a predicted probability of 0.5).
-
-These next plots show the same information, except we have a different number of non-zero true coefficients. These coefficients are randomly generated from a $\mathcal{N}(0, \sqrt{0.5}^2)$ distribution.
-
-```{r, fig.height = 12}
-set.seed(1138)
-
-n = 100
-p = 10
-V = 0.5
-beta_true = rep(0, p)
-
-par(mfrow = c(3, 2))
-for (i in 1:3) {
-  beta_true[i] = rnorm(1, 0, sqrt(V))
-
-  # make independent N(0, 1) covariates
-  X = matrix(rnorm(n * p), nrow = n)
-  # make response
-  Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
-  fit.susie.log = susie_logistic(Y, X, L = i, V, maxit = 1000)
-  fit.susie.lin = susieR::susie(X, Y, L = i)
-  fit.log = glm(Y ~ X, family = "binomial")
-  fit.lin = lm(Y ~ X)
-  
-  pred.susie.log = faraway::ilogit(fit.susie.log$intercept + (X %*% rowSums(fit.susie.log$post_alpha * fit.susie.log$post_mu)))
-  pred.susie.lin = fit.susie.lin$fitted
-  pred.log = predict(fit.log, type = "response")
-  pred.lin = predict(fit.lin)
-  
-  plot(pred.susie.lin ~ pred.susie.log, xlab = "SuSiE Logistic Fitted", ylab = "SuSiE Linear Fitted", main = paste("Adding b_", i, " = ", round(beta_true[i], 3), sep = ""), pch = 19)
-  abline(a = 0, b = 1)
-  
-    plot(pred.lin ~ pred.log, xlab = "Regular Logistic Fitted", ylab = "Regular Linear Fitted", main = paste("Adding b_", i, " = ", round(beta_true[i], 3), sep = ""), pch = 19)
-  abline(a = 0, b = 1)
-}
-par(mfrow = c(1, 1))
-```
-
-We still see that the different versions of SuSiE track each other well near the middle. Curiously, in the case where we have only 1 or 2 non-zero coefficients, the regular and logistic SuSiE predicted values appear to be a smooth function of one another. It is only in the case where we add the third non-zero coefficient do we see this clean relationship break down.
-
-
 ## Medium Demonstration
 As a medium difficulty demonstration, let $n = 100, p = 10, L = 3, \sigma_0^2 = 5$.
 
@@ -618,7 +525,7 @@ y_i \stackrel{\perp}{\sim} \text{Bern}\Bigg(\frac{e^{(\mathbf{Xb})_i}}{1 + e^{(\
 $$
 
 ```{r}
-### TEST susie_logistic
+### TEST susie_logistic_VB
 set.seed(1138)
 
 n = 100
@@ -641,14 +548,14 @@ X[, 2] = X[, 3]
 X[, 7] = X[, 6]
 
 # make response
-Y = rbinom(n, 1, exp(X %*% beta_true + 2) / (1 + exp(X %*% beta_true + 2)))
+Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
 
-susie.logistic.fit = susie_logistic(Y, X, L, V)
+susie.logistic.fit = susie_logistic_VB(Y, X, L, V)
 ```
 
 Figure 11 below plots the true values for $\mathbf{b}$.
 ```{r}
-plot(beta_true, ylab = "True Value", main = "Figure 1", pch = 19)
+plot(beta_true, ylab = "True Value", main = "Figure 11", pch = 19)
 ```
 The 3rd and 6th are around -1.3, and the 5th is around 0.75.
 
@@ -707,9 +614,9 @@ X[, 88] = X[, 87]
 X[, 89] = runif(n, -1, -.7) * X[, 87]
 
 # make response
-Y = rbinom(n, 1, exp(X %*% beta_true + 2) / (1 + exp(X %*% beta_true + 2)))
+Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
 
-susie.logistic.fit = susie_logistic(Y, X, L, V)
+susie.logistic.fit = susie_logistic_VB(Y, X, L, V)
 ```
 
 Figure 14 below plots the true values for $\mathbf{b}$ (the numbers correspond to the points and indices of non-zero true effects).
@@ -731,9 +638,8 @@ par(mfrow = c(1, 1))
 ```
 (NOTE: In figures 15(a) and 15(h), 1 and 2 are close together, so it looks like the number 12. But it is really just 1 and 2).
 
-We can see that the first estimated vector (15a) (and 8th, 15(h)) captures our constructed correlation between the 1st and 2nd columns, and 7th vector (11g) captures our constructed correlation between the 87th, 88th, and 89th columns (note the signs: 89 was constructed to be negatively correlated with the true effect column 87).
+We can see that the first estimated vector (15a) (and 8th, 15(h)) captures our constructed correlation between the 1st and 2nd columns, and 8th vector (15h) captures our constructed correlation between the 87th, 88th, and 89th columns (note the signs: 89 was constructed to be negatively correlated with the true effect column 87).
 
-We also see that the groups (1, 2) and (76) are each captured twice, lending to their large coefficients. As a result, we have not captured the true (small) effects from 41 and 56.
 
 Figures 16(a-j) below plots our estimated PIPs, $\alpha_1, \alpha_2, \alpha_3$:
 ```{r, fig.height = 12}
@@ -746,146 +652,6 @@ for (l in 1:L) {
 par(mfrow = c(1, 1))
 ```
 These groups of correlated predictors are shows from the PIPs.
-
-
-## Signal Level Testing
-In this section, I keep the same model matrix $X$, but center and scale the columns to have unit 2-norm. I then set a single non-zero effect with a range of signal levels ($\sigma_0^2$) to see at what levels the signal can be found. I also set another column of X to be highly positively correlated with the true effect column.
-
-I have set $n = 1000, p = 10, L = 1$.
-
-Here, I always set the first element to be non-zero, and the 5th column to be correlated with the 1st.
-
-At each signal level $\sigma_0^2 \in \{1, 5, 10, 25, 50\}$, I replicate $B = 10$ times the following procedure:
-
-1. Draw $b_1 \sim \mathcal{N}(0, \sigma_0^2)$;
-
-2. Simulate $Y_i \sim \text{Bern}\Bigg(\frac{e^{x_i^T b}}{1 + e^{x_i^T b}}\Bigg)$;
-
-3. Run the logistic version of SuSiE with an intercept on the data with the noise level fixed and known.
-
-In the plots below, the first set of 5 show the posterior mean values, $\mu_{1} \circ \alpha$. For indices where the PIP, $\alpha_j$, was $\ge 0.05$, I show the point as its index number (ideally, we would only see 1 and 5). Otherwise, the point is a dot.
-
-The second set of 5 show the PIPs, again with a number if the PIP was $\ge 0.05$.
-
-```{r, fig.height = 12}
-set.seed(1138)
-B = 10 # times to repeat at each noise level
-
-n = 1000
-p = 10
-L = 1
-
-X = matrix(rnorm(n*p, 0, 1), nrow = n, ncol = p)
-X[, 5] = runif(n, .7, 1) * X[, 1]
-
-X = apply(X, MARGIN = 2, function(x) x - mean(x))
-X = apply(X, MARGIN = 2, function(x) x / norm(x, "2"))
-
-beta_true = rep(0, p)
-
-Vs = c(1, 5, 10, 25, 50)
-beta_true_1 = matrix(nrow = length(Vs), ncol = B)
-susie.logistic.list = list()
-for (i in 1:length(Vs)) {
-  V = Vs[i]
-  susie.logistic.list[[i]] = list()
-  names(susie.logistic.list)[i] = paste("Vs_", V, sep = "")
-  for (j in 1:B) {
-    beta_true[1] = rnorm(1, 0, sqrt(V))
-    Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
-    susie.logistic.list[[i]][[j]] = susie_logistic(Y, X, L, V)
-    beta_true_1[i, j] = beta_true[1]
-  }
-}
-
-par(mfrow = c(5, 2))
-for (i in 1:length(Vs)) {
-  V = Vs[i]
-  for (j in 1:B) {
-    a_l_post = susie.logistic.list[[i]][[j]]$post_alpha[, 1]
-    b_l_post = susie.logistic.list[[i]][[j]]$post_mu[, 1] * a_l_post
-    plot(b_l_post[abs(a_l_post) < .05] ~ which(abs(a_l_post) < .05), xlim = c(1, 10), ylim = range(b_l_post) + c(-.1, .1), xlab = "Index", ylab = "Posterior Mean Value", main = paste("True effect 1: ", round(beta_true_1[i, j], 2), " ::: Signal Level: ", round(V, 2), sep = ""), pch = 19)
-    text(which(abs(a_l_post) >= .05), b_l_post[abs(a_l_post) >= .05], labels = which(abs(a_l_post) >= .05))
-  }
-}
-par(mfrow = c(1, 1))
-
-
-par(mfrow = c(5, 2))
-for (i in 1:length(Vs)) {
-  V = Vs[i]
-  for (j in 1:B) {
-    a_l_post = susie.logistic.list[[i]][[j]]$post_alpha[, 1]
-    plot(a_l_post[abs(a_l_post) < .05] ~ which(abs(a_l_post) < .05), xlim = c(1, 10), ylim = c(0, 1), xlab = "Index", ylab = "Posterior Inclusion Probability", main = paste("True effect 1: ", round(beta_true_1[i, j], 2), " ::: Signal Level: ", round(V, 2), sep = ""), pch = 19)
-    text(which(abs(a_l_post) >= .05), a_l_post[abs(a_l_post) >= .05], labels = which(abs(a_l_post) >= .05))
-  }
-}
-par(mfrow = c(1, 1))
-```
-
-As we can see, we require relatively large effects in order to determine that 1 and/or 5 is contributing to the response. However, a regular logistic regression on the columns of X (removing the 5th column) in these settings also have a difficult time determing that the 1 is the effect variable.
-
-
-## Signal Testing with Genotype Matrix
-Here, I perform a similar test as above, except the design matrix has columns whose entries are $X_{ij} \in \{0, 1, 2\}$. I do not center or scale these variables. As before, the 1st effect is always the only non-null effect. And the 5th column is highly positively correlated with the 1st (w.p. 0.9, it copies column 1, otherwise it is random).
-
-Here, we test $\sigma_0^2 \in \{1, 2, 3, 4, 5\}$
-
-```{r, fig.height = 12}
-set.seed(1138)
-B = 10 # times to repeat at each noise level
-
-n = 1000
-p = 10
-L = 1
-
-X = matrix(rbinom(n * p, 2, runif(n * p)), nrow = n, ncol = p)
-copy_ind = runif(n, 0, 1) <= 0.9
-X[copy_ind, 5] = X[copy_ind, 1]
-
-beta_true = rep(0, p)
-
-Vs = 1:5
-beta_true_1 = matrix(nrow = length(Vs), ncol = B)
-susie.logistic.list = list()
-for (i in 1:length(Vs)) {
-  V = Vs[i]
-  susie.logistic.list[[i]] = list()
-  names(susie.logistic.list)[i] = paste("Vs_", V, sep = "")
-  for (j in 1:B) {
-    beta_true[1] = rnorm(1, 0, sqrt(V))
-    Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
-    susie.logistic.list[[i]][[j]] = susie_logistic(Y, X, L, V)
-    beta_true_1[i, j] = beta_true[1]
-  }
-}
-
-par(mfrow = c(5, 2))
-for (i in 1:length(Vs)) {
-  V = Vs[i]
-  for (j in 1:B) {
-    a_l_post = susie.logistic.list[[i]][[j]]$post_alpha[, 1]
-    b_l_post = susie.logistic.list[[i]][[j]]$post_mu[, 1] * a_l_post
-    plot(b_l_post[abs(a_l_post) < .05] ~ which(abs(a_l_post) < .05), xlim = c(1, 10), ylim = range(b_l_post) + c(-.1, .1), xlab = "Index", ylab = "Posterior Mean Value", main = paste("True effect 1: ", round(beta_true_1[i, j], 2), " ::: Signal Level: ", round(V, 2), sep = ""), pch = 19)
-    text(which(abs(a_l_post) >= .05), b_l_post[abs(a_l_post) >= .05], labels = which(abs(a_l_post) >= .05))
-  }
-}
-par(mfrow = c(1, 1))
-
-
-par(mfrow = c(5, 2))
-for (i in 1:length(Vs)) {
-  V = Vs[i]
-  for (j in 1:B) {
-    a_l_post = susie.logistic.list[[i]][[j]]$post_alpha[, 1]
-    plot(a_l_post[abs(a_l_post) < .05] ~ which(abs(a_l_post) < .05), xlim = c(1, 10), ylim = c(0, 1), xlab = "Index", ylab = "Posterior Inclusion Probability", main = paste("True effect 1: ", round(beta_true_1[i, j], 2), " ::: Signal Level: ", round(V, 2), sep = ""), pch = 19)
-    text(which(abs(a_l_post) >= .05), a_l_post[abs(a_l_post) >= .05], labels = which(abs(a_l_post) >= .05))
-  }
-}
-par(mfrow = c(1, 1))
-```
-
-We can see that much smaller effects are detectable in this setting than above, with an arbitrary center and scaled design matrix $X$.
 
 
 ## Misspecified $L$
@@ -907,9 +673,9 @@ X = matrix(rnorm(n * p), nrow = n)
 # make response
 Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
 
-fit.susie.log3 = susie_logistic(Y, X, L = 3, V, maxit = 1000)
-fit.susie.log5 = susie_logistic(Y, X, L = 5, V, maxit = 1000)
-fit.susie.log10 = susie_logistic(Y, X, L = 10, V, maxit = 1000)
+fit.susie.log3 = susie_logistic_VB(Y, X, L = 3, V, maxit = 1000)
+fit.susie.log5 = susie_logistic_VB(Y, X, L = 5, V, maxit = 1000)
+fit.susie.log10 = susie_logistic_VB(Y, X, L = 10, V, maxit = 1000)
 
 par(mfcol = c(3, 2))
 matplot(fit.susie.log3$post_alpha, xlab = "Index", ylab = "Posterior Inclusion Probability", main = "L = 3")
@@ -923,3 +689,144 @@ par(mfcol = c(1, 1))
 ```
 
 We can see that having a value of $L$ too large adds groups with a lot of impurity in the PIPs (these groups being roughly identical, which is peculiar to me). Unsurprisingly, since our PIPs are forced to sum to 1, adding more groups will always add to the posterior means of each coefficient (assuming effects from different groups don't cancel out due to having opposite signs). We can see this on the right side of the plots above (for $L = 3$, coefficients 4-10 are close to 0, but for $L = 5$ and $L = 10$, these effects start to deviate from 0).
+
+## Comparison Between the VB Algorithm and the Original Iterative GLM Modification of Regular SuSiE
+In that follows, I will refer to the new VB approach as the *VB Algorithm*, and the original iterative GLM approach as the *GLM Algorithm*.
+
+
+### Convergence
+First, before diving into any simulation examples, recall that for the GLM algorithm, I encountered situations where the algorithm didn't converge (e.g. cycling behavior). To remedy this, I modified the convergence criteria to also take into account the estimated means from 2 iterations prior (not just the previous iteration). In the VB algorithm, since it is a hill climbing algorithm, we should not encounter scenarios where the algorithm fails to converge.
+
+### Easy Comparison
+Here, I use the same simulations as from the "Easy Demonstration" section above. We have $n = 100$, $p = 10$, $L = 1$, $\sigma_0 = 1$, and set the first coefficient $b_1$ to be non-zero.
+
+```{r, fig.height = 12}
+set.seed(1138)
+
+n = 100
+p = 10
+L = 1
+V = 1
+beta_true = rep(0, p)
+
+B = 100
+b_1s = numeric(B)
+susie.fits.easy = list() # GLM logistic SuSiE fits
+susie.fits.easy.VB = list() # VB logistic SuSiE fits
+for (i in 1:B) {
+  beta_true[1] = rnorm(1, 0, sqrt(V))
+  b_1s[i] = beta_true[1]
+  # make independent N(0, 1) covariates
+  X = matrix(rnorm(n * p), nrow = n)
+  # make response
+  Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+  susie.fits.easy[[i]] = susie_logistic(Y, X, L, V, intercept = F) # fit without intercept to compare directly w/ VB method
+  susie.fits.easy.VB[[i]] = susie_logistic_VB(Y, X, L, V)
+}
+
+par(mfrow = c(2, 2))
+plot(sapply(susie.fits.easy, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "GLM SuSiE Coefficient Estimates: n = 100", pch = 19)
+abline(0, 1)
+
+plot(sapply(susie.fits.easy, function(x) x$post_alpha[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "GLM SuSiE PIP Estimates: n = 100", pch = 19, ylim = c(0, 1))
+
+plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "VB SuSiE Coefficient Estimates: n = 100", pch = 19)
+abline(0, 1)
+
+plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "VB SuSiE PIP Estimates: n = 100", pch = 19, ylim = c(0, 1))
+par(mfrow = c(1, 1))
+```
+
+Qualitatively, these two methods appear nearly identical in this example. The only difference I see is in the PIPs for true effects around -1 to -1.25. The GLM method has two PIPs around 0.9, whereas almost all PIPs for the VB method are around 1.
+
+To make things slightly harder, I perform the experiment again, except I not set $n = 50$ (so the effect should be harder to identify).
+
+```{r, fig.height = 12}
+set.seed(1138)
+
+n = 50
+p = 10
+L = 1
+V = 1
+beta_true = rep(0, p)
+
+B = 100
+b_1s = numeric(B)
+susie.fits.easy = list() # GLM logistic SuSiE fits
+susie.fits.easy.VB = list() # VB logistic SuSiE fits
+for (i in 1:B) {
+  beta_true[1] = rnorm(1, 0, sqrt(V))
+  b_1s[i] = beta_true[1]
+  # make independent N(0, 1) covariates
+  X = matrix(rnorm(n * p), nrow = n)
+  # make response
+  Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+  susie.fits.easy[[i]] = susie_logistic(Y, X, L, V, intercept = F) # fit without intercept to compare directly w/ VB method
+  susie.fits.easy.VB[[i]] = susie_logistic_VB(Y, X, L, V)
+}
+
+par(mfrow = c(2, 2))
+plot(sapply(susie.fits.easy, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "GLM SuSiE Coefficient Estimates: n = 50", pch = 19)
+abline(0, 1)
+
+plot(sapply(susie.fits.easy, function(x) x$post_alpha[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "GLM SuSiE PIP Estimates: n = 50", pch = 19, ylim = c(0, 1))
+
+plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "VB SuSiE Coefficient Estimates: n = 50", pch = 19)
+abline(0, 1)
+
+plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "VB SuSiE PIP Estimates: n = 50", pch = 19, ylim = c(0, 1))
+par(mfrow = c(1, 1))
+```
+
+The differences here are more apparent. First, the GLM coefficient estimates for large true effects are biased towards 0 far more than the VB estimates. The driving factor is likely the PIPs, where the GLM version has a hard time; even for large effects, the PIPs are still only at aroung 0.9 at best. In contrast, the VB method returns PIPs of 1 for large enough effects.
+
+
+### Hard Comparison
+In this setting, I set $n = 100$, $p = 10$, and $\sigma_0 = 1$. I generate each observation of $X$ as coming from a multivariate normal distribution with mean $0$ and covariance structured such that all diagonal entries are 1, and for groups of correlated entries we get 0.95. The correlated groups are (1, 2, 3), (4, 5), and (9, 10). I then set the following entries in $\mathbf{b}$ to be non-zero: 1, 4, 6, 7 (two are in correlated groups, two are not, and there is a correlated group on zero effect variables).
+
+```{r}
+set.seed(1138)
+n = 100
+p = 10
+V = 1
+L = 4
+
+Sigma = diag(.05, nrow = 10)
+Sigma[1:3, 1:3] = Sigma[1:3, 1:3] + matrix(.95, nrow = 3, ncol = 3) # 1, 2, 3 correlated 
+Sigma[4:5, 4:5] = Sigma[4:5, 4:5] + matrix(.95, nrow = 2, ncol = 2) # 4, 5 correlated
+Sigma[6:8, 6:8] = Sigma[6:8, 6:8] + diag(.95, nrow = 3)
+Sigma[9:10, 9:10] = Sigma[9:10, 9:10] + matrix(.95, nrow = 2, ncol = 2) # 9, 10 correlated
+
+X = MASS::mvrnorm(n, rep(0, p), Sigma)
+beta_true = rep(0, p)
+beta_true[c(1, 4, 6, 7)] = rnorm(4, 0, sqrt(V))
+Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+
+susie.fit.glm = susie_logistic(Y, X, L, V, intercept = F)
+susie.fit.vb = susie_logistic_VB(Y, X, L, V)
+
+
+plot(beta_true[beta_true == 0] ~ which(beta_true == 0), xlim = c(0, 11), ylim = range(beta_true) + c(-.1, .1), xlab = "Index", ylab = "True Value", main = "True Effects", pch = 19)
+text(which(beta_true != 0), beta_true[beta_true != 0], labels = which(beta_true != 0))
+
+
+par(mfrow = c(2, 2))
+for (l in 1:L) {
+  b_l_post = susie.fit.glm$post_mu[, l] * susie.fit.glm$post_alpha[, l]
+  plot(b_l_post[abs(b_l_post) < .01] ~ which(abs(b_l_post) < .01), xlim = c(0, 11), ylim = range(b_l_post) + c(-.1, .1), xlab = "Index", ylab = "Posterior Mean Value", main = paste("GLM SuSiE Posterior Mean No. ", l, sep = ""), pch = 19)
+  text(which(abs(b_l_post) >= .01), b_l_post[abs(b_l_post) >= .01], labels = which(abs(b_l_post) >= .01))
+}
+par(mfrow = c(1, 1))
+
+par(mfrow = c(2, 2))
+for (l in 1:L) {
+  b_l_post = susie.fit.vb$post_mu[, l] * susie.fit.vb$post_alpha[, l]
+  plot(b_l_post[abs(b_l_post) < .01] ~ which(abs(b_l_post) < .01), xlim = c(0, 11), ylim = range(b_l_post) + c(-.1, .1), xlab = "Index", ylab = "Posterior Mean Value", main = paste("VB SuSiE Posterior Mean No. ", l, sep = ""), pch = 19)
+  text(which(abs(b_l_post) >= .01), b_l_post[abs(b_l_post) >= .01], labels = which(abs(b_l_post) >= .01))
+}
+par(mfrow = c(1, 1))
+```
+From these plots, we see that the posterior mean estimates in both algorithms are sensible and nearly indistinguishable.
+
+### Computation Time Comparison
+
