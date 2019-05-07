@@ -295,7 +295,10 @@ div.tocify {
   <a href="index.html">Home</a>
 </li>
 <li>
-  <a href="susie_logistic_demonstration.html">Logistic SuSiE</a>
+  <a href="susie_logistic_demonstration.html">Logistic GLM SuSiE</a>
+</li>
+<li>
+  <a href="VB_susie_logistic_demonstration.html">Logistic VB SuSiE</a>
 </li>
 <li>
   <a href="about.html">About</a>
@@ -366,7 +369,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/b3145350e6d073ee0fdf527e21ce026de0d7c021" target="_blank">b314535</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/5ea56ea536904a99cbcc7263977e4bea2985061a" target="_blank">5ea56ea</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -374,9 +377,6 @@ Ignored files:
     Ignored:    analysis/.Rhistory
     Ignored:    analysis/VB_susie_logistic_demonstration_cache/
     Ignored:    analysis/susie_logistic_demonstration_cache/
-
-Unstaged changes:
-    Modified:   analysis/index.Rmd
 
 </code></pre>
 Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes. </details>
@@ -405,6 +405,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/5ea56ea536904a99cbcc7263977e4bea2985061a/analysis/VB_susie_logistic_demonstration.Rmd" target="_blank">5ea56ea</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-06
+</td>
+<td style="text-align:left;">
+Changing output format so old tests works
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/andrewg3311/susieR_logistic_wflow/c62537b6e3875acc75330707685f6af94ddf16a2/docs/VB_susie_logistic_demonstration.html" target="_blank">c62537b</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-06
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -649,7 +683,10 @@ susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3,
     }
   }
   
-  return(post_info)
+  # change output format to match the GLM version&#39;s output
+  res = list(post_alpha = post_info$Alpha, post_mu = post_info$Mu, post_sigma = post_info$Sigma, xi = post_info$xi)
+  
+  return(res)
   
 }</code></pre>
 </div>
@@ -687,16 +724,45 @@ for (i in 1:B) {
   logistic.fits.easy[[i]] = glm(Y ~ X, family = &quot;binomial&quot;)
 }</code></pre>
 <p>Figure 1 below plots the estimated value for <span class="math inline">\(\hat{b}_1 := \mu_1 \cdot \alpha_1\)</span> against the true value, where <span class="math inline">\(\mu_1\)</span> is the estimated posterior mean, and <span class="math inline">\(\alpha_1\)</span> is the estimated posterior inclusion probability. Figure 2 below plots the PIP, <span class="math inline">\(\alpha_i\)</span>, against the true value of <span class="math inline">\(b_1\)</span>.</p>
-<pre class="r"><code>plot(sapply(susie.fits.easy, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;Figure 1&quot;, pch = 19)</code></pre>
-<pre><code>Error in (function (formula, data = NULL, subset = NULL, na.action = na.fail, : invalid type (list) for variable &#39;sapply(susie.fits.easy, function(x) x$post_alpha[1] * x$post_mu[1])&#39;</code></pre>
-<pre class="r"><code>abline(0, 1)</code></pre>
-<pre><code>Error in int_abline(a = a, b = b, h = h, v = v, untf = untf, ...): plot.new has not been called yet</code></pre>
+<pre class="r"><code>plot(sapply(susie.fits.easy, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;Figure 1&quot;, pch = 19)
+abline(0, 1)</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>plot(sapply(susie.fits.easy, function(x) x$post_alpha[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 2&quot;, pch = 19)</code></pre>
-<pre><code>Error in (function (formula, data = NULL, subset = NULL, na.action = na.fail, : invalid type (list) for variable &#39;sapply(susie.fits.easy, function(x) x$post_alpha[1])&#39;</code></pre>
-<p>Figure 1 shows that, in this simulation, we observe a shrinkage behavior similar to hard-thresholding (with a small thresholding value). We also see that our estimated lie pretty close to the truth. Figure 2 shows a sharp transition between a very low PIP and a PIP near 1. This sharp transition is what causes the hard-thresholding-like shrinkage we obsersve in figure 1: the posterior mean values <span class="math inline">\(\mu_1\)</span> closely match the true values for <span class="math inline">\(b_1\)</span>, but are effectively shrunk to 0 in this region by the PIP <span class="math inline">\(\alpha_i\)</span>, and are effectively untouched outside this region.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-3-2.png" width="672" style="display: block; margin: auto;" /> Figure 1 shows that, in this simulation, we observe a shrinkage behavior similar to hard-thresholding (with a small thresholding value). We also see that our estimated lie pretty close to the truth. Figure 2 shows a sharp transition between a very low PIP and a PIP near 1. This sharp transition is what causes the hard-thresholding-like shrinkage we obsersve in figure 1: the posterior mean values <span class="math inline">\(\mu_1\)</span> closely match the true values for <span class="math inline">\(b_1\)</span>, but are effectively shrunk to 0 in this region by the PIP <span class="math inline">\(\alpha_i\)</span>, and are effectively untouched outside this region.</p>
 <p>We can compare figure 2 with the p-values obtained from the normal logistic regressions on the same simulated data, shown in figure 3 below.</p>
 <pre class="r"><code>plot(sapply(logistic.fits.easy, function(x) summary(x)$coefficients[2, 4]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Logistic p-value&quot;, main = &quot;Figure 3&quot;, pch = 19)</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /> We see a similar phase transition around the same values of the true effect size, <span class="math inline">\(|b_1| \le 0.5\)</span>.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-4-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c62537b6e3875acc75330707685f6af94ddf16a2/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-4-1.png" target="_blank">c62537b</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>We see a similar phase transition around the same values of the true effect size, <span class="math inline">\(|b_1| \le 0.5\)</span>.</p>
 <div id="caution-cycling-behavior" class="section level4">
 <h4>CAUTION: Cycling Behavior</h4>
 <p>I have come across a situation in which the iterative algorithm gets caught in a loop, where it cycles between 2 estimates for the coefficients.</p>
@@ -782,630 +848,88 @@ for (i in 1:B) {
 
 #est_b2_max = sapply(susie.fits.easy2, function(x) x$post_alpha[2, which.max(x$post_alpha[2, ]) ]* x$post_mu[2, which.max(x$post_alpha[2, ])])
 
-est_alpha1_max = sapply(susie.fits.easy2, function(x) max(x$post_alpha[1, ]))</code></pre>
-<pre><code>Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
+est_alpha1_max = sapply(susie.fits.easy2, function(x) max(x$post_alpha[1, ]))
 
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
+est_alpha2_max = sapply(susie.fits.easy2, function(x) max(x$post_alpha[2, ]))
 
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
+est_b = sapply(susie.fits.easy2, function(x) rowSums(x$post_alpha * x$post_mu))
 
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf</code></pre>
-<pre class="r"><code>est_alpha2_max = sapply(susie.fits.easy2, function(x) max(x$post_alpha[2, ]))</code></pre>
-<pre><code>Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf</code></pre>
-<pre><code>Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf</code></pre>
-<pre class="r"><code>est_b = sapply(susie.fits.easy2, function(x) rowSums(x$post_alpha * x$post_mu))</code></pre>
-<pre><code>Error in rowSums(x$post_alpha * x$post_mu): &#39;x&#39; must be an array of at least two dimensions</code></pre>
-<pre class="r"><code>plot(est_b[1, ] ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;Figure 4(a) - Entry 1&quot;, pch = 19)</code></pre>
-<pre><code>Error in eval(predvars, data, env): object &#39;est_b&#39; not found</code></pre>
-<pre class="r"><code>abline(0, 1)</code></pre>
-<pre><code>Error in int_abline(a = a, b = b, h = h, v = v, untf = untf, ...): plot.new has not been called yet</code></pre>
-<pre class="r"><code>plot(est_b[2, ] ~ b_2s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;Figure 4(b) - Entry 2&quot;, pch = 19)</code></pre>
-<pre><code>Error in eval(predvars, data, env): object &#39;est_b&#39; not found</code></pre>
-<pre class="r"><code>abline(0, 1)</code></pre>
-<pre><code>Error in int_abline(a = a, b = b, h = h, v = v, untf = untf, ...): plot.new has not been called yet</code></pre>
+plot(est_b[1, ] ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;Figure 4(a) - Entry 1&quot;, pch = 19)
+abline(0, 1)</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot(est_b[2, ] ~ b_2s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;Figure 4(b) - Entry 2&quot;, pch = 19)
+abline(0, 1)</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-2.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>plot(est_alpha1_max ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 5(a) - Entry 1&quot;, pch = 19)</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf</code></pre>
-<pre><code>Warning in max(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Error in plot.window(...): need finite &#39;ylim&#39; values</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-3.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>plot(est_alpha2_max ~ b_2s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 5(b) - Entry 2&quot;, pch = 19)</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf
-
-Warning in min(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Error in plot.window(...): need finite &#39;ylim&#39; values</code></pre>
-<p>We see a similar pattern as above, in the case <span class="math inline">\(L = 1\)</span>. The method is also able to detect both effects (when strong enough).</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-4.png" width="672" style="display: block; margin: auto;" /> We see a similar pattern as above, in the case <span class="math inline">\(L = 1\)</span>. The method is also able to detect both effects (when strong enough).</p>
 <p>We can compare figures 5(a-b) with the p-values obtained from the normal logistic regressions on the same simulated data, shown in figures 6(a-b) below.</p>
 <pre class="r"><code>plot(sapply(logistic.fits.easy2, function(x) summary(x)$coefficients[2, 4]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Logistic p-value&quot;, main = &quot;Figure 6(a) - Entry 1&quot;, pch = 19)</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-9-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c62537b6e3875acc75330707685f6af94ddf16a2/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-9-1.png" target="_blank">c62537b</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>plot(sapply(logistic.fits.easy2, function(x) summary(x)$coefficients[3, 4]) ~ b_2s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Logistic p-value&quot;, main = &quot;Figure 6(b) - Entry 2&quot;, pch = 19)</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-9-2.png" width="672" style="display: block; margin: auto;" /> We see a similar phase transition around the same values of the true effect size, <span class="math inline">\(|b_i| \le 0.5\)</span>.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-9-2.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-9-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c62537b6e3875acc75330707685f6af94ddf16a2/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-9-2.png" target="_blank">c62537b</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>We see a similar phase transition around the same values of the true effect size, <span class="math inline">\(|b_i| \le 0.5\)</span>.</p>
 </div>
 </div>
 <div id="comparison-with-regular-susie" class="section level2">
@@ -1441,638 +965,37 @@ for (i in 1:B) {
 <p>Figures 8(a-b) below plot the same, but for regular SuSiE.</p>
 <pre class="r"><code>par(mfrow = c(2, 2))
 # logistic SuSiE
-est_b_log = sapply(susie.fits.easy3, function(x) rowSums(x$post_alpha * x$post_mu))</code></pre>
-<pre><code>Error in rowSums(x$post_alpha * x$post_mu): &#39;x&#39; must be an array of at least two dimensions</code></pre>
-<pre class="r"><code>plot(est_b_log[1, ] ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;Figure 7(a) - Logistic Entry 1&quot;, pch = 19)</code></pre>
-<pre><code>Error in eval(predvars, data, env): object &#39;est_b_log&#39; not found</code></pre>
-<pre class="r"><code>abline(0, 1)</code></pre>
-<pre><code>Error in int_abline(a = a, b = b, h = h, v = v, untf = untf, ...): plot.new has not been called yet</code></pre>
-<pre class="r"><code>plot(est_b_log[2, ] ~ b_2s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;Figure 7(b) - Logistic Entry 2&quot;, pch = 19)</code></pre>
-<pre><code>Error in eval(predvars, data, env): object &#39;est_b_log&#39; not found</code></pre>
-<pre class="r"><code>abline(0, 1)</code></pre>
-<pre><code>Error in int_abline(a = a, b = b, h = h, v = v, untf = untf, ...): plot.new has not been called yet</code></pre>
-<pre class="r"><code># regular SuSiE
+est_b_log = sapply(susie.fits.easy3, function(x) rowSums(x$post_alpha * x$post_mu))
+
+plot(est_b_log[1, ] ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;Figure 7(a) - Logistic Entry 1&quot;, pch = 19)
+abline(0, 1)
+
+plot(est_b_log[2, ] ~ b_2s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;Figure 7(b) - Logistic Entry 2&quot;, pch = 19)
+abline(0, 1)
+
+# regular SuSiE
 est_b_reg = sapply(regular.susie.fits.easy3, function(x) colSums(x$alpha * x$mu))
 
 plot(est_b_reg[1, ] ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;Figure 8(a) - Regular Entry 1&quot;, pch = 19)
 abline(0, 1)
 
 plot(est_b_reg[2, ] ~ b_2s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;Figure 8(b) - Regular Entry 2&quot;, pch = 19)
-abline(0, 1)
-par(mfrow = c(1, 1))</code></pre>
+abline(0, 1)</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
 <p>We can see that, for the estimates, regular SuSiE over-shrinks the values heavily.</p>
 <p>We can also compare the PIPs estimated. Figures 9(a-b) below plot the maximum PIP from logistic SuSiE, <span class="math inline">\(\max_{l \in \{1, 2\}}\alpha_{l,i}\)</span>, against the true value of <span class="math inline">\(b_i\)</span>. Figures 10(a-b) below plot the same, for regular SuSiE.</p>
 <pre class="r"><code>par(mfrow = c(2, 2))
 # logistic SuSiE
-est_alpha1_max_log = sapply(susie.fits.easy3, function(x) max(x$post_alpha[1, ]))</code></pre>
-<pre><code>Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
+est_alpha1_max_log = sapply(susie.fits.easy3, function(x) max(x$post_alpha[1, ]))
 
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
+est_alpha2_max_log = sapply(susie.fits.easy3, function(x) max(x$post_alpha[2, ]))
 
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
+plot(est_alpha1_max_log ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 9(a) - Logistic Entry 1&quot;, pch = 19)
 
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
+plot(est_alpha2_max_log ~ b_2s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 9(b) - Logistic Entry 2&quot;, pch = 19)
 
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[1, ]): no non-missing arguments to max;
-returning -Inf</code></pre>
-<pre class="r"><code>est_alpha2_max_log = sapply(susie.fits.easy3, function(x) max(x$post_alpha[2, ]))</code></pre>
-<pre><code>Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf</code></pre>
-<pre><code>Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf
-
-Warning in max(x$post_alpha[2, ]): no non-missing arguments to max;
-returning -Inf</code></pre>
-<pre class="r"><code>plot(est_alpha1_max_log ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 9(a) - Logistic Entry 1&quot;, pch = 19)</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf</code></pre>
-<pre><code>Warning in max(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Error in plot.window(...): need finite &#39;ylim&#39; values</code></pre>
-<pre class="r"><code>plot(est_alpha2_max_log ~ b_2s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 9(b) - Logistic Entry 2&quot;, pch = 19)</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf
-
-Warning in min(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Error in plot.window(...): need finite &#39;ylim&#39; values</code></pre>
-<pre class="r"><code># regular SuSiE
+# regular SuSiE
 est_alpha1_max_reg = sapply(regular.susie.fits.easy3, function(x) max(x$alpha[, 1]))
 
 est_alpha2_max_reg = sapply(regular.susie.fits.easy3, function(x) max(x$alpha[, 2]))
@@ -2081,6 +1004,36 @@ plot(est_alpha1_max_reg ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &qu
 
 plot(est_alpha2_max_reg ~ b_2s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 10(b) - Regular Entry 2&quot;, pch = 19)</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-12-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c62537b6e3875acc75330707685f6af94ddf16a2/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-1.png" target="_blank">c62537b</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
 <p>We see that the PIPs are virtually identical between the logistic case and the regular case.</p>
 <p>Lastly, we can compare the fitted values between the two methods. Since the logistic curve is roughly linear around the middle (when the linear predictor is close to 0, i.e. the fitted probability is close to 0.5), we expect the predicted values to be similar in this range. We can compare how similar they are with how similar plain vanilla linear and logistic regressions are on the same data.</p>
@@ -2117,7 +1070,7 @@ for (i in 1:3) {
     plot(pred.lin ~ pred.log, xlab = &quot;Regular Logistic Fitted&quot;, ylab = &quot;Regular Linear Fitted&quot;, main = paste(&quot;b_1 = &quot;, i, sep = &quot;&quot;), pch = 19)
   abline(a = 0, b = 1)
 }</code></pre>
-<pre><code>Error in rowSums(fit.susie.log$post_alpha * fit.susie.log$post_mu): &#39;x&#39; must be an array of at least two dimensions</code></pre>
+<pre><code>Error in (function (formula, data = NULL, subset = NULL, na.action = na.fail, : variable lengths differ (found for &#39;pred.susie.log&#39;)</code></pre>
 <pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
 <p>As we can see, just like in the regular linear/logistic regression case (right column), the SuSiE comparison (left column) shows that the predicted values are close in the middle (near a predicted probability of 0.5).</p>
 <p>These next plots show the same information, except we have a different number of non-zero true coefficients. These coefficients are randomly generated from a <span class="math inline">\(\mathcal{N}(0, \sqrt{0.5}^2)\)</span> distribution.</p>
@@ -2152,7 +1105,7 @@ for (i in 1:3) {
     plot(pred.lin ~ pred.log, xlab = &quot;Regular Logistic Fitted&quot;, ylab = &quot;Regular Linear Fitted&quot;, main = paste(&quot;Adding b_&quot;, i, &quot; = &quot;, round(beta_true[i], 3), sep = &quot;&quot;), pch = 19)
   abline(a = 0, b = 1)
 }</code></pre>
-<pre><code>Error in rowSums(fit.susie.log$post_alpha * fit.susie.log$post_mu): &#39;x&#39; must be an array of at least two dimensions</code></pre>
+<pre><code>Error in (function (formula, data = NULL, subset = NULL, na.action = na.fail, : variable lengths differ (found for &#39;pred.susie.log&#39;)</code></pre>
 <pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
 <p>We still see that the different versions of SuSiE track each other well near the middle. Curiously, in the case where we have only 1 or 2 non-zero coefficients, the regular and logistic SuSiE predicted values appear to be a smooth function of one another. It is only in the case where we add the third non-zero coefficient do we see this clean relationship break down.</p>
 </div>
@@ -2191,57 +1144,116 @@ Y = rbinom(n, 1, exp(X %*% beta_true + 2) / (1 + exp(X %*% beta_true + 2)))
 susie.logistic.fit = susie_logistic(Y, X, L, V)</code></pre>
 <p>Figure 11 below plots the true values for <span class="math inline">\(\mathbf{b}\)</span>.</p>
 <pre class="r"><code>plot(beta_true, ylab = &quot;True Value&quot;, main = &quot;Figure 1&quot;, pch = 19)</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /> The 3rd and 6th are around -1.3, and the 5th is around 0.75.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-16-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c62537b6e3875acc75330707685f6af94ddf16a2/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-16-1.png" target="_blank">c62537b</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>The 3rd and 6th are around -1.3, and the 5th is around 0.75.</p>
 <p>Figures 12(a-c) below plots the posterior means for the 3 vectors estimated from this procedure (calculated as <span class="math inline">\(\mathbf{\bar{b}}_l := \alpha_l \circ \mu_{1l}\)</span> using <span class="math inline">\(\alpha_l, \mu_{1l}\)</span> returned from the logistic-version of the IBFS algorithm):</p>
 <pre class="r"><code>b_1_post = susie.logistic.fit$post_mu[, 1] * susie.logistic.fit$post_alpha[, 1]
 b_2_post = susie.logistic.fit$post_mu[, 2] * susie.logistic.fit$post_alpha[, 2]
 b_3_post = susie.logistic.fit$post_mu[, 3] * susie.logistic.fit$post_alpha[, 3]
 
 plot(b_1_post, ylab = &quot;Posterior Mean Value&quot;, main = &quot;Figure 12(a)&quot;, pch = 19)</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf</code></pre>
-<pre><code>Warning in max(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf</code></pre>
-<pre><code>Warning in max(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Error in plot.window(...): need finite &#39;xlim&#39; values</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-17-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c62537b6e3875acc75330707685f6af94ddf16a2/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-17-1.png" target="_blank">c62537b</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>plot(b_2_post, ylab = &quot;Posterior Mean Value&quot;, main = &quot;Figure 12(b)&quot;, pch = 19)</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf
-
-Warning in min(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf</code></pre>
-<pre><code>Warning in max(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Error in plot.window(...): need finite &#39;xlim&#39; values</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-17-2.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>plot(b_3_post, ylab = &quot;Posterior Mean Value&quot;, main = &quot;Figure 12(c)&quot;, pch = 19)</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf
-
-Warning in min(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf</code></pre>
-<pre><code>Warning in max(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Error in plot.window(...): need finite &#39;xlim&#39; values</code></pre>
-<p>We can see that the first estimated vector captures our constructed correlation between the 2nd and 3rd columns, the second estimated vector captures our constructed correlation between the 6th and 7th columns, and the third estimated vector captures the individual effect of the 5th column.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-17-3.png" width="672" style="display: block; margin: auto;" /> We can see that the first estimated vector captures our constructed correlation between the 2nd and 3rd columns, the second estimated vector captures our constructed correlation between the 6th and 7th columns, and the third estimated vector captures the individual effect of the 5th column.</p>
 <p>Figures 13(a-c) below plots our estimated PIPs, <span class="math inline">\(\alpha_1, \alpha_2, \alpha_3\)</span>:</p>
 <pre class="r"><code>plot(susie.logistic.fit$post_alpha[, 1], ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 13(a)&quot;, pch = 19)</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf</code></pre>
-<pre><code>Warning in max(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf</code></pre>
-<pre><code>Warning in max(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Error in plot.window(...): need finite &#39;xlim&#39; values</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-18-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c62537b6e3875acc75330707685f6af94ddf16a2/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-18-1.png" target="_blank">c62537b</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>plot(susie.logistic.fit$post_alpha[, 2], ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 13(b)&quot;, pch = 19)</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf
-
-Warning in min(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf</code></pre>
-<pre><code>Warning in max(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Error in plot.window(...): need finite &#39;xlim&#39; values</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-18-2.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>plot(susie.logistic.fit$post_alpha[, 3], ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 13(c)&quot;, pch = 19)</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf
-
-Warning in min(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf</code></pre>
-<pre><code>Warning in max(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Error in plot.window(...): need finite &#39;xlim&#39; values</code></pre>
-<p>These groups of correlated predictors are shows from the PIPs.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-18-3.png" width="672" style="display: block; margin: auto;" /> These groups of correlated predictors are shows from the PIPs.</p>
 </div>
 <div id="hard-demonstration" class="section level2">
 <h2>Hard Demonstration</h2>
@@ -2279,7 +1291,38 @@ susie.logistic.fit = susie_logistic(Y, X, L, V)</code></pre>
 <p>Figure 14 below plots the true values for <span class="math inline">\(\mathbf{b}\)</span> (the numbers correspond to the points and indices of non-zero true effects).</p>
 <pre class="r"><code>plot(beta_true[beta_true == 0] ~ which(beta_true == 0), xlim = c(0, 101), ylim = range(beta_true) + c(-.1, .1), xlab = &quot;Index&quot;, ylab = &quot;True Value&quot;, main = &quot;Figure 14&quot;, pch = 19)
 text(which(beta_true != 0), beta_true[beta_true != 0], labels = which(beta_true != 0))</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /> We can see that true effects 41 and 56 are very small, and 27, 60, and 87 are also small-ish.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-20-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c62537b6e3875acc75330707685f6af94ddf16a2/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-20-1.png" target="_blank">c62537b</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>We can see that true effects 41 and 56 are very small, and 27, 60, and 87 are also small-ish.</p>
 <p>Figures 15(a-j) below plots the posterior means for the 10 vectors estimated from this procedure (calculated as <span class="math inline">\(\mathbf{\bar{b}}_l := \alpha_l \circ \mu_{1l}\)</span> using <span class="math inline">\(\alpha_l, \mu_{1l}\)</span> returned from the logistic-version of the IBFS algorithm):</p>
 <pre class="r"><code>par(mfrow = c(5, 2))
 for (l in 1:L) {
@@ -2291,7 +1334,38 @@ for (l in 1:L) {
 <pre><code>Warning in max(x): no non-missing arguments to max; returning -Inf</code></pre>
 <pre><code>Error in plot.window(...): need finite &#39;ylim&#39; values</code></pre>
 <pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-21-1.png" width="672" style="display: block; margin: auto;" /> (NOTE: In figures 15(a) and 15(h), 1 and 2 are close together, so it looks like the number 12. But it is really just 1 and 2).</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-21-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-21-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c62537b6e3875acc75330707685f6af94ddf16a2/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-21-1.png" target="_blank">c62537b</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>(NOTE: In figures 15(a) and 15(h), 1 and 2 are close together, so it looks like the number 12. But it is really just 1 and 2).</p>
 <p>We can see that the first estimated vector (15a) (and 8th, 15(h)) captures our constructed correlation between the 1st and 2nd columns, and 7th vector (11g) captures our constructed correlation between the 87th, 88th, and 89th columns (note the signs: 89 was constructed to be negatively correlated with the true effect column 87).</p>
 <p>We also see that the groups (1, 2) and (76) are each captured twice, lending to their large coefficients. As a result, we have not captured the true (small) effects from 41 and 56.</p>
 <p>Figures 16(a-j) below plots our estimated PIPs, <span class="math inline">\(\alpha_1, \alpha_2, \alpha_3\)</span>:</p>
@@ -2358,9 +1432,7 @@ for (i in 1:length(Vs)) {
     text(which(abs(a_l_post) &gt;= .05), b_l_post[abs(a_l_post) &gt;= .05], labels = which(abs(a_l_post) &gt;= .05))
   }
 }</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf</code></pre>
-<pre><code>Warning in max(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Error in abs(a_l_post): non-numeric argument to mathematical function</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-3.png" width="672" style="display: block; margin: auto;" /><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-4.png" width="672" style="display: block; margin: auto;" /><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-5.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>par(mfrow = c(1, 1))
 
 
@@ -2373,7 +1445,7 @@ for (i in 1:length(Vs)) {
     text(which(abs(a_l_post) &gt;= .05), a_l_post[abs(a_l_post) &gt;= .05], labels = which(abs(a_l_post) &gt;= .05))
   }
 }</code></pre>
-<pre><code>Error in abs(a_l_post): non-numeric argument to mathematical function</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-6.png" width="672" style="display: block; margin: auto;" /><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-7.png" width="672" style="display: block; margin: auto;" /><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-8.png" width="672" style="display: block; margin: auto;" /><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-9.png" width="672" style="display: block; margin: auto;" /><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-10.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
 <p>As we can see, we require relatively large effects in order to determine that 1 and/or 5 is contributing to the response. However, a regular logistic regression on the columns of X (removing the 5th column) in these settings also have a difficult time determing that the 1 is the effect variable.</p>
 </div>
@@ -2419,13 +1491,11 @@ for (i in 1:length(Vs)) {
     text(which(abs(a_l_post) &gt;= .05), b_l_post[abs(a_l_post) &gt;= .05], labels = which(abs(a_l_post) &gt;= .05))
   }
 }</code></pre>
-<pre><code>Warning in min(x): no non-missing arguments to min; returning Inf</code></pre>
-<pre><code>Warning in max(x): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>Error in abs(a_l_post): non-numeric argument to mathematical function</code></pre>
-<pre class="r"><code>par(mfrow = c(1, 1))
-
-
-par(mfrow = c(5, 2))
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-24-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre><code>Error in susie.logistic.list[[i]][[j]]: subscript out of bounds</code></pre>
+<pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-24-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>par(mfrow = c(5, 2))
 for (i in 1:length(Vs)) {
   V = Vs[i]
   for (j in 1:B) {
@@ -2434,8 +1504,10 @@ for (i in 1:length(Vs)) {
     text(which(abs(a_l_post) &gt;= .05), a_l_post[abs(a_l_post) &gt;= .05], labels = which(abs(a_l_post) &gt;= .05))
   }
 }</code></pre>
-<pre><code>Error in abs(a_l_post): non-numeric argument to mathematical function</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-24-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre><code>Error in susie.logistic.list[[i]][[j]]: subscript out of bounds</code></pre>
 <pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-24-4.png" width="672" style="display: block; margin: auto;" /></p>
 <p>We can see that much smaller effects are detectable in this setting than above, with an arbitrary center and scaled design matrix <span class="math inline">\(X\)</span>.</p>
 </div>
 <div id="misspecified-l" class="section level2">
@@ -2460,18 +1532,14 @@ fit.susie.log5 = susie_logistic(Y, X, L = 5, V, maxit = 1000)
 fit.susie.log10 = susie_logistic(Y, X, L = 10, V, maxit = 1000)
 
 par(mfcol = c(3, 2))
-matplot(fit.susie.log3$post_alpha, xlab = &quot;Index&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;L = 3&quot;)</code></pre>
-<pre><code>Error in array(x, c(length(x), 1L), if (!is.null(names(x))) list(names(x), : &#39;data&#39; must be of a vector type, was &#39;NULL&#39;</code></pre>
-<pre class="r"><code>matplot(fit.susie.log5$post_alpha, xlab = &quot;Index&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;L = 5&quot;)</code></pre>
-<pre><code>Error in array(x, c(length(x), 1L), if (!is.null(names(x))) list(names(x), : &#39;data&#39; must be of a vector type, was &#39;NULL&#39;</code></pre>
-<pre class="r"><code>matplot(fit.susie.log10$post_alpha, xlab = &quot;Index&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;L = 10&quot;)</code></pre>
-<pre><code>Error in array(x, c(length(x), 1L), if (!is.null(names(x))) list(names(x), : &#39;data&#39; must be of a vector type, was &#39;NULL&#39;</code></pre>
-<pre class="r"><code>plot(rowSums(fit.susie.log3$post_alpha * fit.susie.log3$post_mu), xlab = &quot;Index&quot;, ylab = &quot;Posterior Mean&quot;, main = &quot;L = 3&quot;, pch = 19)</code></pre>
-<pre><code>Error in rowSums(fit.susie.log3$post_alpha * fit.susie.log3$post_mu): &#39;x&#39; must be an array of at least two dimensions</code></pre>
-<pre class="r"><code>plot(rowSums(fit.susie.log5$post_alpha * fit.susie.log5$post_mu), xlab = &quot;Index&quot;, ylab = &quot;Posterior Mean&quot;, main = &quot;L = 5&quot;, pch = 19)</code></pre>
-<pre><code>Error in rowSums(fit.susie.log5$post_alpha * fit.susie.log5$post_mu): &#39;x&#39; must be an array of at least two dimensions</code></pre>
-<pre class="r"><code>plot(rowSums(fit.susie.log10$post_alpha * fit.susie.log10$post_mu), xlab = &quot;Index&quot;, ylab = &quot;Posterior Mean&quot;, main = &quot;L = 10&quot;, pch = 19)</code></pre>
-<pre><code>Error in rowSums(fit.susie.log10$post_alpha * fit.susie.log10$post_mu): &#39;x&#39; must be an array of at least two dimensions</code></pre>
+matplot(fit.susie.log3$post_alpha, xlab = &quot;Index&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;L = 3&quot;)
+matplot(fit.susie.log5$post_alpha, xlab = &quot;Index&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;L = 5&quot;)
+matplot(fit.susie.log10$post_alpha, xlab = &quot;Index&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;L = 10&quot;)
+
+plot(rowSums(fit.susie.log3$post_alpha * fit.susie.log3$post_mu), xlab = &quot;Index&quot;, ylab = &quot;Posterior Mean&quot;, main = &quot;L = 3&quot;, pch = 19)
+plot(rowSums(fit.susie.log5$post_alpha * fit.susie.log5$post_mu), xlab = &quot;Index&quot;, ylab = &quot;Posterior Mean&quot;, main = &quot;L = 5&quot;, pch = 19)
+plot(rowSums(fit.susie.log10$post_alpha * fit.susie.log10$post_mu), xlab = &quot;Index&quot;, ylab = &quot;Posterior Mean&quot;, main = &quot;L = 10&quot;, pch = 19)</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-25-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>par(mfcol = c(1, 1))</code></pre>
 <p>We can see that having a value of <span class="math inline">\(L\)</span> too large adds groups with a lot of impurity in the PIPs (these groups being roughly identical, which is peculiar to me). Unsurprisingly, since our PIPs are forced to sum to 1, adding more groups will always add to the posterior means of each coefficient (assuming effects from different groups don’t cancel out due to having opposite signs). We can see this on the right side of the plots above (for <span class="math inline">\(L = 3\)</span>, coefficients 4-10 are close to 0, but for <span class="math inline">\(L = 5\)</span> and <span class="math inline">\(L = 10\)</span>, these effects start to deviate from 0).</p>
 </div>
