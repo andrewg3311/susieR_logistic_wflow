@@ -5,8 +5,10 @@ navbar:
   left:
     - text: "Home"
       href: index.html
-    - text: "Logistic SuSiE"
+    - text: "Logistic GLM SuSiE"
       href: susie_logistic_demonstration.html
+    - text: "Logistic VBSuSiE"
+      href: VB_susie_logistic_demonstration.html
     - text: "About"
       href: about.html
     - text: "License"
