@@ -56,9 +56,12 @@ where $X_y = (2y_i - 1)x_i^T \beta$ and $\lambda(\xi) = \frac{1}{2\xi} (g(\xi) -
 Using this bound, we derive the VB updates as follows:
 $$
 \begin{aligned}
-q_l(b_l = c \cdot e_j) \propto \exp\Bigg\{\log p(b_l = c e_j) + \sum_{i=1}^n \Big[\log g(\xi_i) + y_i x_i^T(ce_j + \sum_{k \ne l} \bar{b_k} - \frac{x_i^T(ce_j + \sum_{k \ne l} \bar{b_k}) + \xi_i}{2} - \frac{1}{2\xi_i}\Big(g(\xi_i) - \frac{1}{2}\Big)\Big((\mathbb{E}_{-(q_l)}[(x_i^T\sum_{k=1}^L b_k)^2] - \xi_i^2\Big)\Big]\Bigg\} \\
-\text{Note: } \mathbb{E}_{-(q_l)}[(x_i^T\sum_{k=1}^L b_k)^2]  = \mathbb{E}_{-(q_l)}[(c x_i^Te_j + \sum_{k \ne l}x_i^Tb_k)^2] = c^2 (x_i^Te_j)^2 + x_i^T \mathbb{E}_{-(q_l)}[(\sum_{k \ne l}b_k)^2] + 2(cx_i^Te_j)(x_i^T\sum_{k \ne l}\bar{b_k}) = c^2 (x_i^Te_j)^2 + 2(cx_i^Te_j)(x_i^T\sum_{k \ne l}\bar{b_k}) + (const \; in \; b_l) \\
-\therefore q_l(b_l = c \cdot e_j) \propto \exp\Bigg\{\log p(b_l = c e_j) + \sum_{i=1}^n \Big[\log g(\xi_i) + y_i x_i^T(ce_j + \sum_{k \ne l} \bar{b_k} - \frac{x_i^T(ce_j + \sum_{k \ne l} \bar{b_k}) + \xi_i}{2} - \frac{1}{2\xi_i}\Big(g(\xi_i) - \frac{1}{2}\Big)\Big((c^2(x_i^Te_j)^2 + (cx_i^Te_j)(x_i^T \sum_{k \ne l} \bar{b_k}) - \xi_i^2\Big)\Big]\Bigg\} \propto \\
+q_l(b_l = c \cdot e_j) \propto \exp\Bigg\{\log p(b_l = c e_j) + \sum_{i=1}^n \Big[\log g(\xi_i) + y_i x_i^T(ce_j + \sum_{k \ne l} \bar{b_k} - \\
+\frac{x_i^T(ce_j + \sum_{k \ne l} \bar{b_k}) + \xi_i}{2} - \frac{1}{2\xi_i}\Big(g(\xi_i) - \frac{1}{2}\Big)\Big((\mathbb{E}_{-(q_l)}[(x_i^T\sum_{k=1}^L b_k)^2] - \xi_i^2\Big)\Big]\Bigg\} \\
+\text{Note: } \mathbb{E}_{-(q_l)}[(x_i^T\sum_{k=1}^L b_k)^2]  = \mathbb{E}_{-(q_l)}[(c x_i^Te_j + \sum_{k \ne l}x_i^Tb_k)^2] = \\
+c^2 (x_i^Te_j)^2 + x_i^T \mathbb{E}_{-(q_l)}[(\sum_{k \ne l}b_k)^2] + 2(cx_i^Te_j)(x_i^T\sum_{k \ne l}\bar{b_k}) = c^2 (x_i^Te_j)^2 + 2(cx_i^Te_j)(x_i^T\sum_{k \ne l}\bar{b_k}) + (const \; in \; b_l) \\
+\therefore q_l(b_l = c \cdot e_j) \propto \exp\Bigg\{\log p(b_l = c e_j) + \sum_{i=1}^n \Big[\log g(\xi_i) + y_i x_i^T(ce_j + \sum_{k \ne l} \bar{b_k} - \frac{x_i^T(ce_j + \sum_{k \ne l} \bar{b_k}) + \xi_i}{2} - \\
+\frac{1}{2\xi_i}\Big(g(\xi_i) - \frac{1}{2}\Big)\Big((c^2(x_i^Te_j)^2 + (cx_i^Te_j)(x_i^T \sum_{k \ne l} \bar{b_k}) - \xi_i^2\Big)\Big]\Bigg\} \propto \\
 [\text{collect terms and complete the square}] \\
 \propto \exp\Bigg\{\log(\pi_j) - \frac{\tau_{jl}}{2}\Bigg(c - \frac{\nu_{jl}}{\tau_{jl}}\Bigg)^2 + \frac{\nu_{jl}^2}{2\tau_{jl}}\Bigg\} \\
 \text{where } \nu_{jl} = \sum_{i=1}^n x_i^Te_j\Big(y_i - \frac{1}{2} - \frac{1}{\xi_i}(g(\xi_i) - \frac{1}{2})(x_i^T \sum_{k \ne l}\bar{b_k})\Big) \text{ and } \tau_{jl}^2 = \frac{1}{\sigma_0^2} + \sum_{i=1}^n \frac{1}{\xi_i}(g(\xi_i) - \frac{1}{2})(x_i^Te_j)^2
@@ -67,7 +70,7 @@ $$
 Note that this is a mixture of a multinoulli draw for the non-zero element of $b_l$ and then a normal draw for the value of that non-zero element. In particular,
 $$
 \begin{aligned}
-q(\gamma_l = j) = \pi_j \cdot \exp \Bigg\{\frac{\nu_{jl}^2}{2\tau_{jl}}\Bigg\} \\
+q(\gamma_l = j) \propto \pi_j \cdot \exp \Bigg\{\frac{\nu_{jl}^2}{2\tau_{jl}}\Bigg\} \\
 b_{l_j}|\gamma_l = j \sim_{q_l} \mathcal{N}\Big(\frac{\nu_{jl}}{\tau_{jl}}, \frac{1}{\tau_{jl}}\Big)
 \end{aligned}
 $$
