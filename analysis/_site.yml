@@ -7,7 +7,7 @@ navbar:
       href: index.html
     - text: "Logistic GLM SuSiE"
       href: susie_logistic_demonstration.html
-    - text: "Logistic VBSuSiE"
+    - text: "Logistic VB SuSiE"
       href: VB_susie_logistic_demonstration.html
     - text: "About"
       href: about.html
