@@ -369,7 +369,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/b3459c9283e48442d03b89fc02966f4d0f6879d1" target="_blank">b3459c9</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/445a11b9455779fca296380c07ac5300b118a464" target="_blank">445a11b</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -405,6 +405,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/445a11b9455779fca296380c07ac5300b118a464/analysis/VB_susie_logistic_demonstration.Rmd" target="_blank">445a11b</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+<td style="text-align:left;">
+Fixing spacing on some Math
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/andrewg3311/susieR_logistic_wflow/9fa2301ad69c033faef97129b5abb99a185eb653/docs/VB_susie_logistic_demonstration.html" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -528,16 +562,19 @@ P(y_i|x_i, \beta) = g(X_y) \ge g(\xi) \exp\Big\{\frac{X_y - \xi}{2} + \lambda(\x
 \]</span> where <span class="math inline">\(X_y = (2y_i - 1)x_i^T \beta\)</span> and <span class="math inline">\(\lambda(\xi) = \frac{1}{2\xi} (g(\xi) - \frac{1}{2})\)</span>. (The same bound is used in <a href="http://approximateinference.org/2017/accepted/Horri2017.pdf">“Sparse Bayesian Logistic Regression with Hierarchical Prior and Variational Inference” (Horii, 2017)</a>.</p>
 <p>Using this bound, we derive the VB updates as follows: <span class="math display">\[
 \begin{aligned}
-q_l(b_l = c \cdot e_j) \propto \exp\Bigg\{\log p(b_l = c e_j) + \sum_{i=1}^n \Big[\log g(\xi_i) + y_i x_i^T(ce_j + \sum_{k \ne l} \bar{b_k} - \frac{x_i^T(ce_j + \sum_{k \ne l} \bar{b_k}) + \xi_i}{2} - \frac{1}{2\xi_i}\Big(g(\xi_i) - \frac{1}{2}\Big)\Big((\mathbb{E}_{-(q_l)}[(x_i^T\sum_{k=1}^L b_k)^2] - \xi_i^2\Big)\Big]\Bigg\} \\
-\text{Note: } \mathbb{E}_{-(q_l)}[(x_i^T\sum_{k=1}^L b_k)^2]  = \mathbb{E}_{-(q_l)}[(c x_i^Te_j + \sum_{k \ne l}x_i^Tb_k)^2] = c^2 (x_i^Te_j)^2 + x_i^T \mathbb{E}_{-(q_l)}[(\sum_{k \ne l}b_k)^2] + 2(cx_i^Te_j)(x_i^T\sum_{k \ne l}\bar{b_k}) = c^2 (x_i^Te_j)^2 + 2(cx_i^Te_j)(x_i^T\sum_{k \ne l}\bar{b_k}) + (const \; in \; b_l) \\
-\therefore q_l(b_l = c \cdot e_j) \propto \exp\Bigg\{\log p(b_l = c e_j) + \sum_{i=1}^n \Big[\log g(\xi_i) + y_i x_i^T(ce_j + \sum_{k \ne l} \bar{b_k} - \frac{x_i^T(ce_j + \sum_{k \ne l} \bar{b_k}) + \xi_i}{2} - \frac{1}{2\xi_i}\Big(g(\xi_i) - \frac{1}{2}\Big)\Big((c^2(x_i^Te_j)^2 + (cx_i^Te_j)(x_i^T \sum_{k \ne l} \bar{b_k}) - \xi_i^2\Big)\Big]\Bigg\} \propto \\
+q_l(b_l = c \cdot e_j) \propto \exp\Bigg\{\log p(b_l = c e_j) + \sum_{i=1}^n \Big[\log g(\xi_i) + y_i x_i^T(ce_j + \sum_{k \ne l} \bar{b_k} - \\
+\frac{x_i^T(ce_j + \sum_{k \ne l} \bar{b_k}) + \xi_i}{2} - \frac{1}{2\xi_i}\Big(g(\xi_i) - \frac{1}{2}\Big)\Big((\mathbb{E}_{-(q_l)}[(x_i^T\sum_{k=1}^L b_k)^2] - \xi_i^2\Big)\Big]\Bigg\} \\
+\text{Note: } \mathbb{E}_{-(q_l)}[(x_i^T\sum_{k=1}^L b_k)^2]  = \mathbb{E}_{-(q_l)}[(c x_i^Te_j + \sum_{k \ne l}x_i^Tb_k)^2] = \\
+c^2 (x_i^Te_j)^2 + x_i^T \mathbb{E}_{-(q_l)}[(\sum_{k \ne l}b_k)^2] + 2(cx_i^Te_j)(x_i^T\sum_{k \ne l}\bar{b_k}) = c^2 (x_i^Te_j)^2 + 2(cx_i^Te_j)(x_i^T\sum_{k \ne l}\bar{b_k}) + (const \; in \; b_l) \\
+\therefore q_l(b_l = c \cdot e_j) \propto \exp\Bigg\{\log p(b_l = c e_j) + \sum_{i=1}^n \Big[\log g(\xi_i) + y_i x_i^T(ce_j + \sum_{k \ne l} \bar{b_k} - \frac{x_i^T(ce_j + \sum_{k \ne l} \bar{b_k}) + \xi_i}{2} - \\
+\frac{1}{2\xi_i}\Big(g(\xi_i) - \frac{1}{2}\Big)\Big((c^2(x_i^Te_j)^2 + (cx_i^Te_j)(x_i^T \sum_{k \ne l} \bar{b_k}) - \xi_i^2\Big)\Big]\Bigg\} \propto \\
 [\text{collect terms and complete the square}] \\
 \propto \exp\Bigg\{\log(\pi_j) - \frac{\tau_{jl}}{2}\Bigg(c - \frac{\nu_{jl}}{\tau_{jl}}\Bigg)^2 + \frac{\nu_{jl}^2}{2\tau_{jl}}\Bigg\} \\
 \text{where } \nu_{jl} = \sum_{i=1}^n x_i^Te_j\Big(y_i - \frac{1}{2} - \frac{1}{\xi_i}(g(\xi_i) - \frac{1}{2})(x_i^T \sum_{k \ne l}\bar{b_k})\Big) \text{ and } \tau_{jl}^2 = \frac{1}{\sigma_0^2} + \sum_{i=1}^n \frac{1}{\xi_i}(g(\xi_i) - \frac{1}{2})(x_i^Te_j)^2
 \end{aligned}
 \]</span> Note that this is a mixture of a multinoulli draw for the non-zero element of <span class="math inline">\(b_l\)</span> and then a normal draw for the value of that non-zero element. In particular, <span class="math display">\[
 \begin{aligned}
-q(\gamma_l = j) = \pi_j \cdot \exp \Bigg\{\frac{\nu_{jl}^2}{2\tau_{jl}}\Bigg\} \\
+q(\gamma_l = j) \propto \pi_j \cdot \exp \Bigg\{\frac{\nu_{jl}^2}{2\tau_{jl}}\Bigg\} \\
 b_{l_j}|\gamma_l = j \sim_{q_l} \mathcal{N}\Big(\frac{\nu_{jl}}{\tau_{jl}}, \frac{1}{\tau_{jl}}\Big)
 \end{aligned}
 \]</span></p>
@@ -901,6 +938,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-4-1.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c62537b6e3875acc75330707685f6af94ddf16a2/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-4-1.png" target="_blank">c62537b</a>
 </td>
 <td style="text-align:left;">
@@ -914,10 +962,72 @@ Andrew Goldstein
 </table>
 <p></details></p>
 <pre class="r"><code>plot(sapply(susie.fits.easy, function(x) x$post_alpha[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 2&quot;, pch = 19)</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /> Figure 1 shows that, in this simulation, we observe a shrinkage behavior similar to hard-thresholding (with a small thresholding value). We also see that our estimated lie pretty close to the truth. Figure 2 shows a sharp transition between a very low PIP and a PIP near 1. This sharp transition is what causes the hard-thresholding-like shrinkage we obsersve in figure 1: the posterior mean values <span class="math inline">\(\mu_1\)</span> closely match the true values for <span class="math inline">\(b_1\)</span>, but are effectively shrunk to 0 in this region by the PIP <span class="math inline">\(\alpha_i\)</span>, and are effectively untouched outside this region.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-4-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-4-2.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>Figure 1 shows that, in this simulation, we observe a shrinkage behavior similar to hard-thresholding (with a small thresholding value). We also see that our estimated lie pretty close to the truth. Figure 2 shows a sharp transition between a very low PIP and a PIP near 1. This sharp transition is what causes the hard-thresholding-like shrinkage we obsersve in figure 1: the posterior mean values <span class="math inline">\(\mu_1\)</span> closely match the true values for <span class="math inline">\(b_1\)</span>, but are effectively shrunk to 0 in this region by the PIP <span class="math inline">\(\alpha_i\)</span>, and are effectively untouched outside this region.</p>
 <p>We can compare figure 2 with the p-values obtained from the normal logistic regressions on the same simulated data, shown in figure 3 below.</p>
 <pre class="r"><code>plot(sapply(logistic.fits.easy, function(x) summary(x)$coefficients[2, 4]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Logistic p-value&quot;, main = &quot;Figure 3&quot;, pch = 19)</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /> We see a similar phase transition around the same values of the true effect size, <span class="math inline">\(|b_1| \le 0.5\)</span>.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-5-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-5-1.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>We see a similar phase transition around the same values of the true effect size, <span class="math inline">\(|b_1| \le 0.5\)</span>.</p>
 </div>
 <div id="l-2" class="section level3">
 <h3>L = 2</h3>
@@ -961,13 +1071,134 @@ est_b = sapply(susie.fits.easy2, function(x) rowSums(x$post_alpha * x$post_mu))
 plot(est_b[1, ] ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;Figure 4(a) - Entry 1&quot;, pch = 19)
 abline(0, 1)</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-7-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-7-1.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>plot(est_b[2, ] ~ b_2s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;Figure 4(b) - Entry 2&quot;, pch = 19)
 abline(0, 1)</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-7-2.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-7-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-7-2.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>plot(est_alpha1_max ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 5(a) - Entry 1&quot;, pch = 19)</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-7-3.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-7-3.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-7-3.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>plot(est_alpha2_max ~ b_2s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 5(b) - Entry 2&quot;, pch = 19)</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-7-4.png" width="672" style="display: block; margin: auto;" /> We see a similar pattern as above, in the case <span class="math inline">\(L = 1\)</span>. The method is also able to detect both effects (when strong enough).</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-7-4.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-7-4.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-7-4.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>We see a similar pattern as above, in the case <span class="math inline">\(L = 1\)</span>. The method is also able to detect both effects (when strong enough).</p>
 <p>We can compare figures 5(a-b) with the p-values obtained from the normal logistic regressions on the same simulated data, shown in figures 6(a-b) below.</p>
 <pre class="r"><code>plot(sapply(logistic.fits.easy2, function(x) summary(x)$coefficients[2, 4]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Logistic p-value&quot;, main = &quot;Figure 6(a) - Entry 1&quot;, pch = 19)</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
@@ -987,6 +1218,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-1.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/acba6fcd7a27dc3fadefb8369f0d96276ae4a67c/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-1.png" target="_blank">acba6fc</a>
@@ -1019,6 +1261,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-2.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/acba6fcd7a27dc3fadefb8369f0d96276ae4a67c/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-2.png" target="_blank">acba6fc</a>
@@ -1071,7 +1324,38 @@ Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
 susie.logistic.fit = susie_logistic_VB(Y, X, L, V)</code></pre>
 <p>Figure 11 below plots the true values for <span class="math inline">\(\mathbf{b}\)</span>.</p>
 <pre class="r"><code>plot(beta_true, ylab = &quot;True Value&quot;, main = &quot;Figure 11&quot;, pch = 19)</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /> The 3rd and 6th are around -1.3, and the 5th is around 0.75.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-10-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-10-1.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>The 3rd and 6th are around -1.3, and the 5th is around 0.75.</p>
 <p>Figures 12(a-c) below plots the posterior means for the 3 vectors estimated from this procedure (calculated as <span class="math inline">\(\mathbf{\bar{b}}_l := \alpha_l \circ \mu_{1l}\)</span> using <span class="math inline">\(\alpha_l, \mu_{1l}\)</span> returned from the logistic-version of the IBFS algorithm):</p>
 <pre class="r"><code>b_1_post = susie.logistic.fit$post_mu[, 1] * susie.logistic.fit$post_alpha[, 1]
 b_2_post = susie.logistic.fit$post_mu[, 2] * susie.logistic.fit$post_alpha[, 2]
@@ -1097,6 +1381,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-11-1.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/acba6fcd7a27dc3fadefb8369f0d96276ae4a67c/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-11-1.png" target="_blank">acba6fc</a>
 </td>
 <td style="text-align:left;">
@@ -1111,8 +1406,69 @@ Andrew Goldstein
 <p></details></p>
 <pre class="r"><code>plot(b_2_post, ylab = &quot;Posterior Mean Value&quot;, main = &quot;Figure 12(b)&quot;, pch = 19)</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-11-2.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-11-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-11-2.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>plot(b_3_post, ylab = &quot;Posterior Mean Value&quot;, main = &quot;Figure 12(c)&quot;, pch = 19)</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-11-3.png" width="672" style="display: block; margin: auto;" /> We can see that the first estimated vector captures our constructed correlation between the 2nd and 3rd columns, the second estimated vector captures our constructed correlation between the 6th and 7th columns, and the third estimated vector captures the individual effect of the 5th column.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-11-3.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-11-3.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-11-3.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>We can see that the first estimated vector captures our constructed correlation between the 2nd and 3rd columns, the second estimated vector captures our constructed correlation between the 6th and 7th columns, and the third estimated vector captures the individual effect of the 5th column.</p>
 <p>Figures 13(a-c) below plots our estimated PIPs, <span class="math inline">\(\alpha_1, \alpha_2, \alpha_3\)</span>:</p>
 <pre class="r"><code>plot(susie.logistic.fit$post_alpha[, 1], ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 13(a)&quot;, pch = 19)</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
@@ -1132,6 +1488,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-1.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/acba6fcd7a27dc3fadefb8369f0d96276ae4a67c/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-1.png" target="_blank">acba6fc</a>
@@ -1159,8 +1526,69 @@ Andrew Goldstein
 <p></details></p>
 <pre class="r"><code>plot(susie.logistic.fit$post_alpha[, 2], ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 13(b)&quot;, pch = 19)</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-2.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-12-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-2.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>plot(susie.logistic.fit$post_alpha[, 3], ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 13(c)&quot;, pch = 19)</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-3.png" width="672" style="display: block; margin: auto;" /> These groups of correlated predictors are shows from the PIPs.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-3.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-12-3.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-3.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>These groups of correlated predictors are shows from the PIPs.</p>
 </div>
 <div id="hard-demonstration" class="section level2">
 <h2>Hard Demonstration</h2>
@@ -1198,7 +1626,38 @@ susie.logistic.fit = susie_logistic_VB(Y, X, L, V)</code></pre>
 <p>Figure 14 below plots the true values for <span class="math inline">\(\mathbf{b}\)</span> (the numbers correspond to the points and indices of non-zero true effects).</p>
 <pre class="r"><code>plot(beta_true[beta_true == 0] ~ which(beta_true == 0), xlim = c(0, 101), ylim = range(beta_true) + c(-.1, .1), xlab = &quot;Index&quot;, ylab = &quot;True Value&quot;, main = &quot;Figure 14&quot;, pch = 19)
 text(which(beta_true != 0), beta_true[beta_true != 0], labels = which(beta_true != 0))</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /> We can see that true effects 41 and 56 are very small, and 27, 60, and 87 are also small-ish.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-14-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-14-1.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>We can see that true effects 41 and 56 are very small, and 27, 60, and 87 are also small-ish.</p>
 <p>Figures 15(a-j) below plots the posterior means for the 10 vectors estimated from this procedure (calculated as <span class="math inline">\(\mathbf{\bar{b}}_l := \alpha_l \circ \mu_{1l}\)</span> using <span class="math inline">\(\alpha_l, \mu_{1l}\)</span> returned from the logistic-version of the IBFS algorithm):</p>
 <pre class="r"><code>par(mfrow = c(5, 2))
 for (l in 1:L) {
@@ -1208,7 +1667,38 @@ for (l in 1:L) {
 }</code></pre>
 <pre><code>Error in text.default(which(abs(b_l_post) &gt;= 0.01), b_l_post[abs(b_l_post) &gt;= : zero-length &#39;labels&#39; specified</code></pre>
 <pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /> (NOTE: In figures 15(a) and 15(h), 1 and 2 are close together, so it looks like the number 12. But it is really just 1 and 2).</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-15-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-15-1.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>(NOTE: In figures 15(a) and 15(h), 1 and 2 are close together, so it looks like the number 12. But it is really just 1 and 2).</p>
 <p>We can see that the first estimated vector (15a) (and 8th, 15(h)) captures our constructed correlation between the 1st and 2nd columns, and 8th vector (15h) captures our constructed correlation between the 87th, 88th, and 89th columns (note the signs: 89 was constructed to be negatively correlated with the true effect column 87).</p>
 <p>Figures 16(a-j) below plots our estimated PIPs, <span class="math inline">\(\alpha_1, \alpha_2, \alpha_3\)</span>:</p>
 <pre class="r"><code>par(mfrow = c(5, 2))
@@ -1234,6 +1724,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-16-1.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c62537b6e3875acc75330707685f6af94ddf16a2/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-16-1.png" target="_blank">c62537b</a>
@@ -1297,6 +1798,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-17-1.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/acba6fcd7a27dc3fadefb8369f0d96276ae4a67c/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-17-1.png" target="_blank">acba6fc</a>
@@ -1387,6 +1899,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-18-1.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/acba6fcd7a27dc3fadefb8369f0d96276ae4a67c/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-18-1.png" target="_blank">acba6fc</a>
 </td>
 <td style="text-align:left;">
@@ -1447,6 +1970,36 @@ abline(0, 1)
 
 plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;VB SuSiE PIP Estimates: n = 50&quot;, pch = 19, ylim = c(0, 1))</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-19-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-19-1.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
 <p>The differences here are more apparent. First, the GLM coefficient estimates for large true effects are biased towards 0 far more than the VB estimates. The driving factor is likely the PIPs, where the GLM version has a hard time; even for large effects, the PIPs are still only at aroung 0.9 at best. In contrast, the VB method returns PIPs of 1 for large enough effects.</p>
 </div>
@@ -1495,6 +2048,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-20-1.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c62537b6e3875acc75330707685f6af94ddf16a2/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-20-1.png" target="_blank">c62537b</a>
 </td>
 <td style="text-align:left;">
@@ -1514,6 +2078,36 @@ for (l in 1:L) {
   text(which(abs(b_l_post) &gt;= .01), b_l_post[abs(b_l_post) &gt;= .01], labels = which(abs(b_l_post) &gt;= .01))
 }</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-20-2.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-20-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-20-2.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>par(mfrow = c(1, 1))
 
 par(mfrow = c(2, 2))
@@ -1523,6 +2117,36 @@ for (l in 1:L) {
   text(which(abs(b_l_post) &gt;= .01), b_l_post[abs(b_l_post) &gt;= .01], labels = which(abs(b_l_post) &gt;= .01))
 }</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-20-3.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-20-3.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-20-3.png" target="_blank">9fa2301</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
 <p>From these plots, we see that the posterior mean estimates in both algorithms are sensible and nearly indistinguishable.</p>
 </div>
@@ -1550,14 +2174,13 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 loaded via a namespace (and not attached):
- [1] workflowr_1.1.1   Rcpp_1.0.0        codetools_0.2-15 
- [4] digest_0.6.18     rprojroot_1.3-2   MASS_7.3-50      
- [7] R.methodsS3_1.7.1 backports_1.1.2   git2r_0.23.0     
-[10] magrittr_1.5      evaluate_0.11     stringi_1.2.4    
-[13] whisker_0.3-2     R.oo_1.22.0       R.utils_2.7.0    
-[16] rmarkdown_1.10    tools_3.5.1       stringr_1.3.1    
-[19] yaml_2.2.0        compiler_3.5.1    htmltools_0.3.6  
-[22] knitr_1.20       </code></pre>
+ [1] workflowr_1.1.1   Rcpp_1.0.0        digest_0.6.18    
+ [4] rprojroot_1.3-2   MASS_7.3-50       R.methodsS3_1.7.1
+ [7] backports_1.1.2   git2r_0.23.0      magrittr_1.5     
+[10] evaluate_0.11     stringi_1.2.4     whisker_0.3-2    
+[13] R.oo_1.22.0       R.utils_2.7.0     rmarkdown_1.10   
+[16] tools_3.5.1       stringr_1.3.1     yaml_2.2.0       
+[19] compiler_3.5.1    htmltools_0.3.6   knitr_1.20       </code></pre>
 </div>
 </div>
 
