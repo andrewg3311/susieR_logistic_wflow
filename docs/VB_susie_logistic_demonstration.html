@@ -369,7 +369,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/90ada57d371b174cbb3e20c6891fd4c966103ea1" target="_blank">90ada57</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/5e270b116374e947dcba4206cf3c98690d604dec" target="_blank">5e270b1</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -405,6 +405,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/5e270b116374e947dcba4206cf3c98690d604dec/analysis/VB_susie_logistic_demonstration.Rmd" target="_blank">5e270b1</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+<td style="text-align:left;">
+Adding notes on runtime, WILL PERFORM TIME TRIALS LATER
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/andrewg3311/susieR_logistic_wflow/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/VB_susie_logistic_demonstration.html" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -865,8 +899,39 @@ b|\gamma_j = 1 \sim \mathcal{N}(\mu_{1j}, \sigma_{1j}^2) \\
 q_l(c \cdot e_j) \propto \mathbb{E}_{-(q_l)}[\log(p(y|b_l = c \cdot e_j, b_{-l}) p(b_l = c \cdot e_j)) = \mathbb{E}_{-(q_l)}\Big[\log(\pi_j) + \log\Big(\mathcal{N}(c; 0, \sigma_0^2)\Big) + \sum_{i=1}^n y_ix_i^T(b_l + \sum_{k \ne l} b_k) - \log\Big(1 + \exp\{x_i^T(b_l + \sum_{k \ne l} b_k\}\Big)\Big]
 \]</span> The issue with the GLM approach is that by finding the MLE for <span class="math inline">\(b_l\)</span> by treating <span class="math inline">\(b_{-l}\)</span> fixed at its posterior mean under <span class="math inline">\(q_{-l}\)</span> is that we are essentially saying that <span class="math inline">\(\mathbb{E}_{-(q_l)}\Big[\log\Big(1 + \exp\{x_i^T(b_l + \sum_{k \ne l} b_k\}\Big)\Big] = \log\Big(1 + \exp\{x_i^T(b_l + \bar{b}_{-l}\}\Big)\)</span>. If it were the case that <span class="math inline">\(\mathbb{E}_{-(q_l)}\Big[\log\Big(1 + \exp\{x_i^T(b_l + \sum_{k \ne l} b_k\}\Big)\Big] \le \log\Big(1 + \exp\{x_i^T(b_l + \bar{b}_{-l}\}\Big)\)</span>, then we would have no issue, since we would be maintaining the chain of “<span class="math inline">\(\ge\)</span>” used in the derivation of VB (subtracting a smaller value vs. a larger value in the likelihood). However, <span class="math inline">\(\log(1 + e^x)\)</span> is a concave function, so by Jensen’s inequality, <span class="math inline">\(\mathbb{E}_{-(q_l)}\Big[\log\Big(1 + \exp\{x_i^T(b_l + \sum_{k \ne l} b_k\}\Big)\Big] \ge \log\Big(1 + \exp\{x_i^T(b_l + \bar{b}_{-l}\}\Big)\)</span> (the opposite of what we want).</p>
 <p>We would have approximate equality in the above case if <span class="math inline">\(\log(1 + e^x)\)</span> were roughly linear. The second derivative of <span class="math inline">\(\log(1 + e^x)\)</span> is <span class="math inline">\(\frac{e^x}{(1 + e^x)^2}\)</span>. This second derivative has a maximum of <span class="math inline">\(\frac14\)</span> at <span class="math inline">\(x = 0\)</span>, and looks like this:</p>
-<pre class="r"><code>plot(curve(exp(x) / ((1 + exp(x))^2), -5, 5), type = &quot;l&quot;, xlab = &quot;x&quot;, ylab = &quot;Second Derivative&quot;)</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-1-2.png" width="672" style="display: block; margin: auto;" /> For larger values of <span class="math inline">\(|x|\)</span>, the second derivative is quite small, and thus <span class="math inline">\(\log(1+e^x)\)</span> is roughly linear, so taking the expectation insude the function doesn’t change things too much. And even at the maximum of 0, the second derivative is still on the smaller side. So one could argue that our implicit approximation in the GLM algorithm works well, even if the inequality is technically in the wrong direction.</p>
+<pre class="r"><code>curve(exp(x) / ((1 + exp(x))^2), -5, 5, xlab = &quot;x&quot;, ylab = &quot;Second Derivative&quot;)</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-1-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-1-1.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>For larger values of <span class="math inline">\(|x|\)</span>, the second derivative is quite small, and thus <span class="math inline">\(\log(1+e^x)\)</span> is roughly linear, so taking the expectation insude the function doesn’t change things too much. And even at the maximum of 0, the second derivative is still on the smaller side. So one could argue that our implicit approximation in the GLM algorithm works well, even if the inequality is technically in the wrong direction.</p>
 <p>The benefit of the VB approach is that we retain some information about the higher moments of <span class="math inline">\(b_{-l}\)</span> in the form of our <span class="math inline">\(\xi_i\)</span> variational parameters.</p>
 <p>With this in mind, I suspect that if differences in the method can be found, it will be when the linear predictors <span class="math inline">\(x_i^T\mathbf{b}\)</span> are all close to 0.</p>
 </div>
@@ -1209,6 +1274,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-5-1.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-5-1.png" target="_blank">9fa2301</a>
 </td>
 <td style="text-align:left;">
@@ -1222,10 +1298,72 @@ Andrew Goldstein
 </table>
 <p></details></p>
 <pre class="r"><code>plot(sapply(susie.fits.easy, function(x) x$post_alpha[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 2&quot;, pch = 19)</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-5-2.png" width="672" style="display: block; margin: auto;" /> Figure 1 shows that, in this simulation, we observe a shrinkage behavior similar to hard-thresholding (with a small thresholding value). We also see that our estimated lie pretty close to the truth. Figure 2 shows a sharp transition between a very low PIP and a PIP near 1. This sharp transition is what causes the hard-thresholding-like shrinkage we obsersve in figure 1: the posterior mean values <span class="math inline">\(\mu_1\)</span> closely match the true values for <span class="math inline">\(b_1\)</span>, but are effectively shrunk to 0 in this region by the PIP <span class="math inline">\(\alpha_i\)</span>, and are effectively untouched outside this region.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-5-2.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-5-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-5-2.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>Figure 1 shows that, in this simulation, we observe a shrinkage behavior similar to hard-thresholding (with a small thresholding value). We also see that our estimated lie pretty close to the truth. Figure 2 shows a sharp transition between a very low PIP and a PIP near 1. This sharp transition is what causes the hard-thresholding-like shrinkage we obsersve in figure 1: the posterior mean values <span class="math inline">\(\mu_1\)</span> closely match the true values for <span class="math inline">\(b_1\)</span>, but are effectively shrunk to 0 in this region by the PIP <span class="math inline">\(\alpha_i\)</span>, and are effectively untouched outside this region.</p>
 <p>We can compare figure 2 with the p-values obtained from the normal logistic regressions on the same simulated data, shown in figure 3 below.</p>
 <pre class="r"><code>plot(sapply(logistic.fits.easy, function(x) summary(x)$coefficients[2, 4]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Logistic p-value&quot;, main = &quot;Figure 3&quot;, pch = 19)</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /> We see a similar phase transition around the same values of the true effect size, <span class="math inline">\(|b_1| \le 0.5\)</span>.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-6-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-6-1.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>We see a similar phase transition around the same values of the true effect size, <span class="math inline">\(|b_1| \le 0.5\)</span>.</p>
 </div>
 <div id="l-2" class="section level3">
 <h3>L = 2</h3>
@@ -1287,6 +1425,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-1.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-1.png" target="_blank">9fa2301</a>
 </td>
 <td style="text-align:left;">
@@ -1329,6 +1478,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-2.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-2.png" target="_blank">9fa2301</a>
@@ -1374,6 +1534,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-3.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/acba6fcd7a27dc3fadefb8369f0d96276ae4a67c/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-3.png" target="_blank">acba6fc</a>
 </td>
 <td style="text-align:left;">
@@ -1404,6 +1575,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-4.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/acba6fcd7a27dc3fadefb8369f0d96276ae4a67c/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-8-4.png" target="_blank">acba6fc</a>
@@ -1541,6 +1723,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-11-1.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/7785c2e32567d29f4ed4a44619d343110fa75fa5/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-11-1.png" target="_blank">7785c2e</a>
 </td>
 <td style="text-align:left;">
@@ -1599,6 +1792,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-1.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/7785c2e32567d29f4ed4a44619d343110fa75fa5/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-1.png" target="_blank">7785c2e</a>
@@ -1666,6 +1870,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-2.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/7785c2e32567d29f4ed4a44619d343110fa75fa5/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-2.png" target="_blank">7785c2e</a>
 </td>
 <td style="text-align:left;">
@@ -1709,6 +1924,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-3.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/7785c2e32567d29f4ed4a44619d343110fa75fa5/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-12-3.png" target="_blank">7785c2e</a>
 </td>
 <td style="text-align:left;">
@@ -1747,10 +1973,101 @@ Andrew Goldstein
 <p>Figures 13(a-c) below plots our estimated PIPs, <span class="math inline">\(\alpha_1, \alpha_2, \alpha_3\)</span>:</p>
 <pre class="r"><code>plot(susie.logistic.fit$post_alpha[, 1], ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 13(a)&quot;, pch = 19)</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-13-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-13-1.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>plot(susie.logistic.fit$post_alpha[, 2], ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 13(b)&quot;, pch = 19)</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-13-2.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-13-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-13-2.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>plot(susie.logistic.fit$post_alpha[, 3], ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;Figure 13(c)&quot;, pch = 19)</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-13-3.png" width="672" style="display: block; margin: auto;" /> These groups of correlated predictors are shows from the PIPs.</p>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-13-3.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-13-3.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-13-3.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<p>These groups of correlated predictors are shows from the PIPs.</p>
 </div>
 <div id="hard-demonstration" class="section level2">
 <h2>Hard Demonstration</h2>
@@ -1807,6 +2124,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-15-1.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-15-1.png" target="_blank">9fa2301</a>
 </td>
 <td style="text-align:left;">
@@ -1846,6 +2174,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-16-1.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-16-1.png" target="_blank">9fa2301</a>
@@ -1897,6 +2236,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-17-1.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/7785c2e32567d29f4ed4a44619d343110fa75fa5/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-17-1.png" target="_blank">7785c2e</a>
@@ -2006,6 +2356,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-18-1.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/7785c2e32567d29f4ed4a44619d343110fa75fa5/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-18-1.png" target="_blank">7785c2e</a>
 </td>
 <td style="text-align:left;">
@@ -2068,6 +2429,7 @@ Andrew Goldstein
 <div id="comparison-between-the-vb-algorithm-and-the-original-iterative-glm-modification-of-regular-susie" class="section level2">
 <h2>Comparison Between the VB Algorithm and the Original Iterative GLM Modification of Regular SuSiE</h2>
 <p>In that follows, I will refer to the new VB approach as the <em>VB Algorithm</em>, and the original iterative GLM approach as the <em>GLM Algorithm</em>.</p>
+<p><em>NOTE: I have so far been unable to find many meaningful differences between the two algorithms</em></p>
 <div id="convergence" class="section level3">
 <h3>Convergence</h3>
 <p>First, before diving into any simulation examples, recall that for the GLM algorithm, I encountered situations where the algorithm didn’t converge (e.g. cycling behavior). To remedy this, I modified the convergence criteria to also take into account the estimated means from 2 iterations prior (not just the previous iteration). In the VB algorithm, since it is a hill climbing algorithm, we should not encounter scenarios where the algorithm fails to converge.</p>
@@ -2125,6 +2487,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-19-1.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/7785c2e32567d29f4ed4a44619d343110fa75fa5/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-19-1.png" target="_blank">7785c2e</a>
@@ -2216,6 +2589,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-20-1.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/9fa2301ad69c033faef97129b5abb99a185eb653/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-20-1.png" target="_blank">9fa2301</a>
 </td>
 <td style="text-align:left;">
@@ -2290,6 +2674,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-21-1.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/c62537b6e3875acc75330707685f6af94ddf16a2/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-21-1.png" target="_blank">c62537b</a>
 </td>
 <td style="text-align:left;">
@@ -2309,6 +2704,36 @@ for (l in 1:L) {
   text(which(abs(b_l_post) &gt;= .01), b_l_post[abs(b_l_post) &gt;= .01], labels = which(abs(b_l_post) &gt;= .01))
 }</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-21-2.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-21-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-21-2.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>par(mfrow = c(1, 1))
 
 par(mfrow = c(2, 2))
@@ -2318,12 +2743,43 @@ for (l in 1:L) {
   text(which(abs(b_l_post) &gt;= .01), b_l_post[abs(b_l_post) &gt;= .01], labels = which(abs(b_l_post) &gt;= .01))
 }</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-21-3.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-21-3.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-21-3.png" target="_blank">6fbb126</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
 <p>From these plots, we see that the posterior mean estimates in both algorithms are sensible and nearly indistinguishable.</p>
 </div>
 <div id="computation-time-comparison" class="section level3">
 <h3>Computation Time Comparison</h3>
-<p>In the previous example, the GLM algorithm took 0.97 seconds to converge and the VB algorithm took 0.04 seconds to converge (both with the same convergence tolerance). The VB method appears to be much faster. This is not surprising, since the GLM algorithm makes many calls the R’s built-in <code>glm</code> function, which requires us to run an optimization algorithm. For the VB method, since we are essentially finding an analytical solution of an approximation to the same problem, the algorithm runs much faster.</p>
+<p>In the previous example, the GLM algorithm took 1.03 seconds to converge and the VB algorithm took 0.05 seconds to converge (both with the same convergence tolerance). The VB method appears to be much faster. This is not surprising, since the GLM algorithm makes many calls the R’s built-in <code>glm</code> function, which requires us to run an optimization algorithm. For the VB method, since we are essentially finding an analytical solution of an approximation to the same problem, the algorithm runs much faster.</p>
+<p><em>HOWEVER, I have found that in most cases, their runtimes are virtually the same</em></p>
 </div>
 </div>
 <div id="session-information" class="section level2">
@@ -2346,14 +2802,13 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 loaded via a namespace (and not attached):
- [1] workflowr_1.1.1   Rcpp_1.0.0        codetools_0.2-15 
- [4] digest_0.6.18     rprojroot_1.3-2   MASS_7.3-50      
- [7] R.methodsS3_1.7.1 backports_1.1.2   git2r_0.23.0     
-[10] magrittr_1.5      evaluate_0.11     stringi_1.2.4    
-[13] whisker_0.3-2     R.oo_1.22.0       R.utils_2.7.0    
-[16] rmarkdown_1.10    tools_3.5.1       stringr_1.3.1    
-[19] yaml_2.2.0        compiler_3.5.1    htmltools_0.3.6  
-[22] knitr_1.20       </code></pre>
+ [1] workflowr_1.1.1   Rcpp_1.0.0        digest_0.6.18    
+ [4] rprojroot_1.3-2   MASS_7.3-50       R.methodsS3_1.7.1
+ [7] backports_1.1.2   git2r_0.23.0      magrittr_1.5     
+[10] evaluate_0.11     stringi_1.2.4     whisker_0.3-2    
+[13] R.oo_1.22.0       R.utils_2.7.0     rmarkdown_1.10   
+[16] tools_3.5.1       stringr_1.3.1     yaml_2.2.0       
+[19] compiler_3.5.1    htmltools_0.3.6   knitr_1.20       </code></pre>
 </div>
 </div>
 
