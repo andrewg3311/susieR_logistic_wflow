@@ -908,7 +908,7 @@ Now, if we start from the PIPs from the GLM version and plug in our results when
 $$
 \begin{aligned}
 \alpha_j \propto \pi_j \sqrt{\frac{1}{\sigma_0^2 + \sigma_{MLE_j}^2}} \exp\Bigg\{\frac{\hat{c_j}^2}{2}\Big(\frac{1}{\sigma_0^2} - \frac{1}{\sigma_0^2 + \sigma_{MLE_j}^2}\Big)\Bigg\} = \pi_j \sqrt{\frac{1}{\sigma_0^2 + \frac{1}{\sum_{i=1}^n\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2}}} \exp\Bigg\{\frac{1}{2} \Bigg[\frac{\sum_{i=1}^n x_{ij}\Big[y_i - \frac12 - \frac{1}{\xi_i}(g(\xi_i) - \frac12)x_i^T\bar{b_{-l}}\Big]}{\sum_{i=1}^n x_{ij}^2 \frac{1}{\xi_i}(g(\xi_i) - \frac12)}\Bigg]^2\Bigg(\frac{1}{\sigma_0^2} - \frac{1}{\sigma_0^2 + \frac{1}{\sum_{i=1}^n\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2}}\Bigg)\Bigg\} = \\
-
+\text{FINISH LATER}
 \end{aligned}
 $$
 
