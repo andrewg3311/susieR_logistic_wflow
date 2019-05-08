@@ -1,7 +1,7 @@
 ---
-title: "susieR Logistic Regression GLM"
+title: "susieR Logistic Regression VB"
 author: "Andrew Goldstein"
-date: "May 6, 2019"
+date: "May 8, 2019"
 output:
   workflowr::wflow_html:
     code_folding: show
@@ -95,7 +95,7 @@ Where $\alpha_{jl}, \sigma_{jl}^2, \mu_{jl}$ are the posterior inclusion probabi
 
 According to Wolfram Alpha, by taking the derivative of the objective w.r.t. $\xi_i$, we get a derivative of
 $$
-\frac{(-2e^{\xi_i} \xi_i + e^{2\xi_i} - 1) \cdot (\xi_i^2 - Q)} {4(e^{\xi_i} + 1)^2 \xi_i^2} := 0 \iff \xi_i^2 = \pm Q \Rightarrow \xi_i := +\sqrt{Q}
+\frac{(-2e^{\xi_i} \xi_i + e^{2\xi_i} - 1) \cdot (\xi_i^2 - Q_i)} {4(e^{\xi_i} + 1)^2 \xi_i^2} := 0 \iff \xi_i^2 = \pm Q_i \Rightarrow \xi_i := +\sqrt{Q_i}
 $$
 As an interpretation, $\xi_i^2$ is the second moment of the linear predictor $x_i^T \mathbf{b}$ under the current estimates for $q_l$.
 
@@ -108,7 +108,7 @@ In regular SuSiE, we can center our covariates and response to avoid fitting the
 I have not given much thought yet as to how an intercept should be included. I suspect we can simply add it to the lower bound and optimize it like we did for the $\xi_i$ (this approach should allow us to add any number of other predictors that we want to include but not penalize with a prior, e.g. adding control covariates such as gender, top 10 PCs, etc).
 
 ## Algebraic Comparison between VB and GLM Algorithms
-In that follows, I will refer to the new VB approach as the *VB Algorithm*, and the original iterative GLM approach as the *GLM Algorithm*.
+In that follows, I will refer to the new VB approach as the **VB Algorithm**, and the original iterative GLM approach as the **GLM Algorithm**.
 
 The form of the updates in both algorithms are very similar. This is not surprising, since in both cases the posterior distribution takes the same form: a multinoulli draw for the non-zero element of $b_l$, and then a normal draw for the corresponding effect size.
 
@@ -369,7 +369,7 @@ susie_logistic_VB = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e
 ```
 
 I also include the code for the original iterative logistic SuSiE method below in order to compare the two methods.
-*(NOTE: I will clean this up later by adding the code to the "Code" folder in the workflowR folder)*
+**(NOTE: I will clean this up later by adding the code to the "Code" folder in the workflowR folder)**
 ```{r}
 susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3, maxit = 1000, intercept = TRUE) {
   
@@ -791,9 +791,9 @@ par(mfcol = c(1, 1))
 We can see that having a value of $L$ too large adds groups with a lot of impurity in the PIPs (these groups being roughly identical, which is peculiar to me). Unsurprisingly, since our PIPs are forced to sum to 1, adding more groups will always add to the posterior means of each coefficient (assuming effects from different groups don't cancel out due to having opposite signs). We can see this on the right side of the plots above (for $L = 3$, coefficients 4-10 are close to 0, but for $L = 5$ and $L = 10$, these effects start to deviate from 0).
 
 ## Comparison Between the VB Algorithm and the Original Iterative GLM Modification of Regular SuSiE
-In that follows, I will refer to the new VB approach as the *VB Algorithm*, and the original iterative GLM approach as the *GLM Algorithm*.
+In that follows, I will refer to the new VB approach as the **VB Algorithm**, and the original iterative GLM approach as the **GLM Algorithm**.
 
-*NOTE: I have so far been unable to find many meaningful differences between the two algorithms*
+**NOTE: I have so far been unable to find many meaningful differences between the two algorithms**
 
 ### Convergence
 First, before diving into any simulation examples, recall that for the GLM algorithm, I encountered situations where the algorithm didn't converge (e.g. cycling behavior). To remedy this, I modified the convergence criteria to also take into account the estimated means from 2 iterations prior (not just the previous iteration). In the VB algorithm, since it is a hill climbing algorithm, we should not encounter scenarios where the algorithm fails to converge.
@@ -825,17 +825,23 @@ for (i in 1:B) {
   susie.fits.easy.VB[[i]] = susie_logistic_VB(Y, X, L, V)
 }
 
-par(mfrow = c(2, 2))
+par(mfcol = c(3, 2))
 plot(sapply(susie.fits.easy, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "GLM SuSiE Coefficient Estimates: n = 100", pch = 19)
 abline(0, 1)
 
 plot(sapply(susie.fits.easy, function(x) x$post_alpha[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "GLM SuSiE PIP Estimates: n = 100", pch = 19, ylim = c(0, 1))
 
+plot(sapply(susie.fits.easy, function(x) x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Mu Estimate", main = "GLM SuSiE Coefficient Estimates: n = 100", pch = 19)
+abline(0, 1)
+
 plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "VB SuSiE Coefficient Estimates: n = 100", pch = 19)
 abline(0, 1)
 
 plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "VB SuSiE PIP Estimates: n = 100", pch = 19, ylim = c(0, 1))
-par(mfrow = c(1, 1))
+
+plot(sapply(susie.fits.easy.VB, function(x) x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Mu Estimate", main = "VB SuSiE Coefficient Estimates: n = 100", pch = 19)
+abline(0, 1)
+par(mfcol = c(1, 1))
 ```
 
 Qualitatively, these two methods appear nearly identical in this example. The only difference I see is in the PIPs for true effects around -1 to -1.25. The GLM method has two PIPs around 0.9, whereas almost all PIPs for the VB method are around 1.
@@ -866,17 +872,23 @@ for (i in 1:B) {
   susie.fits.easy.VB[[i]] = susie_logistic_VB(Y, X, L, V)
 }
 
-par(mfrow = c(2, 2))
+par(mfcol = c(3, 2))
 plot(sapply(susie.fits.easy, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "GLM SuSiE Coefficient Estimates: n = 50", pch = 19)
 abline(0, 1)
 
 plot(sapply(susie.fits.easy, function(x) x$post_alpha[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "GLM SuSiE PIP Estimates: n = 50", pch = 19, ylim = c(0, 1))
 
+plot(sapply(susie.fits.easy, function(x) x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Mu Estimate", main = "GLM SuSiE Coefficient Estimates: n = 50", pch = 19)
+abline(0, 1)
+
 plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "VB SuSiE Coefficient Estimates: n = 50", pch = 19)
 abline(0, 1)
 
 plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "VB SuSiE PIP Estimates: n = 50", pch = 19, ylim = c(0, 1))
-par(mfrow = c(1, 1))
+
+plot(sapply(susie.fits.easy.VB, function(x) x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Mu Estimate", main = "VB SuSiE Coefficient Estimates: n = 50", pch = 19)
+abline(0, 1)
+par(mfcol = c(1, 1))
 ```
 
 The differences here are more apparent. First, the GLM coefficient estimates for large true effects are biased towards 0 far more than the VB estimates. The driving factor is likely the PIPs, where the GLM version has a hard time; even for large effects, the PIPs are still only at aroung 0.9 at best. In contrast, the VB method returns PIPs of 1 for large enough effects.
@@ -936,5 +948,5 @@ From these plots, we see that the posterior mean estimates in both algorithms ar
 ### Computation Time Comparison
 In the previous example, the GLM algorithm took `r ptm.glm[3]` seconds to converge and the VB algorithm took `r ptm.vb[3]` seconds to converge (both with the same convergence tolerance). The VB method appears to be much faster. This is not surprising, since the GLM algorithm makes many calls the R's built-in `glm` function, which requires us to run an optimization algorithm. For the VB method, since we are essentially finding an analytical solution of an approximation to the same problem, the algorithm runs much faster.
 
-*HOWEVER, I have found that in most cases, their runtimes are virtually the same*
+**HOWEVER, I have found that in most cases, their runtimes are virtually the same**
 
