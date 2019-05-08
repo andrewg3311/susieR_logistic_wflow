@@ -12,7 +12,7 @@
 <meta name="author" content="Andrew Goldstein" />
 
 
-<title>susieR Logistic Regression GLM</title>
+<title>susieR Logistic Regression VB</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -338,9 +338,9 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">susieR Logistic Regression GLM</h1>
+<h1 class="title toc-ignore">susieR Logistic Regression VB</h1>
 <h4 class="author"><em>Andrew Goldstein</em></h4>
-<h4 class="date"><em>May 6, 2019</em></h4>
+<h4 class="date"><em>May 8, 2019</em></h4>
 
 </div>
 
@@ -369,7 +369,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/5e270b116374e947dcba4206cf3c98690d604dec" target="_blank">5e270b1</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/6fb18fab01f6032e8064bb287ebdd9bc7b02459e" target="_blank">6fb18fa</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -405,6 +405,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fb18fab01f6032e8064bb287ebdd9bc7b02459e/analysis/VB_susie_logistic_demonstration.Rmd" target="_blank">6fb18fa</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+<td style="text-align:left;">
+Minor formatting changes, and adding plot to comparison L=1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/andrewg3311/susieR_logistic_wflow/68bcd880028c037b3359b879ded235ee9c6ff6b5/docs/VB_susie_logistic_demonstration.html" target="_blank">68bcd88</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -829,7 +863,7 @@ Q_i := \mathbb{E}_{b \sim Q}[(x_i^T\mathbf{b})^2] = \mathbb{E}_{b_1 \sim q_1, \d
 \end{aligned}
 \]</span> Where <span class="math inline">\(\alpha_{jl}, \sigma_{jl}^2, \mu_{jl}\)</span> are the posterior inclusion probability for entry <span class="math inline">\(j\)</span> in <span class="math inline">\(b_l\)</span>, the posterior variance of that entry when selected, and the posterior mean of that entry when selected, selectively.</p>
 <p>According to Wolfram Alpha, by taking the derivative of the objective w.r.t. <span class="math inline">\(\xi_i\)</span>, we get a derivative of <span class="math display">\[
-\frac{(-2e^{\xi_i} \xi_i + e^{2\xi_i} - 1) \cdot (\xi_i^2 - Q)} {4(e^{\xi_i} + 1)^2 \xi_i^2} := 0 \iff \xi_i^2 = \pm Q \Rightarrow \xi_i := +\sqrt{Q}
+\frac{(-2e^{\xi_i} \xi_i + e^{2\xi_i} - 1) \cdot (\xi_i^2 - Q_i)} {4(e^{\xi_i} + 1)^2 \xi_i^2} := 0 \iff \xi_i^2 = \pm Q_i \Rightarrow \xi_i := +\sqrt{Q_i}
 \]</span> As an interpretation, <span class="math inline">\(\xi_i^2\)</span> is the second moment of the linear predictor <span class="math inline">\(x_i^T \mathbf{b}\)</span> under the current estimates for <span class="math inline">\(q_l\)</span>.</p>
 <p>With these updates derived, we can now implement the algorithm.</p>
 <div id="a-note-on-the-intercept" class="section level3">
@@ -840,7 +874,7 @@ Q_i := \mathbb{E}_{b \sim Q}[(x_i^T\mathbf{b})^2] = \mathbb{E}_{b_1 \sim q_1, \d
 </div>
 <div id="algebraic-comparison-between-vb-and-glm-algorithms" class="section level2">
 <h2>Algebraic Comparison between VB and GLM Algorithms</h2>
-<p>In that follows, I will refer to the new VB approach as the <em>VB Algorithm</em>, and the original iterative GLM approach as the <em>GLM Algorithm</em>.</p>
+<p>In that follows, I will refer to the new VB approach as the <strong>VB Algorithm</strong>, and the original iterative GLM approach as the <strong>GLM Algorithm</strong>.</p>
 <p>The form of the updates in both algorithms are very similar. This is not surprising, since in both cases the posterior distribution takes the same form: a multinoulli draw for the non-zero element of <span class="math inline">\(b_l\)</span>, and then a normal draw for the corresponding effect size.</p>
 <p>In the SER step of the GLM algorithm, we obtain MLE estimates for <span class="math inline">\(\hat{b_j}\)</span> and its SE <span class="math inline">\(\sigma_{MLE_j}\)</span>. We then compute the posterior mean and variance of the normal distribution: <span class="math display">\[
 \begin{aligned}
@@ -917,6 +951,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/68bcd880028c037b3359b879ded235ee9c6ff6b5/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-1-1.png" target="_blank">68bcd88</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-1-1.png" target="_blank">6fbb126</a>
@@ -1097,7 +1142,7 @@ susie_logistic_VB = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e
   return(res)
   
 }</code></pre>
-<p>I also include the code for the original iterative logistic SuSiE method below in order to compare the two methods. <em>(NOTE: I will clean this up later by adding the code to the “Code” folder in the workflowR folder)</em></p>
+<p>I also include the code for the original iterative logistic SuSiE method below in order to compare the two methods. <strong>(NOTE: I will clean this up later by adding the code to the “Code” folder in the workflowR folder)</strong></p>
 <pre class="r"><code>susie_logistic = function(Y, X, L = 10, V = 1, prior_weights = NULL, tol = 1e-3, maxit = 1000, intercept = TRUE) {
   
   p = ncol(X)
@@ -2428,8 +2473,8 @@ Andrew Goldstein
 </div>
 <div id="comparison-between-the-vb-algorithm-and-the-original-iterative-glm-modification-of-regular-susie" class="section level2">
 <h2>Comparison Between the VB Algorithm and the Original Iterative GLM Modification of Regular SuSiE</h2>
-<p>In that follows, I will refer to the new VB approach as the <em>VB Algorithm</em>, and the original iterative GLM approach as the <em>GLM Algorithm</em>.</p>
-<p><em>NOTE: I have so far been unable to find many meaningful differences between the two algorithms</em></p>
+<p>In that follows, I will refer to the new VB approach as the <strong>VB Algorithm</strong>, and the original iterative GLM approach as the <strong>GLM Algorithm</strong>.</p>
+<p><strong>NOTE: I have so far been unable to find many meaningful differences between the two algorithms</strong></p>
 <div id="convergence" class="section level3">
 <h3>Convergence</h3>
 <p>First, before diving into any simulation examples, recall that for the GLM algorithm, I encountered situations where the algorithm didn’t converge (e.g. cycling behavior). To remedy this, I modified the convergence criteria to also take into account the estimated means from 2 iterations prior (not just the previous iteration). In the VB algorithm, since it is a hill climbing algorithm, we should not encounter scenarios where the algorithm fails to converge.</p>
@@ -2460,16 +2505,22 @@ for (i in 1:B) {
   susie.fits.easy.VB[[i]] = susie_logistic_VB(Y, X, L, V)
 }
 
-par(mfrow = c(2, 2))
+par(mfcol = c(3, 2))
 plot(sapply(susie.fits.easy, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;GLM SuSiE Coefficient Estimates: n = 100&quot;, pch = 19)
 abline(0, 1)
 
 plot(sapply(susie.fits.easy, function(x) x$post_alpha[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;GLM SuSiE PIP Estimates: n = 100&quot;, pch = 19, ylim = c(0, 1))
 
+plot(sapply(susie.fits.easy, function(x) x$post_mu[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Mu Estimate&quot;, main = &quot;GLM SuSiE Coefficient Estimates: n = 100&quot;, pch = 19)
+abline(0, 1)
+
 plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;VB SuSiE Coefficient Estimates: n = 100&quot;, pch = 19)
 abline(0, 1)
 
-plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;VB SuSiE PIP Estimates: n = 100&quot;, pch = 19, ylim = c(0, 1))</code></pre>
+plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;VB SuSiE PIP Estimates: n = 100&quot;, pch = 19, ylim = c(0, 1))
+
+plot(sapply(susie.fits.easy.VB, function(x) x$post_mu[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Mu Estimate&quot;, main = &quot;VB SuSiE Coefficient Estimates: n = 100&quot;, pch = 19)
+abline(0, 1)</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;" /></p>
 <details> <summary><em>Expand here to see past versions of unnamed-chunk-19-1.png:</em></summary>
 <table style="border-collapse:separate; border-spacing:5px;">
@@ -2534,7 +2585,7 @@ Andrew Goldstein
 </tbody>
 </table>
 <p></details></p>
-<pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
+<pre class="r"><code>par(mfcol = c(1, 1))</code></pre>
 <p>Qualitatively, these two methods appear nearly identical in this example. The only difference I see is in the PIPs for true effects around -1 to -1.25. The GLM method has two PIPs around 0.9, whereas almost all PIPs for the VB method are around 1.</p>
 <p>To make things slightly harder, I perform the experiment again, except I not set <span class="math inline">\(n = 50\)</span> (so the effect should be harder to identify).</p>
 <pre class="r"><code>set.seed(1138)
@@ -2560,16 +2611,22 @@ for (i in 1:B) {
   susie.fits.easy.VB[[i]] = susie_logistic_VB(Y, X, L, V)
 }
 
-par(mfrow = c(2, 2))
+par(mfcol = c(3, 2))
 plot(sapply(susie.fits.easy, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;GLM SuSiE Coefficient Estimates: n = 50&quot;, pch = 19)
 abline(0, 1)
 
 plot(sapply(susie.fits.easy, function(x) x$post_alpha[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;GLM SuSiE PIP Estimates: n = 50&quot;, pch = 19, ylim = c(0, 1))
 
+plot(sapply(susie.fits.easy, function(x) x$post_mu[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Mu Estimate&quot;, main = &quot;GLM SuSiE Coefficient Estimates: n = 50&quot;, pch = 19)
+abline(0, 1)
+
 plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;VB SuSiE Coefficient Estimates: n = 50&quot;, pch = 19)
 abline(0, 1)
 
-plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;VB SuSiE PIP Estimates: n = 50&quot;, pch = 19, ylim = c(0, 1))</code></pre>
+plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;VB SuSiE PIP Estimates: n = 50&quot;, pch = 19, ylim = c(0, 1))
+
+plot(sapply(susie.fits.easy.VB, function(x) x$post_mu[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Mu Estimate&quot;, main = &quot;VB SuSiE Coefficient Estimates: n = 50&quot;, pch = 19)
+abline(0, 1)</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /></p>
 <details> <summary><em>Expand here to see past versions of unnamed-chunk-20-1.png:</em></summary>
 <table style="border-collapse:separate; border-spacing:5px;">
@@ -2623,7 +2680,7 @@ Andrew Goldstein
 </tbody>
 </table>
 <p></details></p>
-<pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
+<pre class="r"><code>par(mfcol = c(1, 1))</code></pre>
 <p>The differences here are more apparent. First, the GLM coefficient estimates for large true effects are biased towards 0 far more than the VB estimates. The driving factor is likely the PIPs, where the GLM version has a hard time; even for large effects, the PIPs are still only at aroung 0.9 at best. In contrast, the VB method returns PIPs of 1 for large enough effects.</p>
 </div>
 <div id="hard-comparison" class="section level3">
@@ -2778,8 +2835,8 @@ Andrew Goldstein
 </div>
 <div id="computation-time-comparison" class="section level3">
 <h3>Computation Time Comparison</h3>
-<p>In the previous example, the GLM algorithm took 1.03 seconds to converge and the VB algorithm took 0.05 seconds to converge (both with the same convergence tolerance). The VB method appears to be much faster. This is not surprising, since the GLM algorithm makes many calls the R’s built-in <code>glm</code> function, which requires us to run an optimization algorithm. For the VB method, since we are essentially finding an analytical solution of an approximation to the same problem, the algorithm runs much faster.</p>
-<p><em>HOWEVER, I have found that in most cases, their runtimes are virtually the same</em></p>
+<p>In the previous example, the GLM algorithm took 0.99 seconds to converge and the VB algorithm took 0.04 seconds to converge (both with the same convergence tolerance). The VB method appears to be much faster. This is not surprising, since the GLM algorithm makes many calls the R’s built-in <code>glm</code> function, which requires us to run an optimization algorithm. For the VB method, since we are essentially finding an analytical solution of an approximation to the same problem, the algorithm runs much faster.</p>
+<p><strong>HOWEVER, I have found that in most cases, their runtimes are virtually the same</strong></p>
 </div>
 </div>
 <div id="session-information" class="section level2">
