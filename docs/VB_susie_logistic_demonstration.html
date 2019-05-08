@@ -369,7 +369,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/bc021e306c8aeb93db6ba31979e085016c9239e6" target="_blank">bc021e3</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/ab040d12878903c9ad45c15e2b0a2c9c64299120" target="_blank">ab040d1</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -405,6 +405,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/ab040d12878903c9ad45c15e2b0a2c9c64299120/analysis/VB_susie_logistic_demonstration.Rmd" target="_blank">ab040d1</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+<td style="text-align:left;">
+Minor tweak to get math to render properly at the end (still not finished, though)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/andrewg3311/susieR_logistic_wflow/1b300874c407aa48f76c2ea867cb6a20a0066fe5/docs/VB_susie_logistic_demonstration.html" target="_blank">1b30087</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-07
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -2636,12 +2670,12 @@ b|\gamma_j = 1 \sim \mathcal{N}(\mu_{1j}, \sigma_{1j}^2) \\
 <p>In the VB algorithm, we have <span class="math display">\[
 \alpha_j \propto \pi_j \sqrt{\sigma_{1j}^2} \exp\Bigg\{\frac{\mu_{1j}^2}{2\sigma_{1j}^2}\Bigg\}
 \]</span></p>
-Now, if we start from the PIPs from the GLM version and plug in our results when applied to the VB algorithm: $$
-<span class="math display">\[\begin{aligned}
+<p>Now, if we start from the PIPs from the GLM version and plug in our results when applied to the VB algorithm: <span class="math display">\[
+\begin{aligned}
 \alpha_j \propto \pi_j \sqrt{\frac{1}{\sigma_0^2 + \sigma_{MLE_j}^2}} \exp\Bigg\{\frac{\hat{c_j}^2}{2}\Big(\frac{1}{\sigma_0^2} - \frac{1}{\sigma_0^2 + \sigma_{MLE_j}^2}\Big)\Bigg\} = \pi_j \sqrt{\frac{1}{\sigma_0^2 + \frac{1}{\sum_{i=1}^n\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2}}} \exp\Bigg\{\frac{1}{2} \Bigg[\frac{\sum_{i=1}^n x_{ij}\Big[y_i - \frac12 - \frac{1}{\xi_i}(g(\xi_i) - \frac12)x_i^T\bar{b_{-l}}\Big]}{\sum_{i=1}^n x_{ij}^2 \frac{1}{\xi_i}(g(\xi_i) - \frac12)}\Bigg]^2\Bigg(\frac{1}{\sigma_0^2} - \frac{1}{\sigma_0^2 + \frac{1}{\sum_{i=1}^n\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2}}\Bigg)\Bigg\} = \\
-
-\end{aligned}\]</span>
-<p>$$</p>
+\text{FINISH LATER}
+\end{aligned}
+\]</span></p>
 </div>
 </div>
 <div id="session-information" class="section level2">
