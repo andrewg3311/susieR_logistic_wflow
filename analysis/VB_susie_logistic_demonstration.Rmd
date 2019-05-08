@@ -107,6 +107,102 @@ In regular SuSiE, we can center our covariates and response to avoid fitting the
 
 I have not given much thought yet as to how an intercept should be included. I suspect we can simply add it to the lower bound and optimize it like we did for the $\xi_i$ (this approach should allow us to add any number of other predictors that we want to include but not penalize with a prior, e.g. adding control covariates such as gender, top 10 PCs, etc).
 
+## Algebraic Comparison between VB and GLM Algorithms
+In that follows, I will refer to the new VB approach as the *VB Algorithm*, and the original iterative GLM approach as the *GLM Algorithm*.
+
+The form of the updates in both algorithms are very similar. This is not surprising, since in both cases the posterior distribution takes the same form: a multinoulli draw for the non-zero element of $b_l$, and then a normal draw for the corresponding effect size.
+
+In the SER step of the GLM algorithm, we obtain MLE estimates for $\hat{b_j}$ and its SE $\sigma_{MLE_j}$. We then compute the posterior mean and variance of the normal distribution:
+$$
+\begin{aligned}
+b|\gamma_j = 1 \sim \mathcal{N}(\mu_{1j}, \sigma_{1j}^2) \\
+\mu_{1j} = \frac{\sigma_{1j}^2}{\sigma_{MLE_j}^2}\hat{b_j} \\
+\sigma_{1j}^2 = \frac{1}{1/\sigma_0^2 + 1/\sigma_{MLE_j}^2}
+\end{aligned}
+$$
+
+In the updates from the VB algorithm, we get
+$$
+\begin{aligned}
+b|\gamma_j = 1 \sim \mathcal{N}(\mu_{1j}, \sigma_{1j}^2) \\
+\mu_{1j} = \frac{\sum_{i=1}^n x_{ij}\Big(y_i - \frac{1}{2} - \frac{1}{\xi_i}(g(\xi_i) - \frac{1}{2})(x_i^T \sum_{k \ne l}\bar{b_k})\Big)}{1/\sigma_0^2 + \sum_{i=1}^n \frac{1}{\xi_i}(g(\xi_i) - \frac12)(x_{ij}^2)} \\
+\sigma_{1j}^2 = \frac{1}{1/\sigma_0^2 + \sum_{i=1}^n \frac{1}{\xi_i}(g(\xi_i) - \frac12)(x_{ij}^2)} \\
+\end{aligned}
+$$
+
+In order to connect these two update rules, recall what we actually do in the GLM case for updating $b_l$: 
+
+1. We run a logistic regression of $Y \sim X_j$ keeping $b_{-l}$ fixed at its posterior mean, $\bar{b_{-l}}$. This gives us $\widehat{b_{lj, MLE}}$ and $\sigma_{lj, MLE}^2$;
+
+2. We then find the posterior distribution using the asymptotic normality of the MLE.
+
+Let's see what happens if we apply this same method, but instead of using the true logistic likelihood and find the MLE, instead use our variational lower-bound on the likelihood $h(b_l, \bar{b_{-l}}, \xi)$. Since we are essentially regression on just one $X_j$ in this step, $b_l$ will take the form $c \cdot e_j$ for basis vector $e_j$ and effect size $c$ which has a prior distribution of $\mathcal{N}(0, \sigma_0^2)$.
+
+$$
+\begin{aligned}
+\log(h(ce_j, \bar{b_{-l}}, \xi)) = \sum_{i=1}^n \log(g(\xi_i)) + y_ix_i^T\bar{b_{-l}} + y_icx_{ij} - \frac{x_i^T\bar{b_{-l}} + cx_{ij} + \xi_i}{2} - \frac{1}{2\xi_i}((g(\xi_i) - \frac12)((x_i^T\bar{b_{-l}} + cx_{ij})^2 - \xi_i^2) \Rightarrow \\
+\frac{\partial}{\partial c} \log(h(ce_j, \bar{b_{-l}}, \xi)) = \sum_{i=1}^n y_i x_{ij} - \frac{x_{ij}}{2} - \frac{1}{2\xi_i}(g(\xi_i) - \frac12)2x_{ij}(x_i^T\bar{b_{-l}} + cx_{ij}) := 0 \Rightarrow \\
+\hat{c}_{MLE'} = \frac{\sum_{i=1}^n x_{ij}\Big[y_i - \frac12 - \frac{1}{\xi_i}(g(\xi_i) - \frac12)x_i^T\bar{b_{-l}}\Big]}{\sum_{i=1}^n x_{ij}^2 \frac{1}{\xi_i}(g(\xi_i) - \frac12)}
+\end{aligned}
+$$
+Furthermore, if this were actually the likelihood, we could look at the second derivative to tell us about the variance:
+$$
+\frac{\partial^2}{\partial c^2} \log(h(ce_j, \bar{b_{-l}}, \xi)) = \sum_{i=1}^n-\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2 \Rightarrow \sigma_{MLE'}^2 = \frac{1}{\sum_{i=1}^n\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2}
+$$
+
+If we proceed in the same manner as in the GLM updates, we would get:
+$$
+\begin{aligned}
+\mu_{1j} = \frac{\sigma_{1j}^2}{\sigma_{MLE'}^2}\hat{c}_{MLE'} = \frac{\sum_{i=1}^n\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2}{1 / \sigma_0^2 + \sum_{i=1}^n\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2} \cdot \frac{\sum_{i=1}^n x_{ij}\Big[y_i - \frac12 - \frac{1}{\xi_i}(g(\xi_i) - \frac12)x_i^T\bar{b_{-l}}\Big]}{\sum_{i=1}^n x_{ij}^2 \frac{1}{\xi_i}(g(\xi_i) - \frac12)} = \frac{\sum_{i=1}^n x_{ij}\Big(y_i - \frac{1}{2} - \frac{1}{\xi_i}(g(\xi_i) - \frac{1}{2})(x_i^T \sum_{k \ne l}\bar{b_k})\Big)}{1/\sigma_0^2 + \sum_{i=1}^n \frac{1}{\xi_i}(g(\xi_i) - \frac12)(x_{ij}^2)} \\
+\sigma_{1j}^2 = \frac{1}{1/\sigma_0^2 + 1/\sigma_{MLE_j}^2} = \frac{1}{1 / \sigma_0^2 + \sum_{i=1}^n\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2}
+\end{aligned}
+$$
+
+Note that these are exactly the same updates we get from the VB method.
+
+
+As for calculating the PIPs, in the GLM algorithm, we have
+$$
+\alpha_j \propto \pi_j \frac{\mathcal{N}(\hat{b_j}; 0, \sigma_0^2 + \sigma_{MLE_j}^2)}{\mathcal{N}(\hat{b_j}; 0, \sigma_{MLE_j}^2 )} = \pi_j \sqrt{\frac{\sigma_{MLE_j}^2}{\sigma_0^2 + \sigma_{MLE_j}^2}} \exp\Bigg\{\frac{\hat{b_j}^2}{2}\Big(\frac{1}{\sigma_{MLE_j}^2} - \frac{1}{\sigma_0^2 + \sigma_{MLE_j}^2}\Big)\Bigg\}
+$$
+
+In the VB algorithm, we have
+$$
+\alpha_j \propto \pi_j \sqrt{\sigma_{1j}^2} \exp\Bigg\{\frac{\mu_{1j}^2}{2\sigma_{1j}^2}\Bigg\}
+$$
+
+Now, if we start from the PIPs from the GLM version and plug in our results when applied to the VB algorithm:
+$$
+\begin{aligned}
+\alpha_j \propto \pi_j \sqrt{\frac{\sigma_{MLE_j}^2}{\sigma_0^2 + \sigma_{MLE_j}^2}} \exp\Bigg\{\frac{\hat{c_j}^2}{2}\Big(\frac{1}{\sigma_{MLE_j}^2} - \frac{1}{\sigma_0^2 + \sigma_{MLE_j}^2}\Big)\Bigg\} = \pi_j \sqrt{\frac{1}{\sigma_0^2/\sigma_{MLE_j}^2 + 1}} \exp\Bigg\{\frac{\hat{c}_j^2}{2}\Big(\frac{\sigma_0^2}{(\sigma_{MLE_j}^2)(\sigma_0^2 + \sigma_{MLE_j}^2)}\Big)\Bigg\} = \\
+[\hat{c}_j^2 = \mu_{1j}^2 \frac{\sigma_{MLE_j}^4}{\sigma_{1j}^4}] = \pi_j \sqrt{\frac{1}{\sigma_0^2(1/\sigma_{MLE_j}^2 + 1 / \sigma_0^2)}}\exp\Bigg\{\mu_{1j}^2 \frac{\sigma_{MLE_j}^4}{2\sigma_{1j}^4}\Big(\frac{\sigma_0^2}{(\sigma_{MLE_j}^2)(\sigma_0^2 + \sigma_{MLE_j}^2)}\Big)\Bigg\} \propto \\
+[\sqrt{1 / \sigma_0^2} \; \text{constant}, \sigma_{1j}^2 = \frac{1}{1/\sigma_0^2 + 1/\sigma_{MLE_j}^2}]  \propto \pi_j \sqrt{\sigma_{1j}^2} \exp\Bigg\{\frac{\mu_{1j}^2}{2\sigma_{1j}^2} \cdot \Big(\frac{\sigma_0^2 \sigma_{MLE_j}^2}{\sigma_{1j}^2(\sigma_0^2 + \sigma_{MLE_j}^2)}\Big)\Bigg\} = \\
+[\sigma_{1j}^2 = \frac{1}{1/\sigma_0^2 + 1/\sigma_{MLE_j}^2}] = \pi_j \sqrt{\sigma_{1j}^2} \exp\Bigg\{\frac{\mu_{1j}^2}{2\sigma_{1j}^2} \cdot \Big(\frac{\sigma_0^2 \sigma_{MLE_j}^2(1/\sigma_0^2 + 1/\sigma_{MLE_j}^2)}{\sigma_0^2 + \sigma_{MLE_j}^2}\Big)\Bigg\} = \\
+\pi_j \sqrt{\sigma_{1j}^2} \exp\Bigg\{\frac{\mu_{1j}^2}{2\sigma_{1j}^2} \cdot \Big(\frac{\sigma_0^2 + \sigma_{MLE_j}^2}{\sigma_0^2 + \sigma_{MLE_j}^2}\Big)\Bigg\} = \pi_j \sqrt{\sigma_{1j}^2} \exp\Bigg\{\frac{\mu_{1j}^2}{2\sigma_{1j}^2}\Bigg\}
+\end{aligned}
+$$
+This is the same form we get directly from the VB update.
+
+This seems like magic at first! But when we think about it, the VB lower-bound we use makes the pseudo-likelihood $h$ a quadratic, so of course we should recover the original SuSiE rules (which we co-opted for use in the GLM algorithm).
+
+So naturally, one might ask what the problem is with the GLM version. Since it uses the same general method and uses the true likelihood function, shouldn't it be better?
+
+The answer lies in our fixing the other parameters to their posterior mean, $\bar{b}_{-l}$. In the update to $q_l$, we set
+$$
+q_l(c \cdot e_j) \propto \mathbb{E}_{-(q_l)}[\log(p(y|b_l = c \cdot e_j, b_{-l}) p(b_l = c \cdot e_j)) = \mathbb{E}_{-(q_l)}\Big[\log(\pi_j) + \log\Big(\mathcal{N}(c; 0, \sigma_0^2)\Big) + \sum_{i=1}^n y_ix_i^T(b_l + \sum_{k \ne l} b_k) - \log\Big(1 + \exp\{x_i^T(b_l + \sum_{k \ne l} b_k\}\Big)\Big]
+$$
+The issue with the GLM approach is that by finding the MLE for $b_l$ by treating $b_{-l}$ fixed at its posterior mean under $q_{-l}$ is that we are essentially saying that $\mathbb{E}_{-(q_l)}\Big[\log\Big(1 + \exp\{x_i^T(b_l + \sum_{k \ne l} b_k\}\Big)\Big] = \log\Big(1 + \exp\{x_i^T(b_l + \bar{b}_{-l}\}\Big)$. If it were the case that $\mathbb{E}_{-(q_l)}\Big[\log\Big(1 + \exp\{x_i^T(b_l + \sum_{k \ne l} b_k\}\Big)\Big] \le \log\Big(1 + \exp\{x_i^T(b_l + \bar{b}_{-l}\}\Big)$, then we would have no issue, since we would be maintaining the chain of "$\ge$" used in the derivation of VB (subtracting a smaller value vs. a larger value in the likelihood). However, $\log(1 + e^x)$ is a concave function, so by Jensen's inequality, $\mathbb{E}_{-(q_l)}\Big[\log\Big(1 + \exp\{x_i^T(b_l + \sum_{k \ne l} b_k\}\Big)\Big] \ge \log\Big(1 + \exp\{x_i^T(b_l + \bar{b}_{-l}\}\Big)$ (the opposite of what we want).
+
+We would have approximate equality in the above case if $\log(1 + e^x)$ were roughly linear. The second derivative of $\log(1 + e^x)$ is $\frac{e^x}{(1 + e^x)^2}$. This second derivative has a maximum of $\frac14$ at $x = 0$, and looks like this:
+```{r}
+plot(curve(exp(x) / ((1 + exp(x))^2), -5, 5), type = "l", xlab = "x", ylab = "Second Derivative")
+```
+For larger values of $|x|$, the second derivative is quite small, and thus $\log(1+e^x)$ is roughly linear, so taking the expectation insude the function doesn't change things too much. And even at the maximum of 0, the second derivative is still on the smaller side. So one could argue that our implicit approximation in the GLM algorithm works well, even if the inequality is technically in the wrong direction.
+
+The benefit of the VB approach is that we retain some information about the higher moments of $b_{-l}$ in the form of our $\xi_i$ variational parameters.
+
+With this in mind, I suspect that if differences in the method can be found, it will be when the linear predictors $x_i^T\mathbf{b}$ are all close to 0.
+
 # Implementation
 The code below is a simplistic implementation of the above ideas.
 
@@ -837,78 +933,7 @@ par(mfrow = c(1, 1))
 From these plots, we see that the posterior mean estimates in both algorithms are sensible and nearly indistinguishable.
 
 ### Computation Time Comparison
-In the previous example, the GLM algorithm took `ptm.glm[3]` seconds to converge and the VB algorithm took `ptm.vb[3]` seconds to converge (both with the same convergence tolerance). The VB method appears to be much faster. This is not surprising, since the GLM algorithm makes many calls the R's built-in `glm` function, which requires us to run an optimization algorithm. For the VB method, since we are essentially finding an analytical solution of an approximation to the same problem, the algorithm runs much faster.
+In the previous example, the GLM algorithm took `r ptm.glm[3]` seconds to converge and the VB algorithm took `r ptm.vb[3]` seconds to converge (both with the same convergence tolerance). The VB method appears to be much faster. This is not surprising, since the GLM algorithm makes many calls the R's built-in `glm` function, which requires us to run an optimization algorithm. For the VB method, since we are essentially finding an analytical solution of an approximation to the same problem, the algorithm runs much faster.
 
 
-
-### Algebraic Comparison
-*NOTE: THIS SECTION IS STILL A WORK IN PROGRESS, TRYING TO MATCH THINGS UP. IGNORE FOR NOW*
-The form of the updates in both algorithms are very similar. This is not surprising, since in both cases the posterior distribution takes the same form: a multinoulli draw for the non-zero element of $b_l$, and then a normal draw for the corresponding effect size.
-
-In the SER step of the GLM algorithm, we obtain MLE estimates for $\hat{b_j}$ and its SE $\sigma_{MLE_j}$. We then compute the posterior mean and variance of the normal distribution:
-$$
-\begin{aligned}
-b|\gamma_j = 1 \sim \mathcal{N}(\mu_{1j}, \sigma_{1j}^2) \\
-\mu_{1j} = \frac{\sigma_{1j}^2}{\sigma_{MLE_j}^2}\hat{b_j} \\
-\sigma_{1j}^2 = \frac{1}{1/\sigma_0^2 + 1/\sigma_{MLE_j}^2}
-\end{aligned}
-$$
-
-In the updates from the VB algorithm, we get
-$$
-\begin{aligned}
-b|\gamma_j = 1 \sim \mathcal{N}(\mu_{1j}, \sigma_{1j}^2) \\
-\mu_{1j} = \frac{\sum_{i=1}^n x_{ij}\Big(y_i - \frac{1}{2} - \frac{1}{\xi_i}(g(\xi_i) - \frac{1}{2})(x_i^T \sum_{k \ne l}\bar{b_k})\Big)}{1/\sigma_0^2 + \sum_{i=1}^n \frac{1}{\xi_i}(g(\xi_i) - \frac12)(x_{ij}^2)} \\
-\sigma_{1j}^2 = \frac{1}{1/\sigma_0^2 + \sum_{i=1}^n \frac{1}{\xi_i}(g(\xi_i) - \frac12)(x_{ij}^2)} \\
-\end{aligned}
-$$
-
-In order to connect these two update rules, recall what we actually do in the GLM case for updating $b_l$: 
-
-1. We run a logistic regression of $Y \sim X_j$ keeping $b_{-l}$ fixed at its posterior mean, $\bar{b_{-l}}$. This gives us $\widehat{b_{lj, MLE}}$ and $\sigma_{lj, MLE}^2$;
-
-2. We then find the posterior distribution using the asymptotic normality of the MLE.
-
-Let's see what happens if we apply this same method, but instead of using the true logistic likelihood and find the MLE, instead use our variational lower-bound on the likelihood $h(b_l, \bar{b_{-l}}, \xi)$. Since we are essentially regression on just one $X_j$ in this step, $b_l$ will take the form $c \cdot e_j$ for basis vector $e_j$ and effect size $c$ which has a prior distribution of $\mathcal{N}(0, \sigma_0^2)$.
-
-$$
-\begin{aligned}
-\log(h(ce_j, \bar{b_{-l}}, \xi)) = \sum_{i=1}^n \log(g(\xi_i)) + y_ix_i^T\bar{b_{-l}} + y_icx_{ij} - \frac{x_i^T\bar{b_{-l}} + cx_{ij} + \xi_i}{2} - \frac{1}{2\xi_i}((g(\xi_i) - \frac12)((x_i^T\bar{b_{-l}} + cx_{ij})^2 - \xi_i^2) \Rightarrow \\
-\frac{\partial}{\partial c} \log(h(ce_j, \bar{b_{-l}}, \xi)) = \sum_{i=1}^n y_i x_{ij} - \frac{x_{ij}}{2} - \frac{1}{2\xi_i}(g(\xi_i) - \frac12)2x_{ij}(x_i^T\bar{b_{-l}} + cx_{ij}) := 0 \Rightarrow \\
-\hat{c}_{MLE'} = \frac{\sum_{i=1}^n x_{ij}\Big[y_i - \frac12 - \frac{1}{\xi_i}(g(\xi_i) - \frac12)x_i^T\bar{b_{-l}}\Big]}{\sum_{i=1}^n x_{ij}^2 \frac{1}{\xi_i}(g(\xi_i) - \frac12)}
-\end{aligned}
-$$
-Furthermore, if this were actually the likelihood, we could look at the second derivative to tell us about the variance:
-$$
-\frac{\partial^2}{\partial c^2} \log(h(ce_j, \bar{b_{-l}}, \xi)) = \sum_{i=1}^n-\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2 \Rightarrow \sigma_{MLE'}^2 = \frac{1}{\sum_{i=1}^n\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2}
-$$
-
-If we proceed in the same manner as in the GLM updates, we would get:
-$$
-\begin{aligned}
-\mu_{1j} = \frac{\sigma_{1j}^2}{\sigma_{MLE'}^2}\hat{c}_{MLE'} = \frac{\sum_{i=1}^n\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2}{1 / \sigma_0^2 + \sum_{i=1}^n\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2} \cdot \frac{\sum_{i=1}^n x_{ij}\Big[y_i - \frac12 - \frac{1}{\xi_i}(g(\xi_i) - \frac12)x_i^T\bar{b_{-l}}\Big]}{\sum_{i=1}^n x_{ij}^2 \frac{1}{\xi_i}(g(\xi_i) - \frac12)} = \frac{\sum_{i=1}^n x_{ij}\Big(y_i - \frac{1}{2} - \frac{1}{\xi_i}(g(\xi_i) - \frac{1}{2})(x_i^T \sum_{k \ne l}\bar{b_k})\Big)}{1/\sigma_0^2 + \sum_{i=1}^n \frac{1}{\xi_i}(g(\xi_i) - \frac12)(x_{ij}^2)} \\
-\sigma_{1j}^2 = \frac{1}{1/\sigma_0^2 + 1/\sigma_{MLE_j}^2} = \frac{1}{1 / \sigma_0^2 + \sum_{i=1}^n\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2}
-\end{aligned}
-$$
-
-Note that these are exactly the same updates we get from the VB method.
-
-
-As for calculating the PIPs, in the GLM algorithm, we have
-$$
-\alpha_j \propto \pi_j \frac{\mathcal{N}(\hat{b_j}; 0, \sigma_0^2 + \sigma_{MLE_j}^2)}{\mathcal{N}(\hat{b_j}; 0, \sigma_0^2 )} = \pi_j \sqrt{\frac{\sigma_0^2}{\sigma_0^2 + \sigma_{MLE_j}^2}} \exp\Bigg\{\frac{\hat{b_j}^2}{2}\Big(\frac{1}{\sigma_0^2} - \frac{1}{\sigma_0^2 + \sigma_{MLE_j}^2}\Big)\Bigg\} \propto \pi_j \sqrt{\frac{1}{\sigma_0^2 + \sigma_{MLE_j}^2}} \exp\Bigg\{\frac{\hat{b_j}^2}{2}\Big(\frac{1}{\sigma_0^2} - \frac{1}{\sigma_0^2 + \sigma_{MLE_j}^2}\Big)\Bigg\}
-$$
-
-In the VB algorithm, we have
-$$
-\alpha_j \propto \pi_j \sqrt{\sigma_{1j}^2} \exp\Bigg\{\frac{\mu_{1j}^2}{2\sigma_{1j}^2}\Bigg\}
-$$
-
-Now, if we start from the PIPs from the GLM version and plug in our results when applied to the VB algorithm:
-$$
-\begin{aligned}
-\alpha_j \propto \pi_j \sqrt{\frac{1}{\sigma_0^2 + \sigma_{MLE_j}^2}} \exp\Bigg\{\frac{\hat{c_j}^2}{2}\Big(\frac{1}{\sigma_0^2} - \frac{1}{\sigma_0^2 + \sigma_{MLE_j}^2}\Big)\Bigg\} = \pi_j \sqrt{\frac{1}{\sigma_0^2 + \frac{1}{\sum_{i=1}^n\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2}}} \exp\Bigg\{\frac{1}{2} \Bigg[\frac{\sum_{i=1}^n x_{ij}\Big[y_i - \frac12 - \frac{1}{\xi_i}(g(\xi_i) - \frac12)x_i^T\bar{b_{-l}}\Big]}{\sum_{i=1}^n x_{ij}^2 \frac{1}{\xi_i}(g(\xi_i) - \frac12)}\Bigg]^2\Bigg(\frac{1}{\sigma_0^2} - \frac{1}{\sigma_0^2 + \frac{1}{\sum_{i=1}^n\frac{1}{\xi_i}(g(\xi_i) - \frac12)x_{ij}^2}}\Bigg)\Bigg\} = \\
-\text{FINISH LATER}
-\end{aligned}
-$$
 
