@@ -195,7 +195,7 @@ The issue with the GLM approach is that by finding the MLE for $b_l$ by treating
 
 We would have approximate equality in the above case if $\log(1 + e^x)$ were roughly linear. The second derivative of $\log(1 + e^x)$ is $\frac{e^x}{(1 + e^x)^2}$. This second derivative has a maximum of $\frac14$ at $x = 0$, and looks like this:
 ```{r}
-plot(curve(exp(x) / ((1 + exp(x))^2), -5, 5), type = "l", xlab = "x", ylab = "Second Derivative")
+curve(exp(x) / ((1 + exp(x))^2), -5, 5, xlab = "x", ylab = "Second Derivative")
 ```
 For larger values of $|x|$, the second derivative is quite small, and thus $\log(1+e^x)$ is roughly linear, so taking the expectation insude the function doesn't change things too much. And even at the maximum of 0, the second derivative is still on the smaller side. So one could argue that our implicit approximation in the GLM algorithm works well, even if the inequality is technically in the wrong direction.
 
@@ -793,6 +793,7 @@ We can see that having a value of $L$ too large adds groups with a lot of impuri
 ## Comparison Between the VB Algorithm and the Original Iterative GLM Modification of Regular SuSiE
 In that follows, I will refer to the new VB approach as the *VB Algorithm*, and the original iterative GLM approach as the *GLM Algorithm*.
 
+*NOTE: I have so far been unable to find many meaningful differences between the two algorithms*
 
 ### Convergence
 First, before diving into any simulation examples, recall that for the GLM algorithm, I encountered situations where the algorithm didn't converge (e.g. cycling behavior). To remedy this, I modified the convergence criteria to also take into account the estimated means from 2 iterations prior (not just the previous iteration). In the VB algorithm, since it is a hill climbing algorithm, we should not encounter scenarios where the algorithm fails to converge.
@@ -935,5 +936,5 @@ From these plots, we see that the posterior mean estimates in both algorithms ar
 ### Computation Time Comparison
 In the previous example, the GLM algorithm took `r ptm.glm[3]` seconds to converge and the VB algorithm took `r ptm.vb[3]` seconds to converge (both with the same convergence tolerance). The VB method appears to be much faster. This is not surprising, since the GLM algorithm makes many calls the R's built-in `glm` function, which requires us to run an optimization algorithm. For the VB method, since we are essentially finding an analytical solution of an approximation to the same problem, the algorithm runs much faster.
 
-
+*HOWEVER, I have found that in most cases, their runtimes are virtually the same*
 
