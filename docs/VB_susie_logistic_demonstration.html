@@ -345,7 +345,7 @@ div.section {
 </div>
 
 
-<p><strong>Last updated:</strong> 2019-05-08</p>
+<p><strong>Last updated:</strong> 2019-05-09</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
@@ -369,7 +369,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/6fb18fab01f6032e8064bb287ebdd9bc7b02459e" target="_blank">6fb18fa</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/4941b38537d5f20772578682e720dec7107bebda" target="_blank">4941b38</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -405,6 +405,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/4941b38537d5f20772578682e720dec7107bebda/analysis/VB_susie_logistic_demonstration.Rmd" target="_blank">4941b38</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-09
+</td>
+<td style="text-align:left;">
+Adding another comparison showing issue with GLM algo with separable data
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/andrewg3311/susieR_logistic_wflow/40ae4d48747742ebc5d09188526857043bba8e40/docs/VB_susie_logistic_demonstration.html" target="_blank">40ae4d4</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -2540,6 +2574,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/40ae4d48747742ebc5d09188526857043bba8e40/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-19-1.png" target="_blank">40ae4d4</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-19-1.png" target="_blank">6fbb126</a>
 </td>
 <td style="text-align:left;">
@@ -2646,6 +2691,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/40ae4d48747742ebc5d09188526857043bba8e40/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-20-1.png" target="_blank">40ae4d4</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-08
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-20-1.png" target="_blank">6fbb126</a>
 </td>
 <td style="text-align:left;">
@@ -2682,36 +2738,272 @@ Andrew Goldstein
 <p></details></p>
 <pre class="r"><code>par(mfcol = c(1, 1))</code></pre>
 <p>The differences here are more apparent. First, the GLM coefficient estimates for large true effects are biased towards 0 far more than the VB estimates. The driving factor is likely the PIPs, where the GLM version has a hard time; even for large effects, the PIPs are still only at aroung 0.9 at best. In contrast, the VB method returns PIPs of 1 for large enough effects.</p>
-</div>
-<div id="hard-comparison" class="section level3">
-<h3>Hard Comparison</h3>
-<p>In this setting, I set <span class="math inline">\(n = 100\)</span>, <span class="math inline">\(p = 10\)</span>, and <span class="math inline">\(\sigma_0 = 1\)</span>. I generate each observation of <span class="math inline">\(X\)</span> as coming from a multivariate normal distribution with mean <span class="math inline">\(0\)</span> and covariance structured such that all diagonal entries are 1, and for groups of correlated entries we get 0.95. The correlated groups are (1, 2, 3), (4, 5), and (9, 10). I then set the following entries in <span class="math inline">\(\mathbf{b}\)</span> to be non-zero: 1, 4, 6, 7 (two are in correlated groups, two are not, and there is a correlated group on zero effect variables).</p>
+<p>Back in the setting where <span class="math inline">\(n = 100\)</span>, let’s see what happends when we increase the prior variance and aim for larger effect sizes:</p>
 <pre class="r"><code>set.seed(1138)
+
 n = 100
 p = 10
-V = 1
-L = 4
-
-Sigma = diag(.05, nrow = 10)
-Sigma[1:3, 1:3] = Sigma[1:3, 1:3] + matrix(.95, nrow = 3, ncol = 3) # 1, 2, 3 correlated 
-Sigma[4:5, 4:5] = Sigma[4:5, 4:5] + matrix(.95, nrow = 2, ncol = 2) # 4, 5 correlated
-Sigma[6:8, 6:8] = Sigma[6:8, 6:8] + diag(.95, nrow = 3)
-Sigma[9:10, 9:10] = Sigma[9:10, 9:10] + matrix(.95, nrow = 2, ncol = 2) # 9, 10 correlated
-
-X = MASS::mvrnorm(n, rep(0, p), Sigma)
+L = 1
+V = 25
 beta_true = rep(0, p)
-beta_true[c(1, 4, 6, 7)] = rnorm(4, 0, sqrt(V))
-Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
 
-ptm = proc.time()
-susie.fit.glm = susie_logistic(Y, X, L, V, intercept = F)
-ptm.glm = proc.time() - ptm
-ptm = proc.time()
-susie.fit.vb = susie_logistic_VB(Y, X, L, V)
-ptm.vb =proc.time() - ptm
+B = 1000
+b_1s = numeric(B)
+susie.fits.easy = list() # GLM logistic SuSiE fits
+susie.fits.easy.VB = list() # VB logistic SuSiE fits
+for (i in 1:B) {
+  beta_true[1] = rnorm(1, 0, sqrt(V))
+  b_1s[i] = beta_true[1]
+  # make independent N(0, 1) covariates
+  X = matrix(rnorm(n * p), nrow = n)
+  # make response
+  Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+  susie.fits.easy[[i]] = susie_logistic(Y, X, L, V, intercept = F) # fit without intercept to compare directly w/ VB method
+  susie.fits.easy.VB[[i]] = susie_logistic_VB(Y, X, L, V)
+}</code></pre>
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 
-plot(beta_true[beta_true == 0] ~ which(beta_true == 0), xlim = c(0, 11), ylim = range(beta_true) + c(-.1, .1), xlab = &quot;Index&quot;, ylab = &quot;True Value&quot;, main = &quot;True Effects&quot;, pch = 19)
-text(which(beta_true != 0), beta_true[beta_true != 0], labels = which(beta_true != 0))</code></pre>
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+<pre><code>Warning: glm.fit: algorithm did not converge</code></pre>
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+<pre><code>Warning: glm.fit: algorithm did not converge</code></pre>
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+<pre class="r"><code>par(mfcol = c(3, 2))
+plot(sapply(susie.fits.easy, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;GLM SuSiE Coefficient Estimates: n = 100&quot;, pch = 19)
+abline(0, 1)
+
+plot(sapply(susie.fits.easy, function(x) x$post_alpha[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;GLM SuSiE PIP Estimates: n = 100&quot;, pch = 19, ylim = c(0, 1))
+
+plot(sapply(susie.fits.easy, function(x) x$post_mu[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Mu Estimate&quot;, main = &quot;GLM SuSiE Coefficient Estimates: n = 100&quot;, pch = 19)
+abline(0, 1)
+
+plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Estimate&quot;, main = &quot;VB SuSiE Coefficient Estimates: n = 100&quot;, pch = 19)
+abline(0, 1)
+
+plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Inclusion Probability&quot;, main = &quot;VB SuSiE PIP Estimates: n = 100&quot;, pch = 19, ylim = c(0, 1))
+
+plot(sapply(susie.fits.easy.VB, function(x) x$post_mu[1]) ~ b_1s, xlab = &quot;True Effect Value&quot;, ylab = &quot;Posterior Mu Estimate&quot;, main = &quot;VB SuSiE Coefficient Estimates: n = 100&quot;, pch = 19)
+abline(0, 1)</code></pre>
 <p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-21-1.png" width="672" style="display: block; margin: auto;" /></p>
 <details> <summary><em>Expand here to see past versions of unnamed-chunk-21-1.png:</em></summary>
 <table style="border-collapse:separate; border-spacing:5px;">
@@ -2754,14 +3046,66 @@ Andrew Goldstein
 </tbody>
 </table>
 <p></details></p>
-<pre class="r"><code>par(mfrow = c(2, 2))
-for (l in 1:L) {
-  b_l_post = susie.fit.glm$post_mu[, l] * susie.fit.glm$post_alpha[, l]
-  plot(b_l_post[abs(b_l_post) &lt; .01] ~ which(abs(b_l_post) &lt; .01), xlim = c(0, 11), ylim = range(b_l_post) + c(-.1, .1), xlab = &quot;Index&quot;, ylab = &quot;Posterior Mean Value&quot;, main = paste(&quot;GLM SuSiE Posterior Mean No. &quot;, l, sep = &quot;&quot;), pch = 19)
-  text(which(abs(b_l_post) &gt;= .01), b_l_post[abs(b_l_post) &gt;= .01], labels = which(abs(b_l_post) &gt;= .01))
-}</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-21-2.png" width="672" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of unnamed-chunk-21-2.png:</em></summary>
+<pre class="r"><code>par(mfcol = c(1, 1))</code></pre>
+<p>Wow! Things can really go wrong with the GLM algorithm, it seems. To see what’s going on, let’s look at the point where the posterior estimate is almost 0, but the true effect is almost -10.</p>
+<pre class="r"><code>i_bad = which(sapply(susie.fits.easy, function(x) x$post_alpha[1]) &lt; .45 &amp; b_1s&lt; -9)
+
+set.seed(1138)
+
+for (i in 1:(i_bad-1)) {
+  beta_true[1] = rnorm(1, 0, sqrt(V))
+  b_1s[i] = beta_true[1]
+  # make independent N(0, 1) covariates
+  X = matrix(rnorm(n * p), nrow = n)
+  # make response
+  Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+  #susie.fits.easy[[i]] = susie_logistic(Y, X, L, V, intercept = F) # fit without intercept to compare directly w/ VB method
+  #susie.fits.easy.VB[[i]] = susie_logistic_VB(Y, X, L, V)
+}
+beta_true[1] = rnorm(1, 0, sqrt(V))
+b_1s[i] = beta_true[1]
+# make independent N(0, 1) covariates
+X = matrix(rnorm(n * p), nrow = n)
+# make response
+Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+susie.fits = susie_logistic(Y, X, L, V, intercept = F) # fit without intercept to compare directly w/ VB method</code></pre>
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+<pre class="r"><code>susie.fits.easy.VB = susie_logistic_VB(Y, X, L, V)</code></pre>
+<p>Upon further inspection, it appears that this is happening due to the data being separable, so the GLM algorithm does not converge and has huge standard errors for the estimates. In this case, I am curious as to what the VB algorithm is doing, since it appears to be working fine.</p>
+</div>
+<div id="hard-comparison" class="section level3">
+<h3>Hard Comparison</h3>
+<p>In this setting, I set <span class="math inline">\(n = 100\)</span>, <span class="math inline">\(p = 10\)</span>, and <span class="math inline">\(\sigma_0 = 1\)</span>. I generate each observation of <span class="math inline">\(X\)</span> as coming from a multivariate normal distribution with mean <span class="math inline">\(0\)</span> and covariance structured such that all diagonal entries are 1, and for groups of correlated entries we get 0.95. The correlated groups are (1, 2, 3), (4, 5), and (9, 10). I then set the following entries in <span class="math inline">\(\mathbf{b}\)</span> to be non-zero: 1, 4, 6, 7 (two are in correlated groups, two are not, and there is a correlated group on zero effect variables).</p>
+<pre class="r"><code>set.seed(1138)
+n = 100
+p = 10
+V = 1
+L = 4
+
+Sigma = diag(.05, nrow = 10)
+Sigma[1:3, 1:3] = Sigma[1:3, 1:3] + matrix(.95, nrow = 3, ncol = 3) # 1, 2, 3 correlated 
+Sigma[4:5, 4:5] = Sigma[4:5, 4:5] + matrix(.95, nrow = 2, ncol = 2) # 4, 5 correlated
+Sigma[6:8, 6:8] = Sigma[6:8, 6:8] + diag(.95, nrow = 3)
+Sigma[9:10, 9:10] = Sigma[9:10, 9:10] + matrix(.95, nrow = 2, ncol = 2) # 9, 10 correlated
+
+X = MASS::mvrnorm(n, rep(0, p), Sigma)
+beta_true = rep(0, p)
+beta_true[c(1, 4, 6, 7)] = rnorm(4, 0, sqrt(V))
+Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+
+ptm = proc.time()
+susie.fit.glm = susie_logistic(Y, X, L, V, intercept = F)
+ptm.glm = proc.time() - ptm
+ptm = proc.time()
+susie.fit.vb = susie_logistic_VB(Y, X, L, V)
+ptm.vb =proc.time() - ptm
+
+plot(beta_true[beta_true == 0] ~ which(beta_true == 0), xlim = c(0, 11), ylim = range(beta_true) + c(-.1, .1), xlab = &quot;Index&quot;, ylab = &quot;True Value&quot;, main = &quot;True Effects&quot;, pch = 19)
+text(which(beta_true != 0), beta_true[beta_true != 0], labels = which(beta_true != 0))</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-23-1.png:</em></summary>
 <table style="border-collapse:separate; border-spacing:5px;">
 <thead>
 <tr>
@@ -2779,13 +3123,50 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
-<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-21-2.png" target="_blank">6fbb126</a>
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/acba6fcd7a27dc3fadefb8369f0d96276ae4a67c/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-1.png" target="_blank">acba6fc</a>
 </td>
 <td style="text-align:left;">
 Andrew Goldstein
 </td>
 <td style="text-align:left;">
-2019-05-08
+2019-05-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<pre class="r"><code>par(mfrow = c(2, 2))
+for (l in 1:L) {
+  b_l_post = susie.fit.glm$post_mu[, l] * susie.fit.glm$post_alpha[, l]
+  plot(b_l_post[abs(b_l_post) &lt; .01] ~ which(abs(b_l_post) &lt; .01), xlim = c(0, 11), ylim = range(b_l_post) + c(-.1, .1), xlab = &quot;Index&quot;, ylab = &quot;Posterior Mean Value&quot;, main = paste(&quot;GLM SuSiE Posterior Mean No. &quot;, l, sep = &quot;&quot;), pch = 19)
+  text(which(abs(b_l_post) &gt;= .01), b_l_post[abs(b_l_post) &gt;= .01], labels = which(abs(b_l_post) &gt;= .01))
+}</code></pre>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-2.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-23-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/acba6fcd7a27dc3fadefb8369f0d96276ae4a67c/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-2.png" target="_blank">acba6fc</a>
+</td>
+<td style="text-align:left;">
+Andrew Goldstein
+</td>
+<td style="text-align:left;">
+2019-05-06
 </td>
 </tr>
 </tbody>
@@ -2799,8 +3180,8 @@ for (l in 1:L) {
   plot(b_l_post[abs(b_l_post) &lt; .01] ~ which(abs(b_l_post) &lt; .01), xlim = c(0, 11), ylim = range(b_l_post) + c(-.1, .1), xlab = &quot;Index&quot;, ylab = &quot;Posterior Mean Value&quot;, main = paste(&quot;VB SuSiE Posterior Mean No. &quot;, l, sep = &quot;&quot;), pch = 19)
   text(which(abs(b_l_post) &gt;= .01), b_l_post[abs(b_l_post) &gt;= .01], labels = which(abs(b_l_post) &gt;= .01))
 }</code></pre>
-<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-21-3.png" width="672" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of unnamed-chunk-21-3.png:</em></summary>
+<p><img src="figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-3.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of unnamed-chunk-23-3.png:</em></summary>
 <table style="border-collapse:separate; border-spacing:5px;">
 <thead>
 <tr>
@@ -2818,13 +3199,13 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
-<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/6fbb126884cd980a6cecec0d2fa929595ce840eb/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-21-3.png" target="_blank">6fbb126</a>
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/acba6fcd7a27dc3fadefb8369f0d96276ae4a67c/docs/figure/VB_susie_logistic_demonstration.Rmd/unnamed-chunk-23-3.png" target="_blank">acba6fc</a>
 </td>
 <td style="text-align:left;">
 Andrew Goldstein
 </td>
 <td style="text-align:left;">
-2019-05-08
+2019-05-06
 </td>
 </tr>
 </tbody>
@@ -2835,7 +3216,7 @@ Andrew Goldstein
 </div>
 <div id="computation-time-comparison" class="section level3">
 <h3>Computation Time Comparison</h3>
-<p>In the previous example, the GLM algorithm took 0.99 seconds to converge and the VB algorithm took 0.04 seconds to converge (both with the same convergence tolerance). The VB method appears to be much faster. This is not surprising, since the GLM algorithm makes many calls the R’s built-in <code>glm</code> function, which requires us to run an optimization algorithm. For the VB method, since we are essentially finding an analytical solution of an approximation to the same problem, the algorithm runs much faster.</p>
+<p>In the previous example, the GLM algorithm took 1.04 seconds to converge and the VB algorithm took 0.07 seconds to converge (both with the same convergence tolerance). The VB method appears to be much faster. This is not surprising, since the GLM algorithm makes many calls the R’s built-in <code>glm</code> function, which requires us to run an optimization algorithm. For the VB method, since we are essentially finding an analytical solution of an approximation to the same problem, the algorithm runs much faster.</p>
 <p><strong>HOWEVER, I have found that in most cases, their runtimes are virtually the same</strong></p>
 </div>
 </div>
