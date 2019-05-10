@@ -894,6 +894,77 @@ par(mfcol = c(1, 1))
 The differences here are more apparent. First, the GLM coefficient estimates for large true effects are biased towards 0 far more than the VB estimates. The driving factor is likely the PIPs, where the GLM version has a hard time; even for large effects, the PIPs are still only at aroung 0.9 at best. In contrast, the VB method returns PIPs of 1 for large enough effects.
 
 
+Back in the setting where $n = 100$, let's see what happends when we increase the prior variance and aim for larger effect sizes:
+```{r, fig.height = 12}
+set.seed(1138)
+
+n = 100
+p = 10
+L = 1
+V = 25
+beta_true = rep(0, p)
+
+B = 1000
+b_1s = numeric(B)
+susie.fits.easy = list() # GLM logistic SuSiE fits
+susie.fits.easy.VB = list() # VB logistic SuSiE fits
+for (i in 1:B) {
+  beta_true[1] = rnorm(1, 0, sqrt(V))
+  b_1s[i] = beta_true[1]
+  # make independent N(0, 1) covariates
+  X = matrix(rnorm(n * p), nrow = n)
+  # make response
+  Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+  susie.fits.easy[[i]] = susie_logistic(Y, X, L, V, intercept = F) # fit without intercept to compare directly w/ VB method
+  susie.fits.easy.VB[[i]] = susie_logistic_VB(Y, X, L, V)
+}
+
+par(mfcol = c(3, 2))
+plot(sapply(susie.fits.easy, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "GLM SuSiE Coefficient Estimates: n = 100", pch = 19)
+abline(0, 1)
+
+plot(sapply(susie.fits.easy, function(x) x$post_alpha[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "GLM SuSiE PIP Estimates: n = 100", pch = 19, ylim = c(0, 1))
+
+plot(sapply(susie.fits.easy, function(x) x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Mu Estimate", main = "GLM SuSiE Coefficient Estimates: n = 100", pch = 19)
+abline(0, 1)
+
+plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1] * x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Estimate", main = "VB SuSiE Coefficient Estimates: n = 100", pch = 19)
+abline(0, 1)
+
+plot(sapply(susie.fits.easy.VB, function(x) x$post_alpha[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Inclusion Probability", main = "VB SuSiE PIP Estimates: n = 100", pch = 19, ylim = c(0, 1))
+
+plot(sapply(susie.fits.easy.VB, function(x) x$post_mu[1]) ~ b_1s, xlab = "True Effect Value", ylab = "Posterior Mu Estimate", main = "VB SuSiE Coefficient Estimates: n = 100", pch = 19)
+abline(0, 1)
+par(mfcol = c(1, 1))
+```
+
+Wow! Things can really go wrong with the GLM algorithm, it seems. To see what's going on, let's look at the point where the posterior estimate is almost 0, but the true effect is almost -10.
+```{r}
+i_bad = which(sapply(susie.fits.easy, function(x) x$post_alpha[1]) < .45 & b_1s< -9)
+
+set.seed(1138)
+
+for (i in 1:(i_bad-1)) {
+  beta_true[1] = rnorm(1, 0, sqrt(V))
+  b_1s[i] = beta_true[1]
+  # make independent N(0, 1) covariates
+  X = matrix(rnorm(n * p), nrow = n)
+  # make response
+  Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+  #susie.fits.easy[[i]] = susie_logistic(Y, X, L, V, intercept = F) # fit without intercept to compare directly w/ VB method
+  #susie.fits.easy.VB[[i]] = susie_logistic_VB(Y, X, L, V)
+}
+beta_true[1] = rnorm(1, 0, sqrt(V))
+b_1s[i] = beta_true[1]
+# make independent N(0, 1) covariates
+X = matrix(rnorm(n * p), nrow = n)
+# make response
+Y = rbinom(n, 1, exp(X %*% beta_true) / (1 + exp(X %*% beta_true)))
+susie.fits = susie_logistic(Y, X, L, V, intercept = F) # fit without intercept to compare directly w/ VB method
+susie.fits.easy.VB = susie_logistic_VB(Y, X, L, V)
+```
+Upon further inspection, it appears that this is happening due to the data being separable, so the GLM algorithm does not converge and has huge standard errors for the estimates. In this case, I am curious as to what the VB algorithm is doing, since it appears to be working fine.
+
 
 ### Hard Comparison
 In this setting, I set $n = 100$, $p = 10$, and $\sigma_0 = 1$. I generate each observation of $X$ as coming from a multivariate normal distribution with mean $0$ and covariance structured such that all diagonal entries are 1, and for groups of correlated entries we get 0.95. The correlated groups are (1, 2, 3), (4, 5), and (9, 10). I then set the following entries in $\mathbf{b}$ to be non-zero: 1, 4, 6, 7 (two are in correlated groups, two are not, and there is a correlated group on zero effect variables).
