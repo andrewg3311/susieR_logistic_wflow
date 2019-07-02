@@ -1,0 +1,150 @@
+---
+title: "Logistic SuSiE GO Enrichment Example"
+author: "Andrew Goldstein"
+date: "June 8, 2019"
+output:
+  workflowr::wflow_html:
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, error = F, warning = F, message = F, fig.align = 'center', autodep = T)
+```
+
+# Introduction
+In this analysis, we attempt a gene enrichment analysis using the logistic version of SuSiE. Our dataset will have an observation for each gene of interest. We will have a binary response for if the gene was found to be "differentially expressed", and our predictors will be binary vectors indicating gene membership in a given GO term.
+
+The data for this exercies comes from "Visualizing the Structure of RNA-seq Expression Data Using Grade of Membership Models" (Dey, Hsiao, and Stephens, 2017).
+
+```{r}
+source("./code/logistic_susie_VB_functions.R")
+```
+
+I DO NOT include the code for the original iterative logistic GLM SuSiE method, since the run-time is far too long. The VB version nis able to utilize sparse matrix operations, which significantly improves performance in this case.
+
+
+# Getting the Data
+## Gene List
+The full list of GTex genes considered from the paper can be found [here](http://stephenslab.github.io/count-clustering/project/utilities/gene_names_all_gtex.txt). The list of the top 100 genes driving the first cluster identified in the paper can be found [here](https://github.com/stephenslab/count-clustering/blob/master/project/utilities/gene_names_clus_1.txt).
+
+```{r}
+all_genes = read.csv("http://stephenslab.github.io/count-clustering/project/utilities/gene_names_all_gtex.txt", header = F, stringsAsFactors = F)$V1
+
+clus_1_genes = read.csv("https://raw.githubusercontent.com/stephenslab/count-clustering/master/project/utilities/gene_names_clus_1.txt", header = F, stringsAsFactors = F)$V1
+```
+
+## GO Terms
+To get the GO terms that each gene is a part of, we use the R package `biomaRt`. The documentation on what this package actually does is spotty, so it is unclear which GO terms we are getting. We definitely get GO terms from different levels of the GO hierarchy, but there are definitely some missing GO terms.
+```{r, cache = T}
+library(biomaRt)
+library(tidyr)
+ensembl = useMart("ensembl", dataset="hsapiens_gene_ensembl")
+
+all_GO_terms = getBM(attributes = c("ensembl_gene_id", "go_id"), filters = "ensembl_gene_id", values = all_genes, mart = ensembl)
+all_GO_terms$value = 1
+
+GO_membership = spread(all_GO_terms, go_id, value)
+rownames(GO_membership) = GO_membership$ensembl_gene_id
+GO_membership$ensembl_gene_id = NULL
+GO_membership$V1 = NULL
+
+missing_genes = setdiff(all_genes, rownames(GO_membership))
+missing_GO = as.data.frame(matrix(NA, nrow = length(missing_genes), ncol = ncol(GO_membership)))
+rownames(missing_GO) = missing_genes
+colnames(missing_GO) = colnames(GO_membership)
+
+GO_membership = rbind(GO_membership, missing_GO)
+GO_membership = GO_membership[all_genes, ] # sort by order of gene list
+GO_membership[is.na(GO_membership)] = 0
+
+save("GO_membership", file = "./data/GO_Membership.RData")
+```
+
+
+```{r}
+# binary response for if the gene is in the top 100
+clus_1_membership = numeric(length(all_genes))
+names(clus_1_membership) = all_genes
+clus_1_membership[clus_1_genes] = 1
+```
+
+Our data consists of `r nrow(GO_membership)` genes and `r ncol(GO_membership)` GO terms.
+
+# Fitting the Model
+We now fit the model using the VB version of logistic SuSiE. I have found that setting $L > 1$ provides no difference in the PIPs between single effect vectors, so I fix $L = 1$. This is likely due to the fact that the signals are pretty weak.
+
+I fit the model in a three ways:
+i) I set the prior variance of the non-zero effects to be large-ish ($\sigma_0^2 = 1$);
+ii) I set the prior variance of the non-zero effects to be small-ish ($\sigma_0^2 = .001$);
+iii) I estimate the prior variance by maximizing the ELBO with respect to $\sigma_0^2$ in each iteration (I initialize $\sigma_0^2$ at .01.
+```{r}
+library(Matrix)
+# make sparse X and Y
+GO_membership_sp = Matrix::Matrix(as.matrix(GO_membership), sparse = T)
+clus_1_membership_sp = Matrix::Matrix(clus_1_membership, sparse = T)
+
+ptm = proc.time()
+susie.clus.V1 = susie_logistic_VB(clus_1_membership_sp, GO_membership_sp, L = 1, V = 1, prior_weights = NULL, tol = 1e-6, maxit = 1000)
+ptm.V1 = proc.time() - ptm
+
+ptm = proc.time()
+susie.clus.V001 = susie_logistic_VB(clus_1_membership_sp, GO_membership_sp, L = 1, V = .001, prior_weights = NULL, tol = 1e-6, maxit = 1000)
+ptm.V001 = proc.time() - ptm
+```
+
+```{r, cache = T}
+# estimate prior variances, takes a bit more time
+ptm = proc.time()
+susie.clus.Vest = susie_logistic_VB(clus_1_membership_sp, GO_membership_sp, L = 1, V = .01, prior_weights = NULL, tol = 1e-6, maxit = 1000, estimate_prior_variance = TRUE)
+ptm.Vest = proc.time() - ptm
+```
+
+Fitting the model with $\sigma_0^2 = 1$ took `r ptm.V1[3]` seconds, and `r length(susie.clus.V1$ELBOs)` iterations.
+
+Fitting the model with $\sigma_0^2 = .001$ took `r ptm.V001[3]` seconds, and `r length(susie.clus.V001$ELBOs)` iterations.
+
+Fitting the model with estimating $\sigma_0^2$ took `r ptm.Vest[3]` seconds, and `r length(susie.clus.Vest$ELBOs)` iterations.
+
+
+# Results
+
+## $\sigma_0^2 = 1$ Model
+Figure 1 below plots the posterior inclusion probabilities of the fitted model.
+```{r}
+matplot(susie.clus.V1$post_alpha, type = "l", xlab = "Index", ylab = "PIP", main = "Figure 1")
+```
+We can see that most PIPs are very close to 0, except for a relatively higher PIP of `r round(max(susie.clus.V1$post_alpha), 3)` at index `r which.max(susie.clus.V1$post_alpha)`, which corresponds to `r colnames(GO_membership)[which.max(susie.clus.V1$post_alpha)]`. Information on this GO term can be found [here](https://www.ebi.ac.uk/QuickGO/GTerm?id=GO:0006376).
+
+## $\sigma_0^2 = .001$ Model
+Figure 2 below plots the posterior inclusion probabilities of the fitted model.
+```{r}
+matplot(susie.clus.V001$post_alpha, type = "l", xlab = "Index", ylab = "PIP", main = "Figure 2")
+```
+We can see that most PIPs are very close to the supplied prior weight (a uniform distribution over all GO terms, `r round(1/ncol(GO_membership), 3)`). We see that some GO terms have relatively smaller PIPs, and some have larger (although all are still very close to the prior weight). The indices of the top 5 PIPs, in order, are `r order(susie.clus.V001$post_alpha, decreasing = T)[1:5]`, which correspond to `r colnames(GO_membership)[order(susie.clus.V001$post_alpha, decreasing = T)[1:5]]`. Interestingly, the top GO term was also found be Kushal in his table 1. Somewhat more interestingly, the second GO term is a descendant of the top GO term. Information on this GO term can be found [here](https://www.ebi.ac.uk/QuickGO/term/GO:0016607). Note further that two of the other GO terms that Kushal identified, GO:0044428 and GO:0043233, are ancestors of the top GO term.
+
+The correlation between the top 2 GO terms, GO:0005654 and GO:0016607, is `r round(cor(GO_membership[, order(susie.clus.V001$post_alpha, decreasing = T)[1]], GO_membership[, order(susie.clus.V001$post_alpha, decreasing = T)[2]]), 3)` (moderate, but not extreme).
+
+## Estimate $\sigma_0^2$ Model
+Figure 3 below plots the posterior inclusion probabilities of the fitted model.
+```{r}
+matplot(susie.clus.Vest$post_alpha, type = "l", xlab = "Index", ylab = "PIP", main = "Figure 3")
+```
+
+Qualitatively, the results are very similar to when we fixed $\sigma_0^2 = .001$. This is not surprising, since the fitted value for $\sigma_0^2$ was `r susie.clus.Vest$prior_variance`.
+
+
+# Comparison with Other Methods
+In this section, we compare the logistic SuSiE results with other methods.
+
+## glmnet
+An alternate approach could be to use glmnet to fit this model. We can use cross validation to find a good value for $\lambda$. I will stick with an $l_1$ penalty.
+
+```{r, cache = T, warning = T}
+library(glmnet)
+cv.glmnet.fit = cv.glmnet(GO_membership_sp, clus_1_membership_sp, family = "binomial")
+glmnet.fit = glmnet(GO_membership_sp, clus_1_membership_sp, family = "binomial", lambda = cv.glmnet.fit$lambda.1se)
+```
+
+This method had some issues when trying to fit smaller values $\lambda$, so it is possible that other values would have been better than what was estimated. I have used the "lambda.1se" value.
+
+The fitted model has non-zero coefficients at indices `r which(glmnet.fit$beta != 0)`, which correspond to `r colnames(GO_membership)[which(glmnet.fit$beta != 0)]`. The fitted intercept was `r round(glmnet.fit$a0, 3)`, and the fitted non-zero coefficients were `r round(glmnet.fit$beta[which(glmnet.fit$beta != 0)], 3)`. This is qualitatively similar to the SuSiE model where $\sigma_0^2 = 1$.
