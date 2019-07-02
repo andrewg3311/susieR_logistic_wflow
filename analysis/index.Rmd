@@ -11,3 +11,5 @@ This site aims to explore modifying SuSiE using a logistic GLM step in the SER r
 Click [here](susie_logistic_demonstration.html) for an explanation of the logistic GLM version of SuSiE, and a simple demonstration.
 
 Click [here](VB_susie_logistic_demonstration.html) for an explanation of the logistic VB version of SuSiE, and a simple demonstration.
+
+Click [here](gene_enrichment_example.html) for an example of a gene enrichment analysis, using data from Dey, et al (2017).
