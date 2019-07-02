@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Andrew Goldstein" />
+
+<meta name="date" content="2019-06-08" />
+
+<title>Logistic SuSiE GO Enrichment Example</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">susieR_Logistic_wflow</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="susie_logistic_demonstration.html">Logistic GLM SuSiE</a>
+</li>
+<li>
+  <a href="VB_susie_logistic_demonstration.html">Logistic VB SuSiE</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/jdblischak/workflowr">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Logistic SuSiE GO Enrichment Example</h1>
+<h4 class="author">Andrew Goldstein</h4>
+<h4 class="date">June 8, 2019</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-07-02
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>susieR_Logistic_wflow/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.4.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20181203code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20181203)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20181203code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20181203)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongdetected"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>Cache:</strong> detected </a>
+</p>
+</div>
+<div id="strongCachestrongdetected" class="panel-collapse collapse">
+<div class="panel-body">
+The following chunks had caches available:
+<ul>
+<li>
+unnamed-chunk-10
+</li>
+<li>
+unnamed-chunk-3
+</li>
+<li>
+unnamed-chunk-5
+</li>
+<li>
+unnamed-chunk-6
+</li>
+</ul>
+<p>To ensure reproducibility of the results, delete the cache directory <code>gene_enrichment_example_cache</code> and re-run the analysis. To have workflowr automatically delete the cache directory prior to building the file, set <code>delete_cache = TRUE</code> when running <code>wflow_build()</code> or <code>wflow_publish()</code>.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311susieRlogisticwflowtreeac51406f8dbd834cddfab4423e8fd5eec6569fd1targetblankac51406a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/susieR_logistic_wflow/tree/ac51406f8dbd834cddfab4423e8fd5eec6569fd1" target="_blank">ac51406</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311susieRlogisticwflowtreeac51406f8dbd834cddfab4423e8fd5eec6569fd1targetblankac51406a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    analysis/.Rhistory
+    Ignored:    analysis/VB_susie_logistic_demonstration_cache/
+    Ignored:    analysis/gene_enrichment_example_cache/
+    Ignored:    analysis/susie_logistic_demonstration_cache/
+
+Unstaged changes:
+    Modified:   analysis/VB_susie_logistic_demonstration.Rmd
+    Deleted:    code/logistic_susie_functions.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/andrewg3311/susieR_logistic_wflow/blob/ac51406f8dbd834cddfab4423e8fd5eec6569fd1/analysis/gene_enrichment_example.Rmd" target="_blank">ac51406</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2019-07-02
+</td>
+<td>
+Adding GO gene enrichment example
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>In this analysis, we attempt a gene enrichment analysis using the logistic version of SuSiE. Our dataset will have an observation for each gene of interest. We will have a binary response for if the gene was found to be “differentially expressed”, and our predictors will be binary vectors indicating gene membership in a given GO term.</p>
+<p>The data for this exercies comes from “Visualizing the Structure of RNA-seq Expression Data Using Grade of Membership Models” (Dey, Hsiao, and Stephens, 2017).</p>
+<pre class="r"><code>source(&quot;./code/logistic_susie_VB_functions.R&quot;)</code></pre>
+<p>I DO NOT include the code for the original iterative logistic GLM SuSiE method, since the run-time is far too long. The VB version nis able to utilize sparse matrix operations, which significantly improves performance in this case.</p>
+</div>
+<div id="getting-the-data" class="section level1">
+<h1>Getting the Data</h1>
+<div id="gene-list" class="section level2">
+<h2>Gene List</h2>
+<p>The full list of GTex genes considered from the paper can be found <a href="http://stephenslab.github.io/count-clustering/project/utilities/gene_names_all_gtex.txt">here</a>. The list of the top 100 genes driving the first cluster identified in the paper can be found <a href="https://github.com/stephenslab/count-clustering/blob/master/project/utilities/gene_names_clus_1.txt">here</a>.</p>
+<pre class="r"><code>all_genes = read.csv(&quot;http://stephenslab.github.io/count-clustering/project/utilities/gene_names_all_gtex.txt&quot;, header = F, stringsAsFactors = F)$V1
+
+clus_1_genes = read.csv(&quot;https://raw.githubusercontent.com/stephenslab/count-clustering/master/project/utilities/gene_names_clus_1.txt&quot;, header = F, stringsAsFactors = F)$V1</code></pre>
+</div>
+<div id="go-terms" class="section level2">
+<h2>GO Terms</h2>
+<p>To get the GO terms that each gene is a part of, we use the R package <code>biomaRt</code>. The documentation on what this package actually does is spotty, so it is unclear which GO terms we are getting. We definitely get GO terms from different levels of the GO hierarchy, but there are definitely some missing GO terms.</p>
+<pre class="r"><code>library(biomaRt)
+library(tidyr)
+ensembl = useMart(&quot;ensembl&quot;, dataset=&quot;hsapiens_gene_ensembl&quot;)
+
+all_GO_terms = getBM(attributes = c(&quot;ensembl_gene_id&quot;, &quot;go_id&quot;), filters = &quot;ensembl_gene_id&quot;, values = all_genes, mart = ensembl)
+all_GO_terms$value = 1
+
+GO_membership = spread(all_GO_terms, go_id, value)
+rownames(GO_membership) = GO_membership$ensembl_gene_id
+GO_membership$ensembl_gene_id = NULL
+GO_membership$V1 = NULL
+
+missing_genes = setdiff(all_genes, rownames(GO_membership))
+missing_GO = as.data.frame(matrix(NA, nrow = length(missing_genes), ncol = ncol(GO_membership)))
+rownames(missing_GO) = missing_genes
+colnames(missing_GO) = colnames(GO_membership)
+
+GO_membership = rbind(GO_membership, missing_GO)
+GO_membership = GO_membership[all_genes, ] # sort by order of gene list
+GO_membership[is.na(GO_membership)] = 0
+
+save(&quot;GO_membership&quot;, file = &quot;./data/GO_Membership.RData&quot;)</code></pre>
+<pre class="r"><code># binary response for if the gene is in the top 100
+clus_1_membership = numeric(length(all_genes))
+names(clus_1_membership) = all_genes
+clus_1_membership[clus_1_genes] = 1</code></pre>
+<p>Our data consists of 16069 genes and 16008 GO terms.</p>
+</div>
+</div>
+<div id="fitting-the-model" class="section level1">
+<h1>Fitting the Model</h1>
+<p>We now fit the model using the VB version of logistic SuSiE. I have found that setting <span class="math inline">\(L &gt; 1\)</span> provides no difference in the PIPs between single effect vectors, so I fix <span class="math inline">\(L = 1\)</span>. This is likely due to the fact that the signals are pretty weak.</p>
+<p>I fit the model in a three ways: i) I set the prior variance of the non-zero effects to be large-ish (<span class="math inline">\(\sigma_0^2 = 1\)</span>); ii) I set the prior variance of the non-zero effects to be small-ish (<span class="math inline">\(\sigma_0^2 = .001\)</span>); iii) I estimate the prior variance by maximizing the ELBO with respect to <span class="math inline">\(\sigma_0^2\)</span> in each iteration (I initialize <span class="math inline">\(\sigma_0^2\)</span> at .01.</p>
+<pre class="r"><code>library(Matrix)
+# make sparse X and Y
+GO_membership_sp = Matrix::Matrix(as.matrix(GO_membership), sparse = T)
+clus_1_membership_sp = Matrix::Matrix(clus_1_membership, sparse = T)
+
+ptm = proc.time()
+susie.clus.V1 = susie_logistic_VB(clus_1_membership_sp, GO_membership_sp, L = 1, V = 1, prior_weights = NULL, tol = 1e-6, maxit = 1000)
+ptm.V1 = proc.time() - ptm
+
+ptm = proc.time()
+susie.clus.V001 = susie_logistic_VB(clus_1_membership_sp, GO_membership_sp, L = 1, V = .001, prior_weights = NULL, tol = 1e-6, maxit = 1000)
+ptm.V001 = proc.time() - ptm</code></pre>
+<pre class="r"><code># estimate prior variances, takes a bit more time
+ptm = proc.time()
+susie.clus.Vest = susie_logistic_VB(clus_1_membership_sp, GO_membership_sp, L = 1, V = .01, prior_weights = NULL, tol = 1e-6, maxit = 1000, estimate_prior_variance = TRUE)
+ptm.Vest = proc.time() - ptm</code></pre>
+<p>Fitting the model with <span class="math inline">\(\sigma_0^2 = 1\)</span> took 5.12 seconds, and 3 iterations.</p>
+<p>Fitting the model with <span class="math inline">\(\sigma_0^2 = .001\)</span> took 4.54 seconds, and 3 iterations.</p>
+<p>Fitting the model with estimating <span class="math inline">\(\sigma_0^2\)</span> took 931.53 seconds, and 634 iterations.</p>
+</div>
+<div id="results" class="section level1">
+<h1>Results</h1>
+<div id="sigma_02-1-model" class="section level2">
+<h2><span class="math inline">\(\sigma_0^2 = 1\)</span> Model</h2>
+<p>Figure 1 below plots the posterior inclusion probabilities of the fitted model.</p>
+<pre class="r"><code>matplot(susie.clus.V1$post_alpha, type = &quot;l&quot;, xlab = &quot;Index&quot;, ylab = &quot;PIP&quot;, main = &quot;Figure 1&quot;)</code></pre>
+<p><img src="figure/gene_enrichment_example.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /> We can see that most PIPs are very close to 0, except for a relatively higher PIP of 0.004 at index 2511, which corresponds to <a href="GO:0006376" class="uri">GO:0006376</a>. Information on this GO term can be found <a href="https://www.ebi.ac.uk/QuickGO/GTerm?id=GO:0006376">here</a>.</p>
+</div>
+<div id="sigma_02-.001-model" class="section level2">
+<h2><span class="math inline">\(\sigma_0^2 = .001\)</span> Model</h2>
+<p>Figure 2 below plots the posterior inclusion probabilities of the fitted model.</p>
+<pre class="r"><code>matplot(susie.clus.V001$post_alpha, type = &quot;l&quot;, xlab = &quot;Index&quot;, ylab = &quot;PIP&quot;, main = &quot;Figure 2&quot;)</code></pre>
+<p><img src="figure/gene_enrichment_example.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /> We can see that most PIPs are very close to the supplied prior weight (a uniform distribution over all GO terms, 0). We see that some GO terms have relatively smaller PIPs, and some have larger (although all are still very close to the prior weight). The indices of the top 5 PIPs, in order, are 2109, 4753, 1174, 2524, 3359, which correspond to <a href="GO:0005654" class="uri">GO:0005654</a>, <a href="GO:0016607" class="uri">GO:0016607</a>, <a href="GO:0003723" class="uri">GO:0003723</a>, <a href="GO:0006397" class="uri">GO:0006397</a>, <a href="GO:0008380" class="uri">GO:0008380</a>. Interestingly, the top GO term was also found be Kushal in his table 1. Somewhat more interestingly, the second GO term is a descendant of the top GO term. Information on this GO term can be found <a href="https://www.ebi.ac.uk/QuickGO/term/GO:0016607">here</a>. Note further that two of the other GO terms that Kushal identified, <a href="GO:0044428" class="uri">GO:0044428</a> and <a href="GO:0043233" class="uri">GO:0043233</a>, are ancestors of the top GO term.</p>
+<p>The correlation between the top 2 GO terms, <a href="GO:0005654" class="uri">GO:0005654</a> and <a href="GO:0016607" class="uri">GO:0016607</a>, is 0.2 (moderate, but not extreme).</p>
+</div>
+<div id="estimate-sigma_02-model" class="section level2">
+<h2>Estimate <span class="math inline">\(\sigma_0^2\)</span> Model</h2>
+<p>Figure 3 below plots the posterior inclusion probabilities of the fitted model.</p>
+<pre class="r"><code>matplot(susie.clus.Vest$post_alpha, type = &quot;l&quot;, xlab = &quot;Index&quot;, ylab = &quot;PIP&quot;, main = &quot;Figure 3&quot;)</code></pre>
+<p><img src="figure/gene_enrichment_example.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Qualitatively, the results are very similar to when we fixed <span class="math inline">\(\sigma_0^2 = .001\)</span>. This is not surprising, since the fitted value for <span class="math inline">\(\sigma_0^2\)</span> was 0.0014504.</p>
+</div>
+</div>
+<div id="comparison-with-other-methods" class="section level1">
+<h1>Comparison with Other Methods</h1>
+<p>In this section, we compare the logistic SuSiE results with other methods.</p>
+<div id="glmnet" class="section level2">
+<h2>glmnet</h2>
+<p>An alternate approach could be to use glmnet to fit this model. We can use cross validation to find a good value for <span class="math inline">\(\lambda\)</span>. I will stick with an <span class="math inline">\(l_1\)</span> penalty.</p>
+<pre class="r"><code>library(glmnet)
+cv.glmnet.fit = cv.glmnet(GO_membership_sp, clus_1_membership_sp, family = &quot;binomial&quot;)</code></pre>
+<pre><code>Warning: from glmnet Fortran code (error code -4); Convergence for 4th
+lambda value not reached after maxit=100000 iterations; solutions for
+larger lambdas returned</code></pre>
+<pre><code>Warning: from glmnet Fortran code (error code -2); Convergence for 2th
+lambda value not reached after maxit=100000 iterations; solutions for
+larger lambdas returned
+
+Warning: from glmnet Fortran code (error code -2); Convergence for 2th
+lambda value not reached after maxit=100000 iterations; solutions for
+larger lambdas returned</code></pre>
+<pre class="r"><code>glmnet.fit = glmnet(GO_membership_sp, clus_1_membership_sp, family = &quot;binomial&quot;, lambda = cv.glmnet.fit$lambda.1se)</code></pre>
+<p>This method had some issues when trying to fit smaller values <span class="math inline">\(\lambda\)</span>, so it is possible that other values would have been better than what was estimated. I have used the “lambda.1se” value.</p>
+<p>The fitted model has non-zero coefficients at indices 2511, which correspond to <a href="GO:0006376" class="uri">GO:0006376</a>. The fitted intercept was -5.073, and the fitted non-zero coefficients were 0. This is qualitatively similar to the SuSiE model where <span class="math inline">\(\sigma_0^2 = 1\)</span>.</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.1 (2018-07-02)
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+Running under: Windows 10 x64 (build 17763)
+
+Matrix products: default
+
+locale:
+[1] LC_COLLATE=English_United States.1252 
+[2] LC_CTYPE=English_United States.1252   
+[3] LC_MONETARY=English_United States.1252
+[4] LC_NUMERIC=C                          
+[5] LC_TIME=English_United States.1252    
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] Matrix_1.2-17
+
+loaded via a namespace (and not attached):
+ [1] workflowr_1.4.0 Rcpp_1.0.1      lattice_0.20-35 digest_0.6.19  
+ [5] rprojroot_1.3-2 grid_3.5.1      backports_1.1.4 git2r_0.25.2   
+ [9] magrittr_1.5    evaluate_0.14   stringi_1.4.3   fs_1.3.1       
+[13] whisker_0.3-2   rmarkdown_1.13  tools_3.5.1     stringr_1.4.0  
+[17] glue_1.3.1      xfun_0.7        yaml_2.2.0      compiler_3.5.1 
+[21] htmltools_0.3.6 knitr_1.23     </code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
