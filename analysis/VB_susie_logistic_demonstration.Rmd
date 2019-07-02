@@ -146,6 +146,17 @@ $$
 
 It is worth noting that we could conceivably optimize this objective function directly, either by adding the appropriate constraints on $\alpha, \sigma$, or by making a transformation of variables to avoid constraints. We could then derive the gradient of the objective function and optimize this objective with standard optimization algorithms, e.g. BFGS. However, I have not done so.
 
+### Estimating $\sigma_0^2$
+I have also derived a method for estimating $\sigma_0^2$, the prior variance of the non-zero effects. I do this by optimizing the ELBO with respect to $\sigma_0^2$ in each iteration.
+
+By taking the partial derivative of the ELBO with respect to $\sigma_0^2$ and setting it to 0, we find that the ELBO is maximizezd when
+$$
+\sigma_0^2 = \frac{\sum_{l=1}^L \sum_{j=1}^p \alpha_{jl}(\sigma_{jl}^2 + \mu_{jl}^2)}{\sum_{l=1}^L \sum_{j=1}^p \alpha_{jl}} = \frac{\sum_{l=1}^L \sum_{j=1}^p \alpha_{jl}(\sigma_{jl}^2 + \mu_{jl}^2)}{L}
+$$
+
+We can also take the second derivative, and we can confirm that the ELBO is concave at this point.
+
+
 ## Algebraic Comparison between VB and GLM Algorithms
 In that follows, I will refer to the new VB approach as the **VB Algorithm**, and the original iterative GLM approach as the **GLM Algorithm**.
 
@@ -936,3 +947,6 @@ plot(sapply(logistic.fits.easy, function(x) summary(x)$coefficients[2, 4]) ~ b_1
 ```
 In this case, the regular logistic regression does a much better job, since it treats the covariate and predictors as the same.
 
+## Estimating $\sigma_0^2$
+This section tests the estimation of the prior variance.
+*I'LL ADD THIS IN A BIT*
