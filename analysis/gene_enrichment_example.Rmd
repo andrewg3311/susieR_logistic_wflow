@@ -134,17 +134,100 @@ Qualitatively, the results are very similar to when we fixed $\sigma_0^2 = .001$
 
 
 # Comparison with Other Methods
-In this section, we compare the logistic SuSiE results with other methods.
+In this section, we compare the logistic SuSiE results with other methods, both using a binary response and continuous response. Since the logistic SuSiE fits above set $L = 1$, the PIPs should hopefully be somewhat qualitatively compatible between methods.
 
-## glmnet
+## Logistic Methods
+In this section, I try different binary-response methods. In particular, I try glmnet (with a Lasso penalty) and varbvs.
+
+### glmnet (Lasso Penalty)
 An alternate approach could be to use glmnet to fit this model. We can use cross validation to find a good value for $\lambda$. I will stick with an $l_1$ penalty.
 
 ```{r, cache = T, warning = T}
 library(glmnet)
-cv.glmnet.fit = cv.glmnet(GO_membership_sp, clus_1_membership_sp, family = "binomial")
-glmnet.fit = glmnet(GO_membership_sp, clus_1_membership_sp, family = "binomial", lambda = cv.glmnet.fit$lambda.1se)
+cv.glmnet.log.fit = cv.glmnet(GO_membership_sp, clus_1_membership_sp, family = "binomial")
+glmnet.log.fit = glmnet(GO_membership_sp, clus_1_membership_sp, family = "binomial", lambda = cv.glmnet.log.fit$lambda.1se)
 ```
 
 This method had some issues when trying to fit smaller values $\lambda$, so it is possible that other values would have been better than what was estimated. I have used the "lambda.1se" value.
 
-The fitted model has non-zero coefficients at indices `r which(glmnet.fit$beta != 0)`, which correspond to `r colnames(GO_membership)[which(glmnet.fit$beta != 0)]`. The fitted intercept was `r round(glmnet.fit$a0, 3)`, and the fitted non-zero coefficients were `r round(glmnet.fit$beta[which(glmnet.fit$beta != 0)], 3)`. This is qualitatively similar to the SuSiE model where $\sigma_0^2 = 1$.
+The fitted model has non-zero coefficients at indices `r which(glmnet.log.fit$beta != 0)`, which correspond to `r colnames(GO_membership)[which(glmnet.log.fit$beta != 0)]`. The fitted intercept was `r round(glmnet.log.fit$a0, 3)`, and the fitted non-zero coefficients were `r round(glmnet.log.fit$beta[which(glmnet.log.fit$beta != 0)], 3)`. This is qualitatively similar to the SuSiE model where $\sigma_0^2 = 1$.
+
+
+### Logistic varbvs
+Here, I use varbvs to fit the data.
+
+The plot below shows the model-averaged PIPs of the variables.
+```{r, cache = T}
+library(varbvs)
+
+varbvs.log.fit = varbvs(as.matrix(GO_membership), NULL, clus_1_membership, family = "binomial")
+
+plot(varbvs.log.fit)
+```
+The variable with the highest PIP, of `r round(max(varbvs.log.fit$pip), 3)`, is in index `r which.max(varbvs.log.fit$pip)`, which corresponds to `r colnames(GO_membership)[which.max(varbvs.log.fit$pip)]`. This is similar to the logistic SuSiE case where I set the prior variance $\sigma_0^2 = 1$.
+
+## Linear Methods
+In this section, I try different linear methods. In particular, I try Lasso penalty, linear SuSiE, and varbvs.
+
+### Lasso
+In this section, we apply vanilla Lasso.
+```{r}
+library(glmnet)
+cv.glmnet.lin.fit = cv.glmnet(GO_membership_sp, clus_1_membership_sp, family = "gaussian")
+glmnet.lin.fit = glmnet(GO_membership_sp, clus_1_membership_sp, family = "gaussian", lambda = cv.glmnet.lin.fit$lambda.1se)
+```
+
+Here, for the cross-validated optimal fit, all coefficients are set to 0.
+
+### Linear SuSiE
+Here, we attempt the linear version of SuSiE. We try setting $L \in \{1, 10, 50\}$, and try the default prior variance and try estimating the prior variance.
+
+The plots below show the PIPs for these scenarios, where the indices for PIPs larger than 0.9 are shown as text (for the variable index number).
+```{r, cache = T, fig.height = 12}
+library(susieR)
+
+susie.lin.fit.L1 = susie(GO_membership_sp, clus_1_membership, L = 1)
+susie.lin.fit.L1.est = susie(GO_membership_sp, clus_1_membership, L = 1, estimate_prior_variance = T)
+
+susie.lin.fit.L10 = susie(GO_membership_sp, clus_1_membership, L = 10)
+susie.lin.fit.L10.est = susie(GO_membership_sp, clus_1_membership, L = 10, estimate_prior_variance = T)
+
+susie.lin.fit.L50 = susie(GO_membership_sp, clus_1_membership, L = 50)
+susie.lin.fit.L50.est = susie(GO_membership_sp, clus_1_membership, L = 50, estimate_prior_variance = T)
+
+par(mfrow = c(3, 2))
+# L = 1
+plot(susie.lin.fit.L1$pip[susie.lin.fit.L1$pip < .9] ~ which(susie.lin.fit.L1$pip < .9), xlim = c(0, ncol(GO_membership)), ylim = c(0, 1), xlab = "Index", ylab = "PIP", main = "L = 1, default prior variance", pch = 19)
+text(which(susie.lin.fit.L1$pip > .9), susie.lin.fit.L1$pip[susie.lin.fit.L1$pip > .9], labels = which(susie.lin.fit.L1$pip > .9))
+
+plot(susie.lin.fit.L1.est$pip[susie.lin.fit.L1.est$pip < .9] ~ which(susie.lin.fit.L1.est$pip < .9), xlim = c(0, ncol(GO_membership)), ylim = c(0, 1), xlab = "Index", ylab = "PIP", main = "L = 1, estimated prior variance", pch = 19)
+text(which(susie.lin.fit.L1.est$pip > .9), susie.lin.fit.L1.est$pip[susie.lin.fit.L1.est$pip > .9], labels = which(susie.lin.fit.L1.est$pip > .9))
+
+# L = 10
+plot(susie.lin.fit.L10$pip[susie.lin.fit.L10$pip < .9] ~ which(susie.lin.fit.L10$pip < .9), xlim = c(0, ncol(GO_membership)), ylim = c(0, 1), xlab = "Index", ylab = "PIP", main = "L = 10, default prior variance", pch = 19)
+text(which(susie.lin.fit.L10$pip > .9), susie.lin.fit.L10$pip[susie.lin.fit.L10$pip > .9], labels = which(susie.lin.fit.L10$pip > .9))
+
+plot(susie.lin.fit.L10.est$pip[susie.lin.fit.L10.est$pip < .9] ~ which(susie.lin.fit.L10.est$pip < .9), xlim = c(0, ncol(GO_membership)), ylim = c(0, 1), xlab = "Index", ylab = "PIP", main = "L = 10, estimated prior variance", pch = 19)
+text(which(susie.lin.fit.L10.est$pip > .9), susie.lin.fit.L10.est$pip[susie.lin.fit.L10.est$pip > .9], labels = which(susie.lin.fit.L10.est$pip > .9))
+
+# L = 50
+plot(susie.lin.fit.L50$pip[susie.lin.fit.L50$pip < .9] ~ which(susie.lin.fit.L50$pip < .9), xlim = c(0, ncol(GO_membership)), ylim = c(0, 1), xlab = "Index", ylab = "PIP", main = "L = 50, default prior variance", pch = 19)
+text(which(susie.lin.fit.L50$pip > .9), susie.lin.fit.L50$pip[susie.lin.fit.L50$pip > .9], labels = which(susie.lin.fit.L50$pip > .9))
+
+plot(susie.lin.fit.L50.est$pip[susie.lin.fit.L50.est$pip < .9] ~ which(susie.lin.fit.L50.est$pip < .9), xlim = c(0, ncol(GO_membership)), ylim = c(0, 1), xlab = "Index", ylab = "PIP", main = "L = 50, estimated prior variance", pch = 19)
+text(which(susie.lin.fit.L50.est$pip > .9), susie.lin.fit.L50.est$pip[susie.lin.fit.L50.est$pip > .9], labels = which(susie.lin.fit.L50.est$pip > .9))
+
+par(mfrow = c(1, 1))
+```
+The first thing we notice is that when we estimate the prior variance, far fewer variables have large PIPs. Second, you will notice that the larger we make $L$, the more variables have larger PIPs. This could be due to the fact that we're trying to fit binary data with a linear model.
+
+### Linear varbvs
+In this section, we fit the data using linear varbvs.
+```{r, cache = T}
+library(varbvs)
+
+varbvs.lin.fit = varbvs(as.matrix(GO_membership), NULL, clus_1_membership, family = "gaussian")
+
+plot(varbvs.lin.fit)
+```
+Like with the linear version of SuSiE, we see many varialbes with large PIPs. Again, this could be due to the fact that we are trying to fit binary data with a linear model.
