@@ -160,7 +160,7 @@ The plot below shows the model-averaged PIPs of the variables.
 ```{r, cache = T}
 library(varbvs)
 
-varbvs.log.fit = varbvs(as.matrix(GO_membership), NULL, clus_1_membership, family = "binomial")
+varbvs.log.fit = varbvs(as.matrix(GO_membership), NULL, clus_1_membership, family = "binomial", verbose = F)
 
 plot(varbvs.log.fit)
 ```
@@ -226,7 +226,7 @@ In this section, we fit the data using linear varbvs.
 ```{r, cache = T}
 library(varbvs)
 
-varbvs.lin.fit = varbvs(as.matrix(GO_membership), NULL, clus_1_membership, family = "gaussian")
+varbvs.lin.fit = varbvs(as.matrix(GO_membership), NULL, clus_1_membership, family = "gaussian", verbose = F)
 
 plot(varbvs.lin.fit)
 ```
