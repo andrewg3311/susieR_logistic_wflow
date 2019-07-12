@@ -60,7 +60,7 @@ update_b_l = function(X, Y, xi, prior_weights, V, Sigma2, Mu, Alpha, l, Z, delta
   # Y is binary response
   # xi is lower-bound approximation parameters
   # prior_weights is prior probabilities for selecting j (p-vector)
-  # V is prior variance
+  # V is prior variance of current effect (scalar)
   # Sigma2[j, l] is the posterior variance for b_l when entry j is selected, p x L
   # Mu[j, l] is the posterior mean for b_l when entry j is selected, p x L
   # Alpha[j, l] is the posterior probability selecting entry j from b_l, p x L
@@ -128,7 +128,7 @@ update_all = function(X, Y, xi, prior_weights, V, Sigma2, Mu, Alpha, Z, delta, e
   # Y is binary response
   # xi is lower-bound approximation parameters
   # prior_weights is prior probabilities for selecting j (p-vector)
-  # V is prior variance
+  # V is prior variance (scalar if the same for all L effects, or vector of length L if different)
   # Sigma2[j, l] is the posterior variance for b_l when entry j is selected, p x L
   # Mu[j, l] is the posterior mean for b_l when entry j is selected, p x L
   # Alpha[j, l] is the posterior probability selecting entry j from b_l, p x L
@@ -136,14 +136,24 @@ update_all = function(X, Y, xi, prior_weights, V, Sigma2, Mu, Alpha, Z, delta, e
   # delta is current estimate for effects of Z variables
   # estimate_prior_variance is logical for if prior variance, V, should be estimated
   
+  L = ncol(Mu)
+  
   # update delta
   if (any(Z != 0)) { # if covariates and/or intercept
     delta = update_delta(X, Y, xi, Mu, Alpha, Z)
   }
   
+  if (length(V) == L) {
+    prior_vars = V
+  } else if (length(V) == 1) {
+    prior_vars = rep(V, L)
+  } else {
+    stop("Argument 'V' must be of length either 1 or L")
+  }
+  
   # now, iterate over l = 1:L
-  for (l in 1:ncol(Mu)) {
-    res_l = update_b_l(X, Y, xi, prior_weights, V, Sigma2, Mu, Alpha, l, Z, delta)
+  for (l in 1:L) {
+    res_l = update_b_l(X, Y, xi, prior_weights, prior_vars[l], Sigma2, Mu, Alpha, l, Z, delta)
     Sigma2 = res_l$Sigma2
     Mu = res_l$Mu
     Alpha = res_l$Alpha
@@ -152,9 +162,13 @@ update_all = function(X, Y, xi, prior_weights, V, Sigma2, Mu, Alpha, Z, delta, e
   # now, update xi
   xi = update_xi(X, Sigma2, Mu, Alpha, Z, delta)
   
-  if (estimate_prior_variance == TRUE) {
+  if (estimate_prior_variance == TRUE) { # if estimating prior variance
     ASU2 = Alpha * (Sigma2 + Mu^2) # [j, l] = alpha[j, l] * (Sigma2[j, l] + Mu[j, l]^2)
-    V = sum(ASU2) / ncol(Mu) # ncol(Mu) = L = sum_l sum_j alpha_jl
+    if (length(V) == 1) { # if common prior variance for all effects
+      V = sum(ASU2) / ncol(Mu) # ncol(Mu) = L = sum_l sum_j alpha_jl
+    } else { # if different for all effects (already know length is L, checked a few lines before)
+      V = colSums(ASU2)
+    }
   }
 
   
@@ -165,7 +179,7 @@ update_all = function(X, Y, xi, prior_weights, V, Sigma2, Mu, Alpha, Z, delta, e
 # Y is vector of binary response (n x 1, can be sparse)
 # X is matrix of variables (n x p, can be sparse)
 # L is number of non-zero effects, positive integer
-# V is prior variance on non-zero effect size, positive real number
+# V is prior variance on non-zero effect size, scalar or L-vector
 # prior_weights is a vector of prior inclusion probabilities (p x 1)
 # intercept is a logical of if the intercept should be fitted (default to TRUE)
 # Z is a vector of covariates to be controlled for (non-penalized effect estimates, n x q, can be sparse).
@@ -206,7 +220,7 @@ susie_logistic_VB = function(Y, X, L = 10, V = 1, prior_weights = NULL, intercep
   Alpha = matrix(prior_weights, nrow = p, ncol = L)
   #Alpha = t(MCMCpack::rdirichlet(L, prior_weights)) # alternate initialization method
   Mu = matrix(0, nrow = p, ncol = L)
-  Sigma2 = matrix(V, nrow = p, ncol = L)
+  Sigma2 = matrix(V, nrow = p, ncol = L, byrow = T)
   xi = update_xi(X, Sigma2, Mu, Alpha, Z, delta)
   post_info = list(Sigma2 = Sigma2, Mu = Mu, Alpha = Alpha, delta = delta, xi = xi, V = V)
   
@@ -258,6 +272,8 @@ calc_ELBO = function(Y, X, Alpha, Mu, Sigma2, V, prior_weights, Z, delta, xi) {
   L = ncol(Mu)
   P = matrix(prior_weights, nrow = p, ncol = L)
   b_post = rowSums(Alpha * Mu)
+  
+  V = matrix(V, nrow = p, ncol = L, byrow = T) # for proper arithmetic, either if V is a scalar or a vector of length L
   
   expected_log_lik = sum(log(g(xi)) + (Y - .5) * as.numeric(((X %*% b_post) + (Z %*% delta))) - (xi / 2))
   KL_div_vb_prior = Alpha * (log(Alpha) - log(P) + (log(V) / 2) - (log(Sigma2) / 2) - .5 + ((Sigma2 + Mu^2) / (2 * V)))
